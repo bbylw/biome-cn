@@ -646,6 +646,34 @@ html:not(.js) .tabs__list { display: none; }
 .hero__say { align-self: start; margin: 0; }
 .hero__art { align-self: start; }
 .hero__lede { font-size: clamp(1rem, 1.25vw, 1.08rem); color: var(--ink-2); max-width: 40ch; margin: 0 0 24px; }
+/* 数据带：把导语里的关键指标抽成一行四格，用发丝线分隔。
+   等宽大数字 + 灰色小标，与右栏断面图同一套工程图刻度语言。 */
+.hero__stats {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--line); background: var(--surface);
+  margin: 2px 0 22px; max-width: 32rem;
+}
+.stat {
+  display: flex; flex-direction: column; gap: 4px; padding: 12px 14px;
+  border-left: 1px solid var(--line);
+}
+.stat:first-child { border-left: 0; }
+.stat__n {
+  font-family: var(--font-mono); font-size: 1.35rem; font-weight: 500;
+  line-height: 1; letter-spacing: -.02em; color: var(--brand);
+  font-variant-numeric: tabular-nums;
+}
+.stat__l {
+  font-family: var(--font-mono); font-size: .66rem; letter-spacing: .06em;
+  color: var(--muted); text-transform: uppercase;
+}
+@media (max-width: 640px) {
+  .hero__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; }
+  .stat:nth-child(3) { border-left: 0; }
+  .stat { border-top: 1px solid var(--line); }
+  .stat:first-child, .stat:nth-child(2) { border-top: 0; }
+}
+@media (max-width: 380px) { .hero__stats { grid-template-columns: minmax(0, 1fr); } }
 .hero__cta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 
 /* 一键安装：复用终端配色（恒深底），无输出体时去掉标题栏下边框 */
