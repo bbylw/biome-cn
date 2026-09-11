@@ -1,0 +1,61 @@
+---
+title: Assist 辅助操作
+description: 了解 Biome 的 Assist 辅助操作
+anchors: ["use-assist-actions-in-your-ide","enforce-assist-actions-via-cli","dont-enforce-assist","suppression-assist-actions","groups","source"]
+toc: [{"level":2,"text":"在 IDE 中使用 Assist 辅助操作","id":"use-assist-actions-in-your-ide"},{"level":2,"text":"通过 CLI 强制启用 Assist 辅助操作","id":"enforce-assist-actions-via-cli"},{"level":3,"text":"不强制启用 Assist","id":"dont-enforce-assist"},{"level":2,"text":"抑制 Assist 辅助操作","id":"suppression-assist-actions"},{"level":2,"text":"分组","id":"groups"},{"level":3,"text":"Source","id":"source"}]
+---
+import Code from "@/components/mdx/Code.astro";
+import EditorAction from "@/components/mdx/EditorAction.astro";
+import PackageManagerBiomeCommand from "@/components/mdx/PackageManagerBiomeCommand.astro";
+
+Biome Assist 提供了一系列用于提升代码质量与开发者体验的操作。
+
+与 Linter 规则不同，Assist 辅助操作始终会提供代码修复。它们可能会排序属性或字段、简化二元表达式、执行重构等。Assist 辅助操作并不是用来发现缺陷或强加某种编码风格的。目前有 ****10** 个可用的 Assist 辅助操作**。
+
+Assist 的代码修复通常可以安全应用。如果某个 Assist 修复破坏了你的代码，我们会将其视为缺陷，并感谢你的缺陷报告。
+
+Assist 在编辑器和 IDE 中效果最佳。不过，即使通过 CLI 也可以强制启用 Assist 辅助操作。Assist 辅助操作在语义上与 [LSP 代码操作](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeActionKind) 非常接近，并被划分为多个[分组](#groups)。
+
+Biome Assist 默认启用，部分规则包含在推荐规则集中。下面的示例展示如何启用 `useSortedKeys` 操作：
+
+<Code lang="json" title="biome.json" code={"{\n  \"assist\": {\n    \"enabled\": true,\n    \"actions\": {\n      \"source\": {\n        \"useSortedKeys\": \"on\"\n      }\n    }\n  }\n}"} />
+
+## 在 IDE 中使用 Assist 辅助操作
+
+如果你的 IDE 兼容 LSP，就可以配置 Biome 在保存时执行特定操作。每个 Assist 辅助操作都有一个特定的代码，称为“代码操作”。大多数名称遵循相同的模式，但可能存在少数例外（例如 `organizeImports`），因此请查阅每个操作的文档页面以了解对应的代码。
+
+首先，你需要设置编辑器，让它在保存时应用所有修复。具体配置因编辑器而异。该代码操作的名称是 `source.fixAll.biome`：
+
+<EditorAction action="source.fixAll.biome" />
+
+然后，你可以添加各个操作对应的代码。例如，[`useSortedKeys`](/assist/actions/use-sorted-keys) 操作有一个称为 `source.action.useSortedKeys.biome` 的代码操作。如果你使用 VS Code，可以复制这段代码并放入 `editor.codeActionsOnSave` 配置节，Biome 就会在你保存文档时应用它：
+
+<EditorAction includeFixAll action="source.action.useSortedKeys.biome" />
+
+## 通过 CLI 强制启用 Assist 辅助操作
+
+可以通过 `check` 命令用 CLI 强制启用 Assist 辅助操作：
+
+<PackageManagerBiomeCommand command="check" />
+
+不过，`check` 命令用于同时运行多个工具，因此如果只想检查 Assist 辅助操作，你应该运行：
+
+<PackageManagerBiomeCommand command="check --formatter-enabled=false --linter-enabled=false" />
+
+### 不强制启用 Assist
+
+默认情况下，Biome 在运行 `check` 命令时会强制启用 Assist。如果你希望*不强制启用 Assist*，可以将 `--enforce-assist` 这个 CLI 选项设置为 `false`。这样一来，即使某些操作尚未应用，Biome 也不会发出诊断错误：
+
+```shell
+biome check --enforce-assist=false
+```
+
+## 抑制 Assist 辅助操作
+
+你可以参阅[抑制页面](/analyzer/suppressions)。
+
+## 分组
+
+### Source
+
+该分组包含可以在保存文档时安全应用的操作。这些操作通常都是安全的，一般不会改变程序的功能。

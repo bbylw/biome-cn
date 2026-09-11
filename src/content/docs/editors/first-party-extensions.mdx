@@ -1,0 +1,53 @@
+---
+title: 第一方扩展
+description: 了解如何配置第一方扩展
+anchors: ["vs-code","intellij","zed"]
+toc: [{"level":3,"text":"VS Code","id":"vs-code"},{"level":3,"text":"IntelliJ","id":"intellij"},{"level":3,"text":"Zed","id":"zed"}]
+---
+这些扩展由 Biome 团队维护，属于 [Biome 组织](https://github.com/biomejs) 的一部分。
+
+### VS Code
+
+Biome 的编辑器集成可以让你：
+
+* 在保存文件或执行 _格式化_ 命令时格式化文件。
+* 对文件执行 Lint 并应用代码修复
+
+从 Visual Studio Marketplace 安装我们的官方 [Biome VS Code 扩展](https://marketplace.visualstudio.com/items?itemName=biomejs.biome)。
+
+若要将 Biome 设为默认格式化器，请打开一个[受支持的文件](/internals/language-support/)，然后：
+
+1. 打开*命令面板*（视图或 <kbd>Ctrl</kbd>/<kbd title="Cmd">⌘</kbd>+<kbd title="Shift">⇧</kbd>+<kbd>P</kbd>）
+1. 选择 *Format Document With...*
+1. 选择 *Configure Default Formatter*
+1. 选择 *Biome*。
+
+更多内容请见[参考页面](/reference/vscode)。
+
+### IntelliJ
+
+要安装 Biome IntelliJ 插件，请前往[官方插件页面](https://plugins.jetbrains.com/plugin/22761-biome)，或按以下步骤操作：
+
+**从 JetBrains IDE 安装：**
+
+1. 打开 IntelliJ IDEA。
+2. 前往 **Settings/Preferences**。
+3. 在左侧菜单中选择 **Plugins**。
+4. 点击 **Marketplace** 标签页。
+5. 搜索 "Biome" 并点击 **Install**。
+6. 重启 IDE 以激活该插件。
+
+**从磁盘安装：**
+
+1. 从 Versions 标签页下载扩展的 .zip。
+2. 按下 <kbd title="Apple">⌘</kbd> / <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd> + <kbd title="Comma">,</kbd> 打开 IDE 设置，然后选择 Plugins。
+3. 在扩展页面上，点击 The Settings 按钮，然后点击 Install Plugin from Disk…。
+
+### Zed
+
+1. 打开*命令面板*（视图或 <kbd>Ctrl</kbd>/<kbd title="Cmd">⌘</kbd>+<kbd title="Shift">⇧</kbd>+<kbd>P</kbd>）
+2. 选择 **zed: extensions**
+3. 搜索 **Biome**
+4. 选择 **Install**
+
+更多内容请见[参考页面](/reference/zed)。

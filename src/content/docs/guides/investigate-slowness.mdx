@@ -1,0 +1,63 @@
+---
+title: 排查 Biome 的运行缓慢问题
+description: 一份用于排查 Biome 中哪些文件运行缓慢的指南
+anchors: ["first-things-first","tracing"]
+toc: [{"level":2,"text":"先从基础排查","id":"first-things-first"},{"level":2,"text":"跟踪","id":"tracing"}]
+---
+Biome 的目标是快，_非常快_。然而，有时我们确实没能兑现这个承诺。大多数情况下，罪魁祸首是某个特定文件或某个依赖。也有时，你只是忘了忽略一个 `dist/` 或 `build/` 文件夹。无论原因是什么，找出导致缓慢的根源都不轻松，所以本指南旨在帮你把它弄清楚。
+
+## 先从基础排查
+
+在深入之前，我们可以先做几步排查，看看问题是否由以下原因之一造成：
+
+* 如果你有一个存放输出文件的 `dist/` 或 `build/` 文件夹，或其他类似存放压缩（minified）文件的文件夹，请验证一下：在
+  [`files.includes`](https://biomejs.dev/reference/configuration/#interaction-with-the-scanner)
+  中用 `!!` 语法忽略它们，是否会有改善。
+* 你是否启用了[项目规则（project rules）](/linter/domains/#project)？它们会带来性能开销，作为交换可提供更高级的分析。也请参见
+  我们关于该主题的 [FAQ 条目](/linter/#why-is-biome-linter-so-slow-compared-to-v1)。看看禁用它们是否会有改善。
+  * 如果禁用它们确实有帮助，但你还想弄清楚具体是什么这么慢，第一步可以用 `!!` 语法把 `**/node_modules` 加入
+    [`files.includes`](https://biomejs.dev/reference/configuration/#filesincludes)。
+    这样有帮助吗？很好！但你大概不想一直这样配置，因为来自依赖的类型信息将不再可用。你可以进一步
+    调整 `files.includes`，忽略某个特定依赖而不是整个 `node_modules/` 文件夹，不过你可能得继续往下
+    读，才能确定该忽略哪个依赖……
+
+如果以上都没有帮助，或者虽然有帮助但你想进一步深挖，我们可以用跟踪（tracing）来看看是不是某个特定文件在作祟……
+
+## 跟踪
+
+自 2.0 版本起，Biome 增强了跟踪能力来帮助这种排查。具体来说，我们会组合使用以下命令行参数：
+
+* 每个 Biome CLI 命令都可以传入 `--log-file=<path>` 参数，它会把该次调用的所有日志消息写入指定路径，
+  而不是 stdout。
+* `--log-level=<level>` 参数接受 `tracing` 值。使用 `--log-level=tracing` 时，Biome 还会把跟踪
+  span 的耗时信息打印到日志。
+* 使用 `--log-kind=json`，我们可以要求 Biome 以 JSON 格式写日志。
+
+把这三个参数组合起来，我们就能生成一个包含 JSON 消息的日志文件，其中有 Biome 所有相关的耗时信息。例如：
+
+```sh showLineNumbers=false
+biome lint --log-level=tracing --log-kind=json --log-file=tracing.json
+```
+
+这会写出一个 `tracing.json` 文件，但它可能包含_大量_数据。所以我们会用 [`jq`](https://github.com/jqlang/jq) 来筛选这些信息。
+
+例如，如果你想弄清楚在构建模块图时哪些路径耗时最长，可以使用以下命令：
+
+```sh showLineNumbers=false
+cat tracing.json | jq 'select(.span.name == "update_module_graph_internal") | { path: .span.path, time_busy: .["time.busy"], time_idle: .["time.idle"] }' > filtered.json
+```
+
+现在你会得到一个名为 `filtered.json` 的文件，其中包含所有相关的耗时，以及调用过程中用到的路径。
+
+同理，如果你想弄清楚哪些文件分析起来最慢，可以使用以下命令：
+
+```sh showLineNumbers=false
+cat tracing.json | jq '. | select(.span.name == "pull_diagnostics") | { path: .span.path, time_busy: .["time.busy"], time_idle: .["time.idle"] }' > filtered.json
+```
+
+其他可能值得从中提取信息的 span 名称：
+
+* `format_file` 告诉你文件格式化花了多久。
+* `open_file_internal` 告诉你文件打开（包括解析）花了多久。它有一个 `reason` 字段，也能
+  告诉你一个文件_为什么_被打开：由扫描器（scanner）打开、由监视器（watcher）更新，或是客户端请求
+  （通常用于 Lint 或格式化）。_（自 Biome 2.1.2 起）_

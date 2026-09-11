@@ -1,0 +1,133 @@
+---
+title: 与 Prettier 的差异
+description: 深入解释与 Prettier 的差异。
+anchors: ["known-limitations-compared-to-prettier","prettier-doesnt-unquote-some-object-properties-that-are-valid-javascript-identifiers","prettier-has-an-inconsistent-behavior-for-assignment-in-computed-keys","prettier-adds-a-trailing-comma-to-type-parameters-of-arrow-functions-even-when-it-is-not-required","prettier-has-an-inconsistent-behavior-for-parenthesized-non-null-asserted-optional-chains","prettier-formats-invalid-syntaxes","duplicate-modifiers-on-class-properties","assignment-to-an-optional-chain","incorrect-modifier-for-the-type-parameters-of-an-interface","top-level-return"]
+toc: [{"level":2,"text":"与 Prettier 相比的已知限制","id":"known-limitations-compared-to-prettier"},{"level":2,"text":"Prettier 不会对某些属于合法 JavaScript 标识符的对象属性去引号","id":"prettier-doesnt-unquote-some-object-properties-that-are-valid-javascript-identifiers"},{"level":2,"text":"Prettier 对计算键中的赋值存在不一致的行为","id":"prettier-has-an-inconsistent-behavior-for-assignment-in-computed-keys"},{"level":2,"text":"Prettier 会给箭头函数的类型参数加上尾随逗号，即使并不需要","id":"prettier-adds-a-trailing-comma-to-type-parameters-of-arrow-functions-even-when-it-is-not-required"},{"level":2,"text":"Prettier 对带括号的非空断言可选链存在不一致的行为","id":"prettier-has-an-inconsistent-behavior-for-parenthesized-non-null-asserted-optional-chains"},{"level":2,"text":"Prettier 会格式化无效的语法","id":"prettier-formats-invalid-syntaxes"},{"level":3,"text":"类属性上的重复修饰符","id":"duplicate-modifiers-on-class-properties"},{"level":3,"text":"向可选链赋值","id":"assignment-to-an-optional-chain"},{"level":3,"text":"接口类型参数的错误修饰符","id":"incorrect-modifier-for-the-type-parameters-of-an-interface"},{"level":3,"text":"顶层 return","id":"top-level-return"}]
+---
+import Code from "@/components/mdx/Code.astro";
+
+在某些情况下，Biome 有意决定以不同于 Prettier 输出的方式格式化代码。下面解释这些差异。
+
+## 与 Prettier 相比的已知限制
+
+Biome 尚不支持对所有语言和框架进行格式化。要了解当前支持内容的详细情况，请查看我们的 [语言支持页面](https://biomejs.dev/internals/language-support/)。
+
+## Prettier 不会对某些属于合法 JavaScript 标识符的对象属性去引号
+
+Prettier 和 Biome 都会对属于合法 JavaScript 标识符的对象属性和类属性去引号。Prettier [只对合法的 ES5 标识符去引号](https://github.com/prettier/prettier/blob/a5d502513e5de4819a41fd90b9be7247146effc7/src/language-js/utils/index.js#L646)。
+
+在当今 ES2015 已经广泛普及的生态中，这是一项遗留限制。因此，我们决定在此处做出区分：对 ES2015+ 中所有合法的 JavaScript 标识符去引号。
+
+一种可能的变通做法是引入一项配置，用于设置项目所使用的 ECMAScript 版本。这样我们就能根据该版本调整去引号的行为。将 ECMAScript 版本设置为 `ES5` 可以与 Prettier 的行为保持一致。
+
+<Code lang="js" title="example.js" code={"const obj = {\n 'a': true,\n b: true,\n \"𐊧\": true,\n}"} />
+
+差异
+
+<Code lang="js" title="example.js" ins={5} code={"const obj = {\n  a: true,\n  b: true,\n  \"𐊧\": true,\n  𐊧: true,\n};"} />
+
+## Prettier 对计算键中的赋值存在不一致的行为
+
+Prettier 和 Biome 会把某些赋值表达式用括号包起来，尤其是在条件语句中。这让 Biome 能够识别出本应是比较的表达式。
+
+Prettier 的行为不一致：对于对象属性的计算键中的赋值，它会添加括号；而对于类属性的计算键则不会，如下例所示：
+
+输入
+
+<Code lang="js" title="example.js" code={"a = {\n  [x = 0]: 1,\n}\n\nclass C {\n  [x = 0] = 1\n}"} />
+
+差异
+
+<Code lang="js" title="example.js" ins={3} code={"a = {\n  [(x = 0)]: 1,\n  [x = 0]: 1,\n};\n\nclass C {\n  [x = 0] = 1;\n}"} />
+
+[Playground 链接](/playground?enabledLinting=false&code=YQAgAD0AIAB7AAoAIAAgAFsAeAAgAD0AIAAwAF0AOgAgADEALAAKAH0ACgAKAGMAbABhAHMAcwAgAEMAIAB7AAoAIAAgACAAIABbAHgAIAA9ACAAMABdACAAPQAgADEACgB9AAoA)
+
+为了保持一致，我们决定做出区分并省略括号。另一种做法是把对象或类计算键中的任意赋值都用括号包起来。
+
+## Prettier 会给箭头函数的类型参数加上尾随逗号，即使并不需要
+
+在某些特定情况下，箭头函数的类型参数列表需要一个尾随逗号，以便将其与 JSX 元素区分开。当提供了默认类型时，这个尾随逗号就不是必需的。在这里我们选择与 Prettier 不同，因为我们认为这样更符合 Prettier 最初的本意：只在必需时添加尾随逗号。
+
+输入
+
+<Code lang="tsx" title="example.tsx" code={"<T = unknown>() => {};"} />
+
+差异
+
+<Code lang="tsx" title="example.tsx" ins={2} code={"<T = unknown,>() => {};\n<T = unknown>() => {};"} />
+
+## Prettier 对带括号的非空断言可选链存在不一致的行为
+
+在 _TypeScript_ 中，非空断言运算符 `!` 用于断言某个值非空。当它作用于可选链时，无论是否存在括号，该断言都适用于整条链，因此 `(a.?.b)!` 与 `a.?.b!` 是等价的。
+
+根据 Prettier 的标准，前面的代码示例已经格式化良好。Prettier 用于强制要求括号的存在或省略。这看起来是一次错失的规范化代码的机会。
+
+此外，即使括号把非空断言包在里面，Prettier 也不会移除这些括号。相反，它会把运算符移到括号外面。
+
+输入：
+
+<Code lang="ts" title="example.ts" code={"a.?.b!\n(a.?.b)!\n(a.?.b!)"} />
+
+差异
+
+<Code lang="ts" title="example.ts" ins={3} code={"a.?.b!\n(a.?.b)!\na.?.b!\n(a.?.b!)\na.?.b!"} />
+
+## Prettier 会格式化无效的语法
+
+Prettier 基于 Babel 解析 JavaScript 和 TypeScript，非常宽松，会 [忽略多种错误](https://github.com/prettier/prettier/blob/e4a74c05f4502dd4ec70495c3130ff08ab088e05/src/language-js/parse/babel.js#L177-L218)。Biome 的解析器有意比 Prettier 的解析器更严格。它能正确识别以下语法错误：
+
+- 函数不能有重复的修饰符
+- 属性修饰符的顺序无效
+- 函数声明不允许带有函数体
+- 非抽象类不能有抽象属性
+- 不能向可选链赋值
+- 不能在接口的类型参数上设置 `const` 修饰符
+- 顶层 return
+- 等等
+
+在 Prettier 中，这些错误不被视为解析错误，AST 仍然会用相应的节点被「正确地」构建出来。在格式化时，Prettier 把这些节点当作正常节点，并相应地进行格式化。
+
+在 Biome 中，解析错误会产生 `Bogus` 节点，其中可能包含任意数量的合法节点、非法节点，以及/或者原始字符。在格式化时，Biome 实际上把 bogus 节点当作纯文本处理，原样输出到结果代码中而不做任何格式化，因为尝试格式化它们可能出错并导致语义变化。
+
+对于类属性，Prettier 当前的解析策略同样使用布尔字段表示修饰符，这意味着每种修饰符最多只能存在一个（可访问性修饰符以单个字符串形式存储）。打印时，Prettier 查看布尔值列表并决定再次打印出哪些修饰符。Biome 则保留一个修饰符列表，这意味着重复项会被保留下来并可被分析（这也是关于重复修饰符和顺序的解析错误信息的由来）。在打印 bogus 节点时，该列表会保持原样，输出未格式化的文本会使那些修饰符继续存在。
+
+Biome 有几种方式可以处理这一点。一种可能是尝试在格式化时解释 Bogus 节点，并从中构建出合法的节点。如果能构建出合法节点，就照常格式化该节点；否则，就像当前那样原样打印 bogus 文本。然而，这样很杂乱，并会把一种没有意义的解析逻辑引入格式化器。
+
+另一种选择是在解析器中引入某种「语法上合法的 bogus 节点」，它接受这类纯语义错误（重复修饰符、非抽象类中的抽象属性）。它仍会像平常一样构建节点（实质上与 Prettier 的行为一致），但把这些节点存储进一种新的 bogus 节点中，并连同诊断信息一起保存。在格式化时，这些特定的 bogus 节点会尝试格式化其内部节点，一旦出现错误就回退（现有的 `format_or_verbatim` 工具已经能做到这一点）。这样能让解析逻辑和格式化逻辑彼此保持分离，但会给解析器引入更多复杂度，使无效状态被视为半合法。
+
+### 类属性上的重复修饰符
+
+输入
+
+<Code lang="ts" title="example.ts" code={"// 多个可访问性修饰符\nclass Foo {\n  private public a  = 1;\n}\n\n// 带函数体的 declare 函数声明\ndeclare function foo ( ) {  }\n\n// 对 abstract 的非法使用\nclass Bar {\n  abstract  foo  ;\n}\n\n// 重复的 Readonly\nclass Read {\n  readonly readonly   x: number;\n}"} />
+
+差异
+
+<Code lang="ts" title="example.ts" ins={4} code={"// 多个可访问性修饰符\nclass Foo {\n  private public a  = 1;\n  private a = 1;\n}\n\n// 带函数体的 declare 函数声明\ndeclare function foo ( ) {  }\ndeclare function foo() {};\n\n// 对 abstract 的非法使用\nclass Bar {\n  abstract  foo  ;\n  abstract foo;\n}\n\n// 重复的 Readonly\nclass Read {\n  readonly readonly   x: number;\n  readonly x: number;\n}"} />
+
+### 向可选链赋值
+
+输入
+
+<Code lang="js" title="example.js" code={"(a?.b) = c;"} />
+
+差异
+
+<Code lang="js" title="example.js" ins={2} code={"a?.b = c;\n(a?.b) = c;"} />
+
+### 接口类型参数的错误修饰符
+
+输入
+
+<Code lang="ts" title="example.js" code={"interface L<in const T> {}"} />
+
+差异
+
+<Code lang="ts" title="example.js" ins={2} code={"interface L<const in T> {}\ninterface L<in const T> {}"} />
+
+### 顶层 return
+
+<Code lang="js" title="example.js" code={"return someVeryLongStringA && someVeryLongStringB && someVeryLongStringC && someVeryLongStringD"} />
+
+<Code lang="js" title="example.js" ins={1} code={"return someVeryLongStringA && someVeryLongStringB && someVeryLongStringC && someVeryLongStringD\nreturn (\n  someVeryLongStringA &&\n  someVeryLongStringB &&\n  someVeryLongStringC &&\n  someVeryLongStringD\n);"} />
+

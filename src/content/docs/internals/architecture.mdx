@@ -1,0 +1,200 @@
+---
+title: 架构
+description: Biome 底层的工作方式。
+anchors: ["scanner","scanner-targeting","configuring-the-scanner","parser-and-cst","resilient-and-recoverable-parser","formatter","linter","daemon"]
+toc: [{"level":2,"text":"扫描器","id":"scanner"},{"level":3,"text":"扫描器定向","id":"scanner-targeting"},{"level":3,"text":"配置扫描器","id":"configuring-the-scanner"},{"level":2,"text":"解析器与具体语法树（CST）","id":"parser-and-cst"},{"level":2,"text":"格式化器","id":"formatter"},{"level":2,"text":"Linter","id":"linter"},{"level":2,"text":"守护进程","id":"daemon"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+
+本文介绍 Biome 的部分内部实现，以及它们在项目中的用途。
+
+## 扫描器
+
+Biome 内置一个扫描器，负责遍历文件系统，提取项目的重要元数据。具体来说，扫描器有以下三种用途：
+
+- 在 monorepo 中发现嵌套的 `biome.json`/`biome.jsonc` 文件。
+- 当启用了 [`vcs.useIgnoreFile`](/reference/configuration/#vcsuseignorefile) 配置时，发现嵌套的 `.gitignore` 文件。
+- 当启用了[项目规则域（domain）](/linter/domains/#project)中的任意规则时，为项目的 `package.json` 清单文件和源文件建立索引。
+
+### 扫描器定向
+
+如果没有启用项目规则，扫描器会自动只针对与当前会话相关的目录。
+
+这意味着，如果你有一个大型 monorepo，并在 `packages/foo/` 目录内运行 `biome check`，该目录就会被「定向」。也就是说，以下目录会被扫描，用于查找嵌套配置文件和/或嵌套忽略文件：
+
+- 仓库的根目录。
+- `packages/` 目录。
+- `packages/foo/` 目录。
+- `packages/foo/` 下的所有子目录，但 `node_modules/` 或你的配置排除的目录除外（见
+  [下文](#configuring-the-scanner)）。
+
+与 `packages/` 或 `packages/foo/` 平级相邻的其他目录会被自动跳过。
+
+同理，如果你在仓库根目录运行 `biome format packages/bar/src/index.ts`，扫描器会定向 `packages/bar/src/` 目录。
+
+如果启用了项目规则，上述优化不再适用。
+
+### 配置扫描器
+
+可以通过
+[`files.includes`](/reference/configuration/#interactionwiththescanner) 配置扫描器。
+
+## 解析器与具体语法树（CST）
+
+解析器的架构基于 [rowan] 的内部复刻，这是一个实现了 [Green and Red tree] 模式的库。
+
+具体语法树（CST）是一种与抽象语法树（AST）非常相似的数据结构，它记录程序的全部信息，包括 trivia。
+
+**Trivia** 指所有对程序运行并非必需、但仍需保留的信息：
+- 空格
+- 制表符
+- 注释
+
+每条 trivia 都依附于一个节点。一个节点可以有前导 trivia（leading trivia）和尾部 trivia（trailing trivia）。如果从左往右阅读代码，前导 trivia 出现在关键字之前，尾部 trivia 出现在关键字之后。
+
+前导 trivia 与尾部 trivia 的划分规则如下：
+- 直到该 token/关键字之前的所有 trivia（包含换行符）构成**前导 trivia**；
+- 到下一个换行符之前（不含该换行符）的所有内容构成**尾部 trivia**；
+
+在下面的 JavaScript 代码片段中，`// comment 1` 是 token `;` 的尾部 trivia，`// comment 2` 是关键字 `const` 的前导 trivia。下面是 Biome 所表示的 CST 的简化版本：
+
+```js
+const a = "foo"; // comment 1
+// comment 2
+const b = "bar";
+```
+
+```
+0: JS_MODULE@0..55
+    ...
+      1: SEMICOLON@15..27 ";" [] [Whitespace(" "), Comments("// comment 1")]
+    1: JS_VARIABLE_STATEMENT@27..55
+        ...
+        1: CONST_KW@27..45 "const" [Newline("\n"), Comments("// comment 2"), Newline("\n")] [Whitespace(" ")]
+  3: EOF@55..55 "" [] []
+```
+
+出于设计考虑，CST 永远不被直接访问；开发者可以通过 Red tree 读取其中的信息，使用的 API 由语言语法自动生成。
+
+#### 容错且可恢复的解析器
+
+要构建 CST，解析器必须对错误有韧性并且可恢复：
+- 有韧性：解析器在遇到属于该语言的语法错误后能够继续解析；
+- 可恢复：解析器能够**理解**错误发生的位置，并通过创建**正确的**信息来继续解析；
+
+解析器的恢复能力并不是一门精确的科学，也没有一成不变的规则。也就是说，解析器能否按预期自我恢复，取决于它当时正在解析什么，以及错误发生在哪里。
+
+解析器还会使用 Bogus（伪造）节点，防止下游消费者读到不正确的语法。这些节点用于包装因语法错误而损坏的代码。
+
+在下面的例子中，`while` 缺少了圆括号，但解析器仍能较好地恢复，用一个还算合理的 CST 表示这段代码。圆括号和循环条件被标记为缺失，代码块则被正确解析：
+
+```js
+while {}
+```
+
+```
+JsModule {
+  interpreter_token: missing (optional),
+  directives: JsDirectiveList [],
+  items: JsModuleItemList [
+    JsWhileStatement {
+      while_token: WHILE_KW@0..6 "while" [] [Whitespace(" ")],
+      l_paren_token: missing (required),
+      test: missing (required),
+      r_paren_token: missing (required),
+      body: JsBlockStatement {
+        l_curly_token: L_CURLY@6..7 "{" [] [],
+        statements: JsStatementList [],
+        r_curly_token: R_CURLY@7..8 "}" [] [],
+      },
+    },
+  ],
+  eof_token: EOF@8..8 "" [] [],
+}
+```
+
+这是解析阶段产生的错误：
+
+```
+main.tsx:1:7 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ expected `(` but instead found `{`
+
+  > 1 │ while {}
+      │       ^
+
+  ℹ Remove {
+```
+
+下面这段代码就没这么幸运了。在恢复阶段，解析器无法正确理解这段语法，只能依赖 Bogus 节点把某些语法标记为错误。注意 `JsBogusStatement`：
+
+```js
+function}
+```
+
+```
+JsModule {
+  interpreter_token: missing (optional),
+  directives: JsDirectiveList [],
+  items: JsModuleItemList [
+    TsDeclareFunctionDeclaration {
+      async_token: missing (optional),
+      function_token: FUNCTION_KW@0..8 "function" [] [],
+      id: missing (required),
+      type_parameters: missing (optional),
+      parameters: missing (required),
+      return_type_annotation: missing (optional),
+      semicolon_token: missing (optional),
+    },
+    JsBogusStatement {
+      items: [
+        R_CURLY@8..9 "}" [] [],
+      ],
+    },
+  ],
+  eof_token: EOF@9..9 "" [] [],
+}
+```
+
+这是解析阶段得到的错误：
+
+```
+main.tsx:1:9 parse ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ expected a name for the function in a function declaration, but found none
+
+  > 1 │ function}
+      │         ^
+```
+
+## 格式化器
+
+<Aside type="note">
+
+仍在完善中
+
+</Aside>
+
+## Linter
+
+<Aside type="note">
+
+仍在完善中
+
+</Aside>
+## 守护进程
+
+<Aside type="note">
+
+仍在完善中
+
+</Aside>
+
+Biome 使用服务器-客户端架构来运行任务。
+
+[daemon]（守护进程）是一种长期运行的服务器，
+由 Biome 在后台启动，用于处理来自编辑器和命令行接口（CLI）的请求。
+
+[rowan]: https://github.com/rust-analyzer/rowan
+[Green and Red tree]: https://learn.microsoft.com/en-us/archive/blogs/ericlippert/persistence-facades-and-roslyns-red-green-trees
+[daemon]: https://en.wikipedia.org/wiki/Daemon_(computing)

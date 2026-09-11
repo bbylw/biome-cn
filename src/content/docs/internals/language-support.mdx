@@ -1,0 +1,108 @@
+---
+title: 语言支持
+description: Biome 支持的语言与特性。
+anchors: ["javascript-support","embedded-languages-support-experimental","typescript-support","jsonc-support","html-super-languages-support","linting-html-ish-languages","formatting-with-different-settings"]
+toc: [{"level":2,"text":"JavaScript 支持","id":"javascript-support"},{"level":3,"text":"内嵌语言支持（实验性）","id":"embedded-languages-support-experimental"},{"level":2,"text":"TypeScript 支持","id":"typescript-support"},{"level":2,"text":"JSONC 支持","id":"jsonc-support"},{"level":2,"text":"HTML 超级语言支持","id":"html-super-languages-support"},{"level":3,"text":"Lint 类 HTML 语言","id":"linting-html-ish-languages"},{"level":2,"text":"使用不同的设置进行格式化","id":"formatting-with-different-settings"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import Code from "@/components/mdx/Code.astro";
+
+图例：
+- ✅：支持
+- 🚫：未排期
+- ⌛️：进行中
+- 🟡：实验性
+
+| 语言                                                     | 解析                                                 | 格式化                                               | Lint                                                    | 插件支持                                                |
+|----------------------------------------------------------|------------------------------------------------------|------------------------------------------------------|---------------------------------------------------------|---------------------------------------------------------|
+| [JavaScript](#javascript-support)                        | <span aria-label="Supported" role="img">✅</span>     | <span aria-label="Supported" role="img">✅</span>     | <span aria-label="Supported" role="img">✅</span>        | <span aria-label="Supported" role="img">✅</span>        |
+| [TypeScript](#typescript-support)                        | <span aria-label="Supported" role="img">✅</span>     | <span aria-label="Supported" role="img">✅</span>     | <span aria-label="Supported" role="img">✅</span>        | <span aria-label="Supported" role="img">✅</span>        |
+| JSX                                                      | <span aria-label="Supported" role="img">✅</span>     | <span aria-label="Supported" role="img">✅</span>     | <span aria-label="Supported" role="img">✅</span>        | <span aria-label="Supported" role="img">✅</span>        |
+| TSX                                                      | <span aria-label="Supported" role="img">✅</span>     | <span aria-label="Supported" role="img">✅</span>     | <span aria-label="Supported" role="img">✅</span>        | <span aria-label="Supported" role="img">✅</span>        |
+| JSON                                                     | <span aria-label="Supported" role="img">✅</span>     | <span aria-label="Supported" role="img">✅</span>     | <span aria-label="Supported" role="img">✅</span>        | <span aria-label="Supported" role="img">✅</span>        |
+| JSONC                                                    | <span aria-label="Supported" role="img">✅</span>     | <span aria-label="Supported" role="img">✅</span>     | <span aria-label="Supported" role="img">✅</span>        | <span aria-label="Supported" role="img">✅</span>       |
+| HTML*                                                     | <span aria-label="Supported" role="img">✅</span>    | <span aria-label="Experimental" role="img">🟡</span>  | <span aria-label="Supported" role="img">✅</span>        | <span aria-label="Not in Progress" role="img">🚫</span>  |
+| SVG                                                      | <span aria-label="Supported" role="img">✅</span>     | <span aria-label="Experimental" role="img">🟡</span>  | <span aria-label="Supported" role="img">✅</span>        | <span aria-label="Not in Progress" role="img">🚫</span>  |
+| [Vue](#html-super-languages-support)                     | <span aria-label="Experimental" role="img">🟡</span> | <span aria-label="Experimental" role="img">🟡</span>    | <span aria-label="Experimental" role="img">🟡</span>    | <span aria-label="Not in Progress" role="img">🚫</span>    |
+| [Svelte](#html-super-languages-support)                  | <span aria-label="Experimental" role="img">🟡</span> | <span aria-label="Experimental" role="img">🟡</span>    | <span aria-label="Experimental" role="img">🟡</span>    | <span aria-label="Not in Progress" role="img">🚫</span>    |
+| [Astro](#html-super-languages-support)                   | <span aria-label="Experimental" role="img">🟡</span> | <span aria-label="Experimental" role="img">🟡</span>    | <span aria-label="Experimental" role="img">🟡</span>    | <span aria-label="Not in Progress" role="img">🚫</span>    |
+| CSS                                                      | <span aria-label="Supported" role="img">✅️</span>    | <span aria-label="Supported" role="img">✅️</span>       | <span aria-label="Supported" role="img">✅️</span>       | <span aria-label="Supported" role="img">✅</span>        |
+| SCSS                                                     | <span aria-label="In Progress" role="img">⌛️</span>  | <span aria-label="In Progress" role="img">⌛️</span>  | <span aria-label="Not in Progress" role="img">🚫</span> | <span aria-label="Not in Progress" role="img">🚫</span> |
+| [YAML](https://github.com/biomejs/biome/issues/2365)     | <span aria-label="In Progress" role="img">⌛️</span>  | <span aria-label="In Progress" role="img">⌛️</span>  | <span aria-label="Not in Progress" role="img">🚫</span> | <span aria-label="Not in Progress" role="img">🚫</span> |
+| GraphQL                                                  | <span aria-label="Supported" role="img">✅️</span>    | <span aria-label="Supported" role="img">✅️</span>    | <span aria-label="Supported" role="img">✅️</span>       | <span aria-label="Not in Progress" role="img">🚫</span> |
+| [Markdown](https://github.com/biomejs/biome/issues/3718) | <span aria-label="In Progress" role="img">⌛️</span>  | <span aria-label="In Progress" role="img">⌛️</span>  | <span aria-label="Not in Progress" role="img">🚫</span> | <span aria-label="Not in Progress" role="img">🚫</span> |
+| GritQL                                                   | <span aria-label="Supported" role="img">✅️</span>    | <span aria-label="Supported" role="img">✅️</span>    | <span aria-label="Not in Progress" role="img">🚫</span> | <span aria-label="Not in Progress" role="img">🚫</span> |
+
+*\* 目前需要[显式启用](/reference/configuration/#html)*
+
+## JavaScript 支持
+
+Biome 支持该语言的 ES2024 版本。
+
+Biome 只支持已定稿的官方语法。当一项提案进入
+[阶段 3](https://github.com/tc39/proposals#stage-3) 后，团队才会开始开发对应的新语法。
+
+### 内嵌语言支持（实验性）
+
+Biome 支持嵌入在 JavaScript 模板字符串中的以下语言：
+
+- CSS（`css` 或 `styled` 标签）
+- GraphQL（`gql` 或 `graphql` 标签）
+
+该特性仍是实验性的，默认禁用。要启用此特性，请设置 `javascript.experimentalEmbeddedSnippetsEnabled` 选项。
+
+<Code lang="json" code={"{\n  \"javascript\": {\n    \"experimentalEmbeddedSnippetsEnabled\": true\n  }\n}"} />
+
+## TypeScript 支持
+
+Biome 支持 TypeScript 5.9 版本。
+
+## JSONC 支持
+
+JSONC 是 “JSON with Comments” 的缩写。由于允许用户在配置文件中添加注释，这一格式被 [VS Code](https://code.visualstudio.com/docs/languages/json#_json-with-comments)、[TypeScript](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html)、[Babel](https://babeljs.io/docs/config-files) 等各种工具广泛使用。但 JSONC 并不是一个定义严格的标准，不同工具对 JSONC 文件中尾逗号的处理方式存在差异。为了适配这一点，Biome 没有为 JSONC 提供单独的语言配置。相反，我们通过 `json.parser.allowComments`、`json.parser.allowTrailingCommas` 和 `json.formatter.trailingCommas` 等选项增强了 JSON 的解析与格式化能力。这种方式让 Biome 能够有效支持各种 JSON 文件变体。
+
+对于扩展名为 `.jsonc` 的文件，或根据[语言标识符](https://code.visualstudio.com/docs/languages/identifiers)被识别为 `jsonc` 的文件，Biome 会自动应用以下默认设置来解析和格式化它们：
+
+- `json.parser.allowComments`：`true`
+- `json.parser.allowTrailingCommas`：`true`
+- `json.formatter.trailingCommas`：`none`
+
+请注意，一些知名文件（如 `tsconfig.json` 和 `.babelrc`）没有使用 `.jsonc` 扩展名，但同样允许注释和尾逗号；而另一些文件（如 `.eslintrc.json`）只允许注释。Biome 能够识别这些文件，并相应调整 `json.parser.allowTrailingCommas` 选项，确保它们被正确解析。
+
+[本节](/guides/configure-biome#well-known-files)给出了 Biome 能识别的全部知名文件的完整列表。
+
+## HTML 超级语言支持
+
+自 `v2.3.0` 起，Biome 开箱即用地支持 Vue、Svelte 和 Astro 文件。这意味着 Biome 能够格式化并 Lint 这些文件中的 HTML、CSS 和 JavaScript 部分。
+
+不过，这种**支持必须被视为实验性的**，仍会不断变化和改进。在 `v2.3.0` 中，我们落地了支撑该功能的架构，但一些格式化和 Lint 规则仍需调整。
+
+自 `v2.4.0` 起，Biome 对语言特有语法的支持好了很多，例如 Svelte 的控制流语法（如 `{#if}{/if}`）。这对绝大多数 Svelte 5 项目来说应该已经够用，但更新的特性、罕见语法或边缘场景可能尚未覆盖。
+
+跨内嵌语言生效的 Lint 规则已有支持（并且自 `v2.5.0` 起效果更好一些），但由于相关工作仍在进行，它们可能会报出一些误报。
+
+由于完整支持仍是实验性的，必须显式启用。格式化器也仍是实验性的，因此同样必须显式启用。
+
+<Code lang="json" code={"{\n  \"html\": {\n    \"experimentalFullSupportEnabled\": true,\n    \"formatter\": {\n      \"enabled\": true\n    }\n  }\n}"} />
+
+### Lint 类 HTML 语言
+
+如果你要 **Lint** `.svelte`、`.astro` 或 `.vue` 文件，且 `html.experimentalFullSupportEnabled` 为 `false`，建议关闭以下几条额外的规则，以避免我们的部分支持造成误报的 Lint 错误。为此请使用 `overrides` 选项：
+
+<Code lang="json" code={"{\n  \"overrides\": [\n    {\n      \"includes\": [\"**/*.svelte\", \"**/*.astro\", \"**/*.vue\"],\n      \"linter\": {\n        \"rules\": {\n          \"style\": {\n            \"useConst\": \"off\",\n            \"useImportType\": \"off\"\n          },\n          \"correctness\": {\n            \"noUnusedVariables\": \"off\",\n            \"noUnusedImports\": \"off\"\n          }\n        }\n      }\n    }\n  ]\n}"} />
+
+## 使用不同的设置进行格式化
+
+使用 Biome，你可以分别控制各种语言的格式化。既然 Biome 已能在同一个文件中处理多种语言，根据你的配置，出现不一致情况的概率也会上升。
+
+例如，在格式化一个同时包含 JavaScript 和 CSS 代码的类 HTML 文件时，你的文件有可能变成制表符与空格混用的状态，就像下面这个例子（我们假设已启用完整支持）：
+
+<Code lang="json" code={"{\n  \"javascript\": {\n    \"format\": {\n      \"indentStyle\": \"tab\"\n    }\n  },\n  \"css\": {\n    \"format\": {\n      \"indentStyle\": \"space\",\n      \"indentWidth\": 4\n    }\n  }\n}"} />
+
+我们创建了一个 [GitHub discussion](https://github.com/biomejs/biome/discussions/7754) 来讨论这个问题，欢迎加入讨论并告诉我们你的想法。
+
+<Aside type="note">
+
+本节最后这部分内容可能会过时，因此建议使用 [Playground](https://biomejs.dev/playground)，确认你需要的特性是否已经实现。
+
+</Aside>

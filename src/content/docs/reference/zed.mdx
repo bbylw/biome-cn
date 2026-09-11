@@ -1,0 +1,94 @@
+---
+title: Zed 扩展
+description: 关于 Biome 的 Zed 扩展的说明
+anchors: ["installation","configuration","config_path","require_config_file","inline_config","goto_definition","formatting","enable-biome-only-when-biomejson-is-present","run-code-actions-on-format","project-based-configuration","disable-biome-for-a-particular-project","global-settings"]
+toc: [{"level":2,"text":"安装","id":"installation"},{"level":2,"text":"配置","id":"configuration"},{"level":3,"text":"configpath","id":"config_path"},{"level":3,"text":"requireconfigfile","id":"require_config_file"},{"level":3,"text":"inlineconfig","id":"inline_config"},{"level":3,"text":"gotodefinition","id":"goto_definition"},{"level":2,"text":"格式化","id":"formatting"},{"level":3,"text":"仅在存在 biome.json 时启用 biome","id":"enable-biome-only-when-biomejson-is-present"},{"level":3,"text":"格式化时运行代码操作：","id":"run-code-actions-on-format"},{"level":3,"text":"基于项目的配置","id":"project-based-configuration"},{"level":3,"text":"全局设置","id":"global-settings"}]
+---
+import Code from "@/components/mdx/Code.astro";
+
+## 安装
+
+需要 Zed >= **v0.131.0**。
+
+该扩展可在 Zed 编辑器内的扩展视图中找到。打开 `zed: extensions` 并搜索 _Biome_。它在底层运行 Biome 二进制文件，并按以下顺序检查 Biome 的安装：
+
+1. 在 Zed 配置中指定的路径，例如这样：
+
+<Code lang="json" code={"  {\n    \"lsp\": {\n      \"biome\": {\n       \"binary\": {\n          \"path\": \"/var/biome-2.2.3/bin/biome\",\n          \"arguments\": [\n            \"lsp-proxy\"\n         ]\n        }\n      }\n    }\n  }"} />
+
+2. 通过 `package.json` 在本地安装的 Biome
+3. 安装在 `PATH` 中的系统级 Biome
+
+如果以上都不存在，它会请求 Zed 使用 `npm` 安装 Biome 并加以使用。
+
+## 配置
+
+### `config_path`
+
+默认情况下，配置文件必须位于**工作区根目录**。
+
+否则，可以通过 lsp 设置进行配置：
+
+<Code lang="json5" title=".zed/settings.json" code={"{\n  \"lsp\": {\n    \"biome\": {\n      \"settings\": {\n        \"config_path\": \"<path>/biome.json\"\n      }\n    }\n  }\n}"} />
+
+### `require_config_file`
+
+仅当项目包含配置文件时，它才启用 Biome：
+
+> 默认值：`false`
+
+<Code lang="json5" title=".zed/settings.json" code={"{\n  \"lsp\": {\n    \"biome\": {\n      \"settings\": {\n        \"require_config_file\": true\n      }\n    }\n  }\n}"} />
+
+### `inline_config`
+
+Biome 配置的内联版本。此配置中的选项会覆盖从磁盘读取的任何 `biome.json` 文件中的选项（或默认值）。
+
+例如，假设你的项目以 `error` 严重性等级启用了 `noConsole` 规则：
+
+<Code lang="json" title="biome.json" code={"{\n  \"linter\": {\n    \"rules\": {\n      \"suspicious\": {\n        \"noConsole\": \"error\"\n      }\n    }\n  }\n}"} />
+
+但在本地开发期间，你想停用这条规则，因为它很有用，而你又不想看到红色波浪线。在 `inline_config` 中，你可以写成类似下面的形式：
+
+<Code lang="json" title=".zed/settings.json" code={"{\n  \"lsp\": {\n    \"biome\": {\n      \"settings\": {\n        \"inline_config\": {\n          \"linter\": {\n            \"rules\": {\n              \"suspicious\": {\n                \"noConsole\": \"off\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"} />
+
+### `goto_definition`
+
+在编辑器中启用[转到定义](/editors/introduction#go_to_definition)功能。
+
+> 默认值：`false`
+
+<Code lang="json" title=".zed/settings.json" code={"{\n  \"lsp\": {\n    \"biome\": {\n      \"settings\": {\n        \"goto_definition\": false\n      }\n    }\n  }\n}"} />
+
+## 格式化
+
+要将语言服务器用作格式化器，请在设置中将 biome 指定为你的格式化器：
+
+<Code lang="json5" title=".zed/settings.json" code={"{\n  \"languages\": {\n    \"Astro\": { \"formatter\": { \"language_server\": { \"name\": \"biome\" } } },\n    \"CSS\": { \"formatter\": { \"language_server\": { \"name\": \"biome\" } } },\n    \"GraphQL\": { \"formatter\": { \"language_server\": { \"name\": \"biome\" } } },\n    \"HTML\": { \"formatter\": { \"language_server\": { \"name\": \"biome\" } } },\n    \"JSON\": { \"formatter\": { \"language_server\": { \"name\": \"biome\" } } },\n    \"JSONC\": { \"formatter\": { \"language_server\": { \"name\": \"biome\" } } },\n    \"JSX\": { \"formatter\": { \"language_server\": { \"name\": \"biome\" } } },\n    \"JavaScript\": { \"formatter\": { \"language_server\": { \"name\": \"biome\" } } },\n    \"Svelte\": { \"formatter\": { \"language_server\": { \"name\": \"biome\" } } },\n    \"TSX\": { \"formatter\": { \"language_server\": { \"name\": \"biome\" } } },\n    \"TypeScript\": { \"formatter\": { \"language_server\": { \"name\": \"biome\" } } },\n    \"Vue.js\": { \"formatter\": { \"language_server\": { \"name\": \"biome\" } } },\n  }\n}"} />
+
+更多信息请见[语言支持](/internals/language-support)。
+
+### 仅在存在 biome.json 时启用 biome
+
+<Code lang="json5" title=".zed/settings.json" code={"{\n  \"lsp\": {\n    \"biome\": {\n      \"settings\": {\n        \"require_config_file\": true\n      }\n    }\n  }\n}"} />
+
+### 格式化时运行代码操作：
+
+<Code lang="json5" title=".zed/settings.json" code={"{\n  \"languages\": {\n    \"JavaScript\": {\n      \"formatter\": { \"language_server\": { \"name\": \"biome\" } },\n      \"code_actions_on_format\": {\n        \"source.fixAll.biome\": true,\n        \"source.organizeImports.biome\": true\n      }\n    },\n    \"TypeScript\": {\n      \"formatter\": { \"language_server\": { \"name\": \"biome\" } },\n      \"code_actions_on_format\": {\n        \"source.fixAll.biome\": true,\n        \"source.organizeImports.biome\": true\n      }\n    },\n    \"TSX\": {\n      \"formatter\": { \"language_server\": { \"name\": \"biome\" } },\n      \"code_actions_on_format\": {\n        \"source.fixAll.biome\": true,\n        \"source.organizeImports.biome\": true\n      }\n    }\n  }\n}"} />
+
+如果你想在保存时应用[不安全修复](/linter/#unsafe-fixes)，你必须将[规则的代码修复设为安全](/linter/#configure-the-code-fix)。
+
+### 基于项目的配置
+
+你可以将这些设置放在项目文件夹根目录的 Zed 项目设置（`.zed/settings.json`）中，或作为 Zed 用户设置（`~/.config/zed/settings.json`）放入，后者默认会应用于所有项目。
+
+#### 为特定项目禁用 biome
+
+你可以通过以下方式，在项目中为某个特定语言（如 GraphQL）排除 biome：
+
+<Code lang="json5" title=".zed/settings.json" code={"{\n  \"languages\": {\n    \"GraphQL\": {\n      \"language_servers\": [ \"!biome\", \"...\" ]\n    }\n  }\n}"} />
+
+### 全局设置
+
+不建议将 `biome` 添加到 Zed `settings.json` 的顶层 `language_servers`、`formatter` 或 `code_actions_on_format` 键中。在全局将 biome 指定为 `language_server` 或 `formatter`，可能会破坏 Biome 不支持的语言（如 Rust、Python 等）的功能。支持的完整语言列表请见[语言支持](/internals/language-support)。
+
+本文档此前曾建议使用全局设置；请将你的 Zed 设置改为按语言逐一显式配置 biome。

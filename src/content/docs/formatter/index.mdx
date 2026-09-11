@@ -1,0 +1,79 @@
+---
+title: 格式化器
+description: 如何使用 Biome 格式化器。
+anchors: ["cli","options","ignore-code","ignore-an-entire-file","ignore-nodes"]
+toc: [{"level":2,"text":"CLI","id":"cli"},{"level":2,"text":"选项","id":"options"},{"level":2,"text":"忽略代码","id":"ignore-code"},{"level":3,"text":"忽略整个文件","id":"ignore-an-entire-file"},{"level":3,"text":"忽略节点","id":"ignore-nodes"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import Code from "@/components/mdx/Code.astro";
+import PackageManagerBiomeCommand from "@/components/mdx/PackageManagerBiomeCommand.astro";
+
+Biome 是一个有主见的格式化器，[支持多种语言](/internals/language-support)。它遵循与 Prettier 类似的[理念](https://prettier.io/docs/en/option-philosophy.html)，只支持少量选项，以免关于风格的争论演变成为关于 Biome 选项的争论。它刻意[抵制新增选项的冲动](https://github.com/prettier/prettier/issues/40)，以避免团队陷入[关于细枝末节的争论](https://en.wikipedia.org/wiki/Law_of_triviality)，从而让他们专注于真正重要的事情。
+
+## CLI
+
+以下命令检查 `src` 目录中文件的格式。如果发现未格式化的代码，它会输出文本差异。
+
+<PackageManagerBiomeCommand command="format ./src" />
+
+如果你想**应用**新的格式化，请传入 `--write` 选项：
+
+<PackageManagerBiomeCommand command="format --write ./src" />
+
+该命令接受文件和目录的列表。
+
+```shell showLineNumbers=false
+biome format ./src/**/*.test.{js,ts}
+```
+<Aside type="caution">
+
+如果你把 glob 模式作为参数传入，你的 shell 会对其展开。
+展开的结果取决于你所用的 shell。
+例如，某些 shell 不支持以下命令中的递归 glob 模式 `**` 或交替 `{}`：
+
+shell 展开会带来性能开销，并且会限制你能传给命令的文件数量。
+
+</Aside>
+
+关于所有可用选项的更多信息，请查看 [CLI 参考](/reference/cli#biome-format)。
+
+## 选项
+
+Biome 提供一些选项来调整其格式化器的行为。与其他工具不同，Biome 将语言无关的选项与语言相关的选项分开。
+
+格式化器选项可以在 [CLI](/reference/cli/#biome-format) 上设置，也可以通过 [Biome 配置文件](/guides/configure-biome)设置。从 v1.9 起，Biome 支持加载 `.editorconfig` 文件。
+
+建议使用 [Biome 配置文件](/guides/configure-biome)，以确保 Biome CLI 和 Biome LSP 应用相同的选项。将应用以下默认值：
+
+<Code lang="json" title="biome.json" code={"{\n  \"formatter\": {\n    \"enabled\": true,\n    \"formatWithErrors\": false,\n    \"ignore\": [],\n    \"attributePosition\": \"auto\",\n    \"indentStyle\": \"tab\",\n    \"indentWidth\": 2,\n    \"lineWidth\": 80,\n    \"lineEnding\": \"lf\"\n  },\n  \"javascript\": {\n    \"formatter\": {\n      \"arrowParentheses\":\"always\",\n      \"bracketSameLine\": false,\n      \"bracketSpacing\": true,\n      \"delimiterSpacing\": false,\n      \"jsxQuoteStyle\": \"double\",\n      \"quoteProperties\": \"asNeeded\",\n      \"semicolons\": \"always\",\n      \"trailingCommas\": \"all\"\n    }\n  },\n  \"json\": {\n    \"formatter\": {\n      \"trailingCommas\": \"none\"\n    }\n  }\n}"} />
+
+Biome 格式化器支持的主要语言无关选项有：
+
+- 缩进风格（默认：`tab`）：使用空格或制表符进行缩进；
+- 缩进宽度（默认：`2`）：每一级缩进的空格数。
+- 行宽（默认：`80`）：Biome 换行代码的列宽；
+
+更多细节请查看 [配置参考](/reference/configuration#formatter)。
+
+## 忽略代码
+
+有时候，格式化后的代码并不理想。
+
+### 忽略整个文件
+
+你可以在**文件顶部**使用 `biome-ignore-all format: reason` 注释，对整个文件抑制（忽略）格式化器：
+
+例如，在 JavaScript 中：
+
+<Code lang="js" title="example.js" code={"// biome-ignore-all format: 生成的文件\n\nconst expr1 =\n  [\n    (2 * n) / (r - l),\n    0,\n    (r + l) / (r - l),\n    -1,\n    0,\n  ];\n\nconst expr2 =\n  [\n    (2 * n) / (r - l),\n    0,\n    (r + l) / (r - l),\n    -1,\n    0,\n  ];"} />
+
+### 忽略节点
+
+如果你只想抑制代码的一部分（节点），请使用抑制注释 `biome-ignore format: reason`
+
+<Code lang="js" title="example.js" code={"// biome-ignore format: 原因"} />
+
+示例：
+
+<Code lang="js" title="example.js" code={"const expr =\n  // biome-ignore format: 数组不应被格式化\n  [\n    (2 * n) / (r - l),\n    0,\n    (r + l) / (r - l),\n    0,\n    0,\n    (2 * n) / (t - b),\n    (t + b) / (t - b),\n    0,\n    0,\n    0,\n    -(f + n) / (f - n),\n    -(2 * f * n) / (f - n),\n    0,\n    0,\n    -1,\n    0,\n  ];"} />
+

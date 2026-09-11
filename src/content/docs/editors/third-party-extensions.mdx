@@ -1,0 +1,81 @@
+---
+title: 第三方扩展
+description: 了解如何配置第三方扩展
+anchors: ["helix","using-biome-globally","using-biome-by-project","configuring-other-languages","video-record","code-action","formatting"]
+toc: [{"level":3,"text":"Helix","id":"helix"},{"level":3,"text":"视频录制","id":"video-record"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+
+这些扩展由其他社区维护，需要你在编辑器中自行安装：
+- [`vim`](https://www.vim.org/)：[`ALE`](https://github.com/dense-analysis/ale) 支持 Biome，只需按照安装说明操作
+- [`neovim`](https://neovim.io/)：你需要安装 [`nvim-lspconfig`](https://github.com/neovim/nvim-lspconfig/)，并按照[说明](https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md#biome)操作。[`ALE`](https://github.com/dense-analysis/ale) 也支持 Biome。
+- [`helix`](https://helix-editor.com/)：请按照[本手册](#helix)的说明操作
+- [`coc-biome`](https://github.com/fannheyward/coc-biome)：适用于 [`coc.nvim`](https://github.com/neoclide/coc.nvim) 的 Biome 扩展
+- [`sublime text`](https://www.sublimetext.com/)：请按照 [`LSP-biome`](https://github.com/sublimelsp/LSP-biome) 的安装说明操作
+- [`Emacs`](https://www.gnu.org/software/emacs/)：确保你已安装 [`lsp-mode`](https://github.com/emacs-lsp/lsp-mode)，并按照 [`lsp-biome`](https://github.com/cxa/lsp-biome) 的安装说明操作，以便在 `lsp-mode` 中启用 Biome 支持
+- [`Nova`](https://nova.app)：安装 [`Biome`](https://extensions.panic.com/extensions/besya/besya.biome/) 扩展并按照说明操作
+
+<Aside type="note">
+
+是否有某个编辑器的扩展未列在此处？请提交一个 PR，我们会很乐意将它加入列表。
+
+</Aside>
+
+### Helix
+
+Biome 有一个 `lsp-proxy` 命令，它作为一个在 stdin/stdout 上运行的语言服务器协议服务器。
+
+#### 全局使用 Biome
+
+若要全局使用 Biome，你可以将它设为 `languages.toml` 文件中的格式化器。
+
+```toml
+[language-server.biome]
+command = "biome"
+args = ["lsp-proxy"]
+
+# 也支持内联配置 
+# https://biomejs.dev/blog/biome-v2-4/#editor-inline-configuration
+[language-server.biome.config.biome.inlineConfig]
+linter.rules.suspicious.noConsole = "off"
+
+[[language]]
+name = "javascript"
+language-servers = [ { name = "typescript-language-server", except-features = [ "format" ] }, "biome" ]
+auto-format = true
+```
+
+#### 按项目使用 Biome
+
+如果你希望 Helix 正确应用你的项目专属设置，就必须把 Biome 配置文件添加到 `roots` 字段中。这会告诉 Helix 根据 Biome 配置文件的存在来检测项目根目录。
+
+```toml
+[language-server.biome]
+command = "biome"
+args = ["lsp-proxy"]
+
+[[language]]
+name = "typescript"
+roots = ["biome.json", "biome.jsonc", "package.json"]
+language-servers = [ { name = "typescript-language-server", except-features = [ "format" ] }, "biome" ]
+auto-format = true
+```
+
+#### 配置其他语言
+
+Biome 支持多种语言的格式化和 Lint，而不仅是 JavaScript。要为其他语言（如 TypeScript、JSON 或 CSS）配置 Biome，请在配置中新增一个 `[[language]]` 块，并指定合适的语言服务器。
+
+供参考，请见：
+- [Biome 支持的语言](https://biomejs.dev/internals/language-support/)
+- [LSP 语言标识符](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocumentItem)
+
+### 视频录制
+
+#### 代码操作
+
+<video src="https://user-images.githubusercontent.com/17974631/190205045-aeb86f87-1915-4d8b-8aad-2c046443ba83.mp4" width="720" controls></video>
+
+#### 格式化
+
+<video src="https://user-images.githubusercontent.com/17974631/190205065-ddfde866-5f7c-4f53-8a62-b6cbb577982f.mp4" width="720" controls></video>
+

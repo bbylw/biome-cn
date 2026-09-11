@@ -1,0 +1,756 @@
+---
+title: 守护进程方法
+description: 客户端可以使用的守护进程方法列表。
+anchors: ["custom-methods","biomefile_features","biomeupdate_settings","biomeopen_project","biomescan_project","biomeopen_file","biomechange_file","biomeclose_file","biomefile_exists","biomeis_path_ignored","biomeupdate_module_graph","biomeget_syntax_tree","biomecheck_file_size","biomeget_file_content","biomeget_control_flow_graph","biomeget_formatter_ir","biomeget_type_info","biomeget_registered_types","biomeget_semantic_model","biomeget_module_graph","biomepull_diagnostics","biomeprocess_file","biomepull_actions","biomepull_diagnostics_and_actions","biomeformat_file","biomeformat_range","biomeformat_on_type","biomefix_file","biomerename","biomeparse_pattern","biomesearch_pattern","biomedrop_pattern"]
+toc: [{"level":2,"text":"自定义方法","id":"custom-methods"},{"level":3,"text":"biome/filefeatures","id":"biomefile_features"},{"level":3,"text":"biome/updatesettings","id":"biomeupdate_settings"},{"level":3,"text":"biome/openproject","id":"biomeopen_project"},{"level":3,"text":"biome/scanproject","id":"biomescan_project"},{"level":3,"text":"biome/openfile","id":"biomeopen_file"},{"level":3,"text":"biome/changefile","id":"biomechange_file"},{"level":3,"text":"biome/closefile","id":"biomeclose_file"},{"level":3,"text":"biome/fileexists","id":"biomefile_exists"},{"level":3,"text":"biome/ispathignored","id":"biomeis_path_ignored"},{"level":3,"text":"biome/updatemodulegraph","id":"biomeupdate_module_graph"},{"level":3,"text":"biome/getsyntaxtree","id":"biomeget_syntax_tree"},{"level":3,"text":"biome/checkfilesize","id":"biomecheck_file_size"},{"level":3,"text":"biome/getfilecontent","id":"biomeget_file_content"},{"level":3,"text":"biome/getcontrolflowgraph","id":"biomeget_control_flow_graph"},{"level":3,"text":"biome/getformatterir","id":"biomeget_formatter_ir"},{"level":3,"text":"biome/gettypeinfo","id":"biomeget_type_info"},{"level":3,"text":"biome/getregisteredtypes","id":"biomeget_registered_types"},{"level":3,"text":"biome/getsemanticmodel","id":"biomeget_semantic_model"},{"level":3,"text":"biome/getmodulegraph","id":"biomeget_module_graph"},{"level":3,"text":"biome/pulldiagnostics","id":"biomepull_diagnostics"},{"level":3,"text":"biome/processfile","id":"biomeprocess_file"},{"level":3,"text":"biome/pullactions","id":"biomepull_actions"},{"level":3,"text":"biome/pulldiagnosticsandactions","id":"biomepull_diagnostics_and_actions"},{"level":3,"text":"biome/formatfile","id":"biomeformat_file"},{"level":3,"text":"biome/formatrange","id":"biomeformat_range"},{"level":3,"text":"biome/formatontype","id":"biomeformat_on_type"},{"level":3,"text":"biome/fixfile","id":"biomefix_file"},{"level":3,"text":"biome/rename","id":"biomerename"},{"level":3,"text":"biome/parsepattern","id":"biomeparse_pattern"},{"level":3,"text":"biome/searchpattern","id":"biomesearch_pattern"},{"level":3,"text":"biome/droppattern","id":"biomedrop_pattern"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+
+Biome 守护进程使用 [JSON-RPC](https://www.jsonrpc.org/specification)，这是一种轻量级的 RPC（远程过程调用）协议，第三方客户端（例如编辑器扩展）都可以利用它。
+
+客户端使用以下 JSON 载荷发送请求，其中 `method` 是本页面列出的方法之一。下面是一个 `biome/open_project` 请求的示例：
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "biome/open_project",
+  "params": {
+    "path": "/Some/path",
+    "openUninitialized": false
+  }
+}
+```
+
+<Aside type="caution">
+
+这些方法不属于语义化版本约定，可能会在不另行通知的情况下发生变化。
+
+</Aside>
+
+[//]: # (Start-custom-methods)
+## 自定义方法
+
+### `biome/file_features`
+
+接受 `SupportsFeatureParams`。
+
+```ts
+interface SupportsFeatureParams {
+	features: FeatureName;
+	inlineConfig?: Configuration;
+	/**
+	 * 不应启用的功能
+	 */
+	notRequestedFeatures?: FeatureName;
+	path: string;
+	projectKey: number;
+	skipIgnoreCheck?: boolean;
+}
+```
+
+返回 `FileFeaturesResult`。
+
+```ts
+interface FileFeaturesResult {
+	featuresSupported: FeaturesSupported;
+}
+```
+
+### `biome/update_settings`
+
+接受 `UpdateSettingsParams`。
+
+```ts
+interface UpdateSettingsParams {
+	configuration: Configuration;
+	extendedConfigurations?: unknown[][];
+	moduleGraphResolutionKind?: string;
+	projectKey: number;
+	workspaceDirectory?: string;
+}
+```
+
+返回 `UpdateSettingsResult`。
+
+```ts
+interface UpdateSettingsResult {
+	diagnostics: Diagnostic[];
+}
+```
+
+### `biome/open_project`
+
+接受 `OpenProjectParams`。
+
+```ts
+interface OpenProjectParams {
+	/**
+	 * 即使找不到 `biome.json`，是否也应将该文件夹作为项目打开。
+	 */
+	openUninitialized: boolean;
+	/**
+	 * 要打开的路径
+	 */
+	path: string;
+}
+```
+
+返回 `OpenProjectResult`。
+
+```ts
+interface OpenProjectResult {
+	/**
+	 * 该项目的唯一标识符
+	 */
+	projectKey: number;
+}
+```
+
+### `biome/scan_project`
+
+接受 `ScanProjectParams`。
+
+```ts
+interface ScanProjectParams {
+	/**
+	 * 强制扫描该文件夹，即使它已经在监视之中。
+	 */
+	force: boolean;
+	projectKey: number;
+	scanKind: ScanKind;
+	verbose?: boolean;
+	/**
+	 * 监视器是否应监视此路径。如果监视器已经在监视此路径，则不执行任何操作。
+	 */
+	watch: boolean;
+}
+```
+
+返回 `ScanProjectResult`。
+
+```ts
+interface ScanProjectResult {
+	/**
+	 * 在项目内找到的子配置文件列表
+	 */
+	configurationFiles: string[];
+	/**
+	 * 扫描项目期间报告的诊断信息。
+	 */
+	diagnostics: Diagnostic[];
+	/**
+	 * 扫描的持续时间。
+	 */
+	duration: Duration;
+}
+```
+
+### `biome/open_file`
+
+接受 `OpenFileParams`。
+
+```ts
+interface OpenFileParams {
+	content: FileContent;
+	documentFileSource?: DocumentFileSource;
+	/**
+	 * 用于启用更多文档服务，例如语义模型
+	 */
+	editorFeatures?: EditorFeatures;
+	inlineConfig?: Configuration;
+	path: string;
+	/**
+	 * 设置为 `true` 可持久化解析期间使用的节点缓存，以便在文档被编辑时加快后续的重新解析。只有在预期会重新解析时才应启用此选项，例如通过 LSP Proxy 打开文件时。
+	 */
+	persistNodeCache?: boolean;
+	projectKey: number;
+}
+```
+
+返回 `OpenFileResult`。
+
+```ts
+interface OpenFileResult {
+	diagnostics: Diagnostic[];
+}
+```
+
+### `biome/change_file`
+
+接受 `ChangeFileParams`。
+
+```ts
+interface ChangeFileParams {
+	content: string;
+	/**
+	 * 用于启用更多文档服务，例如语义模型
+	 */
+	editorFeatures?: EditorFeatures;
+	inlineConfig?: Configuration;
+	path: string;
+	projectKey: number;
+	version: number;
+}
+```
+
+返回 `ChangeFileResult`。
+
+```ts
+interface ChangeFileResult {
+	/**
+	 * 更新依赖项和模块数据时发现的问题。这不包括所更改文件的 Lint 或解析结果。
+	 */
+	diagnostics: Diagnostic[];
+}
+```
+
+### `biome/close_file`
+
+接受 `CloseFileParams`。
+
+```ts
+interface CloseFileParams {
+	path: string;
+	projectKey: number;
+}
+```
+
+返回 `void`。
+
+### `biome/file_exists`
+
+接受 `FileExistsParams`。
+
+```ts
+interface FileExistsParams {
+	filePath: string;
+}
+```
+
+返回 `boolean`。
+
+### `biome/is_path_ignored`
+
+接受 `PathIsIgnoredParams`。
+
+```ts
+interface PathIsIgnoredParams {
+	/**
+	 * 该路径是否针对特定功能（例如 `formatter.includes`）被忽略。当此字段为空时，Biome 只检查 `files.includes`。
+	 */
+	features: FeatureName;
+	/**
+	 * 控制忽略检查应如何执行
+	 */
+	ignoreKind?: IgnoreKind;
+	/**
+	 * 该路径是否为目录。当调用方已从文件系统遍历中了解文件类型时，用于跳过 stat 调用。
+	 */
+	isDir?: boolean;
+	/**
+	 * 要检查的路径
+	 */
+	path: string;
+	projectKey: number;
+}
+```
+
+返回 `boolean`。
+
+### `biome/update_module_graph`
+
+接受 `UpdateModuleGraphParams`。
+
+```ts
+interface UpdateModuleGraphParams {
+	path: string;
+	projectKey: number;
+	/**
+	 * 要应用到模块图的更新类型
+	 */
+	updateKind: string;
+}
+```
+
+返回 `void`。
+
+### `biome/get_syntax_tree`
+
+接受 `GetSyntaxTreeParams`。
+
+```ts
+interface GetSyntaxTreeParams {
+	path: string;
+	projectKey: number;
+}
+```
+
+返回 `GetSyntaxTreeResult`。
+
+```ts
+interface GetSyntaxTreeResult {
+	ast: string;
+	cst: string;
+}
+```
+
+### `biome/check_file_size`
+
+接受 `CheckFileSizeParams`。
+
+```ts
+interface CheckFileSizeParams {
+	path: string;
+	projectKey: number;
+}
+```
+
+返回 `CheckFileSizeResult`。
+
+```ts
+interface CheckFileSizeResult {
+	fileSize: number;
+	limit: number;
+}
+```
+
+### `biome/get_file_content`
+
+接受 `GetFileContentParams`。
+
+```ts
+interface GetFileContentParams {
+	path: string;
+	projectKey: number;
+}
+```
+
+返回 `string`。
+
+### `biome/get_control_flow_graph`
+
+接受 `GetControlFlowGraphParams`。
+
+```ts
+interface GetControlFlowGraphParams {
+	cursor: number;
+	path: string;
+	projectKey: number;
+}
+```
+
+返回 `string`。
+
+### `biome/get_formatter_ir`
+
+接受 `GetFormatterIRParams`。
+
+```ts
+interface GetFormatterIRParams {
+	path: string;
+	projectKey: number;
+}
+```
+
+返回 `string`。
+
+### `biome/get_type_info`
+
+接受 `GetTypeInfoParams`。
+
+```ts
+interface GetTypeInfoParams {
+	path: string;
+	projectKey: number;
+}
+```
+
+返回 `string`。
+
+### `biome/get_registered_types`
+
+接受 `GetRegisteredTypesParams`。
+
+```ts
+interface GetRegisteredTypesParams {
+	path: string;
+	projectKey: number;
+}
+```
+
+返回 `string`。
+
+### `biome/get_semantic_model`
+
+接受 `GetSemanticModelParams`。
+
+```ts
+interface GetSemanticModelParams {
+	path: string;
+	projectKey: number;
+}
+```
+
+返回 `string`。
+
+### `biome/get_module_graph`
+
+接受 `GetModuleGraphParams`。
+
+```ts
+interface GetModuleGraphParams {}
+```
+
+返回 `GetModuleGraphResult`。
+
+```ts
+interface GetModuleGraphResult {
+	data: object;
+}
+```
+
+### `biome/pull_diagnostics`
+
+接受 `PullDiagnosticsParams`。
+
+```ts
+interface PullDiagnosticsParams {
+	categories: RuleCategories;
+	/**
+	 * 纳入诊断信息所需的最低严重性等级。严重性低于此阈值的诊断信息会被完全忽略（不计入、不序列化）。默认为 [`Severity::Hint`]（包含全部内容）。
+	 */
+	diagnosticLevel?: Severity;
+	/**
+	 * 在配置基础上额外应用的规则
+	 */
+	enabledRules?: string[];
+	/**
+	 * 为 true 时，在应用 diagnostic_level 过滤器之前，将 assist 诊断信息（`assist/*`）提升为错误严重性等级。
+	 */
+	enforceAssist?: boolean;
+	/**
+	 * 为 `true` 时，诊断信息包含用于规则修复的代码建议。
+	 */
+	includeCodeFix?: boolean;
+	inlineConfig?: Configuration;
+	/**
+	 * 要拉取的诊断类型数量上限。该限制用于限制要拉取的 [Diagnostic] 数量。不过，工作区仍会处理来自分析器的所有诊断以计算其严重性等级。如果未提供值，工作区将拉取所有诊断。
+	 */
+	maxDiagnostics?: unknown;
+	only?: string[];
+	path: string;
+	projectKey: number;
+	skip?: string[];
+}
+```
+
+返回 `PullDiagnosticsResult`。
+
+```ts
+interface PullDiagnosticsResult {
+	diagnostics: Diagnostic[];
+	errors: number;
+	infos: number;
+	/**
+	 * 解析错误的数量（`errors` 的子集）。`--skip-parse-errors` 用它来区分解析错误与分析器错误。
+	 */
+	parseErrors: number;
+	skippedDiagnostics: number;
+	warnings: number;
+}
+```
+
+### `biome/process_file`
+
+接受 `ProcessFileParams`。
+
+```ts
+interface ProcessFileParams {
+	categories: RuleCategories;
+	content: FileContent;
+	diagnosticLevel: Severity;
+	enabledRules?: string[];
+	enforceAssist: boolean;
+	fixFileMode?: FixFileMode;
+	format: boolean;
+	includeCodeFix: boolean;
+	maxDiagnostics?: unknown;
+	only?: string[];
+	path: string;
+	projectKey: number;
+	skip?: string[];
+	skipParseErrors: boolean;
+	suppressionReason?: unknown;
+	write: boolean;
+}
+```
+
+返回 `ProcessFileResult`。
+
+```ts
+interface ProcessFileResult {
+	appliedFixes: number;
+	diagnostics: Diagnostic[];
+	errors: number;
+	formatWithErrorsDisabled: boolean;
+	infos: number;
+	output?: unknown;
+	parseErrors: number;
+	skippedDiagnostics: number;
+	skippedSuggestedFixes: number;
+	warnings: number;
+}
+```
+
+### `biome/pull_actions`
+
+接受 `PullActionsParams`。
+
+```ts
+interface PullActionsParams {
+	categories?: RuleCategories;
+	/**
+	 * 为 `false` 时，返回的操作具有 `suggestion: None`（不计算 `BatchMutation`）。`codeAction/resolve` 用它来延迟计算编辑。
+	 */
+	computeActions?: boolean;
+	enabledRules?: string[];
+	inlineConfig?: Configuration;
+	only?: string[];
+	path: string;
+	projectKey: number;
+	range?: TextRange;
+	skip?: string[];
+	suppressionReason?: unknown;
+}
+```
+
+返回 `PullActionsResult`。
+
+```ts
+interface PullActionsResult {
+	actions: CodeAction[];
+}
+```
+
+### `biome/pull_diagnostics_and_actions`
+
+接受 `PullDiagnosticsAndActionsParams`。
+
+```ts
+interface PullDiagnosticsAndActionsParams {
+	categories?: RuleCategories;
+	enabledRules?: string[];
+	inlineConfig?: Configuration;
+	only?: string[];
+	path: string;
+	projectKey: number;
+	skip?: string[];
+}
+```
+
+返回 `PullDiagnosticsAndActionsResult`。
+
+```ts
+interface PullDiagnosticsAndActionsResult {
+	diagnostics: unknown[][];
+}
+```
+
+### `biome/format_file`
+
+接受 `FormatFileParams`。
+
+```ts
+interface FormatFileParams {
+	inlineConfig?: Configuration;
+	path: string;
+	projectKey: number;
+}
+```
+
+返回 `Printed`。
+
+```ts
+interface Printed {
+	code: string;
+	range?: TextRange;
+	sourcemap: SourceMarker[];
+	verbatimRanges: TextRange[];
+}
+```
+
+### `biome/format_range`
+
+接受 `FormatRangeParams`。
+
+```ts
+interface FormatRangeParams {
+	inlineConfig?: Configuration;
+	path: string;
+	projectKey: number;
+	range: TextRange;
+}
+```
+
+返回 `Printed`。
+
+```ts
+interface Printed {
+	code: string;
+	range?: TextRange;
+	sourcemap: SourceMarker[];
+	verbatimRanges: TextRange[];
+}
+```
+
+### `biome/format_on_type`
+
+接受 `FormatOnTypeParams`。
+
+```ts
+interface FormatOnTypeParams {
+	inlineConfig?: Configuration;
+	offset: number;
+	path: string;
+	projectKey: number;
+}
+```
+
+返回 `Printed`。
+
+```ts
+interface Printed {
+	code: string;
+	range?: TextRange;
+	sourcemap: SourceMarker[];
+	verbatimRanges: TextRange[];
+}
+```
+
+### `biome/fix_file`
+
+接受 `FixFileParams`。
+
+```ts
+interface FixFileParams {
+	/**
+	 * 要应用到文件的规则
+	 */
+	enabledRules?: string[];
+	fixFileMode: FixFileMode;
+	inlineConfig?: Configuration;
+	only?: string[];
+	path: string;
+	projectKey: number;
+	ruleCategories: RuleCategories;
+	shouldFormat: boolean;
+	skip?: string[];
+	suppressionReason?: unknown;
+}
+```
+
+返回 `FixFileResult`。
+
+```ts
+interface FixFileResult {
+	/**
+	 * 应用到文件的所有代码操作的列表
+	 */
+	actions: FixAction[];
+	/**
+	 * 应用所有修复后文件的新源代码
+	 */
+	code: string;
+	/**
+	 * 错误数量
+	 */
+	errors: number;
+	/**
+	 * 被跳过的建议修复数量
+	 */
+	skippedSuggestedFixes: number;
+}
+```
+
+### `biome/rename`
+
+接受 `RenameParams`。
+
+```ts
+interface RenameParams {
+	newName: string;
+	path: string;
+	projectKey: number;
+	symbolAt: number;
+}
+```
+
+返回 `RenameResult`。
+
+```ts
+interface RenameResult {
+	/**
+	 * 要应用于源代码的文本编辑操作列表
+	 */
+	indels: TextEdit;
+	/**
+	 * 被此重命名操作修改的源代码范围
+	 */
+	range: TextRange;
+}
+```
+
+### `biome/parse_pattern`
+
+接受 `ParsePatternParams`。
+
+```ts
+interface ParsePatternParams {
+	defaultLanguage: string;
+	pattern: string;
+}
+```
+
+返回 `ParsePatternResult`。
+
+```ts
+interface ParsePatternResult {
+	patternId: string;
+}
+```
+
+### `biome/search_pattern`
+
+接受 `SearchPatternParams`。
+
+```ts
+interface SearchPatternParams {
+	path: string;
+	pattern: string;
+	projectKey: number;
+}
+```
+
+返回 `SearchResults`。
+
+```ts
+interface SearchResults {
+	matches: TextRange[];
+	path: string;
+}
+```
+
+### `biome/drop_pattern`
+
+接受 `DropPatternParams`。
+
+```ts
+interface DropPatternParams {
+	pattern: string;
+}
+```
+
+返回 `void`。
+
+[//]: # (End-custom-methods)

@@ -1,0 +1,205 @@
+---
+title: 入门指南
+description: 了解如何使用 Biome 搭建新项目。
+anchors: ["configuration","usage","command-line-interface","editor-integrations","continuous-integration","next-steps"]
+toc: [{"level":2,"text":"配置","id":"configuration"},{"level":2,"text":"用法","id":"usage"},{"level":3,"text":"命令行接口（CLI）","id":"command-line-interface"},{"level":3,"text":"编辑器集成","id":"editor-integrations"},{"level":3,"text":"持续集成（CI）","id":"continuous-integration"},{"level":2,"text":"下一步","id":"next-steps"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import PackageManagerBiomeCommand from "@/components/mdx/PackageManagerBiomeCommand.astro";
+import PackageManagerCommand from "@/components/mdx/PackageManagerCommand.astro";
+import TabItem from "@/components/mdx/TabItem.astro";
+import Tabs from "@/components/mdx/Tabs.astro";
+
+Biome 最好作为你项目的开发依赖来安装，但它也可以作为[独立可执行文件]使用，后者无需 Node.js。
+
+[独立可执行文件]: /guides/manual-installation
+
+<PackageManagerCommand
+  npm={["i -D -E @biomejs/biome"]}
+  pnpm={["add -D -E @biomejs/biome"]}
+  yarn={["add -D -E @biomejs/biome"]}
+  bun={["add -D -E @biomejs/biome"]}
+  deno={["add -D npm:@biomejs/biome"]}
+/>
+
+<Aside type="note" title="版本锁定">
+
+`-E` 确保包管理器锁定 Biome 的版本。更多有关[为什么锁定版本很重要]的信息，
+请参阅[版本管理页面](/internals/versioning)。
+
+</Aside>
+
+[为什么锁定版本很重要]: /internals/versioning#why-pinning-the-version-is-important
+
+## 配置
+
+尽管 Biome 可以在零配置下运行，但你多半会想调整一些设置以满足项目的需要。
+这种情况下，你可以运行以下命令来生成一个 `biome.json` 配置文件。
+
+<PackageManagerBiomeCommand command="init"/>
+
+## 用法
+
+我们来快速了解一下如何在你的项目中使用 Biome。
+
+### 命令行接口（CLI）
+
+Biome 提供了一个[命令行接口]，用于格式化、Lint 和检查你的代码。
+
+[命令行接口]: /reference/cli
+
+<Tabs syncKey="command">
+	<TabItem label="npm" icon="seti:npm">
+		
+
+```bash
+# 格式化所有文件
+npx @biomejs/biome format --write
+
+# 格式化指定文件
+npx @biomejs/biome format --write <files>
+
+# 对所有文件执行 Lint 并应用安全修复
+npx @biomejs/biome lint --write
+
+# 对指定文件执行 Lint 并应用安全修复
+npx @biomejs/biome lint --write <files>
+
+# 对所有文件执行格式化、Lint 并整理导入
+npx @biomejs/biome check --write
+
+# 对指定文件执行格式化、Lint 并整理导入
+npx @biomejs/biome check --write <files>
+```
+
+	</TabItem>
+	<TabItem label="pnpm" icon="pnpm">
+		
+
+```bash
+# 格式化所有文件
+pnpx @biomejs/biome format --write
+
+# 格式化指定文件
+pnpx @biomejs/biome format --write <files>
+
+# 对所有文件执行 Lint 并应用安全修复
+pnpx @biomejs/biome lint --write
+
+# 对指定文件执行 Lint 并应用安全修复
+pnpx @biomejs/biome lint --write <files>
+
+# 对所有文件执行格式化、Lint 并整理导入
+pnpx @biomejs/biome check --write
+
+# 对指定文件执行格式化、Lint 并整理导入
+pnpx @biomejs/biome check --write <files>
+```
+
+	</TabItem>
+	<TabItem label="bun" icon="bun">
+		
+
+```bash
+# 格式化所有文件
+bunx --bun @biomejs/biome format --write
+
+# 格式化指定文件
+bunx --bun @biomejs/biome format --write <files>
+
+# 对所有文件执行 Lint 并应用安全修复
+bunx --bun @biomejs/biome lint --write
+
+# 对指定文件执行 Lint 并应用安全修复
+bunx --bun @biomejs/biome lint --write <files>
+
+# 对所有文件执行格式化、Lint 并整理导入
+bunx --bun @biomejs/biome check --write
+
+# 对指定文件执行格式化、Lint 并整理导入
+bunx --bun @biomejs/biome check --write <files>
+```
+
+	</TabItem>
+	<TabItem label="deno" icon="deno">
+		
+
+```bash
+# 格式化指定文件
+deno run -A npm:@biomejs/biome format --write <files>
+
+# 格式化所有文件
+deno run -A npm:@biomejs/biome format --write
+
+# 对所有文件执行 Lint 并应用安全修复
+deno run -A npm:@biomejs/biome lint --write
+
+# 对指定文件执行 Lint 并应用安全修复
+deno run -A npm:@biomejs/biome lint --write <files>
+
+# 对所有文件执行格式化、Lint 并整理导入
+deno run -A npm:@biomejs/biome check --write
+
+# 对指定文件执行格式化、Lint 并整理导入
+deno run -A npm:@biomejs/biome check --write <files>
+```
+
+	</TabItem>
+	<TabItem label="yarn" icon="seti:yarn">
+		
+
+```bash
+# 格式化所有文件
+yarn exec biome format --write
+
+# 格式化指定文件
+yarn exec biome format --write <files>
+
+# 对所有文件执行 Lint 并应用安全修复
+yarn exec biome lint --write
+
+# 对指定文件执行 Lint 并应用安全修复
+yarn exec biome lint --write <files>
+
+# 对所有文件执行格式化、Lint 并整理导入
+yarn exec biome check --write
+
+# 对指定文件执行格式化、Lint 并整理导入
+yarn exec biome check --write <files>
+```
+
+	</TabItem>
+</Tabs>
+
+### 编辑器集成
+
+Biome 在你喜爱的编辑器中提供第一方扩展。
+
+- [VS Code](/editors/first-party-extensions#vs-code)
+- [IntelliJ](/editors/first-party-extensions#intellij)
+- [Zed](/editors/first-party-extensions#zed)
+
+对于其他编辑器，还有[社区扩展](/editors/third-party-extensions)，
+例如 **Vim**、**Neovim** 和 **Sublime Text** 等。
+
+### 持续集成（CI）
+
+在你的 CI 流水线中运行 `biome ci`，以在整个团队中强制保证代码质量与一致性。
+它的用法与 `biome check` 命令相同，但针对 CI 环境做了优化。
+
+- [GitHub Actions](/recipes/continuous-integration#github-actions)
+- [GitLab CI](/recipes/continuous-integration#gitlab-ci)
+
+更多示例请参阅[持续集成](/recipes/continuous-integration)配方。
+
+## 下一步
+
+大功告成！你现在可以使用 Biome 了。🥳
+
+- [从 ESLint 和 Prettier 迁移](/guides/migrate-eslint-prettier)
+- 深入了解如何[配置 Biome](/guides/configure-biome)
+- 深入了解如何使用和配置[格式化器](/formatter)
+- 深入了解如何使用和配置 [Linter](/linter)
+- 熟悉 [CLI 命令与选项](/reference/cli)
+- 熟悉[配置选项](/reference/configuration)
+- 加入我们的 [Discord 社区](https://biomejs.dev/chat)

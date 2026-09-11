@@ -1,0 +1,55 @@
+---
+title: 持续集成
+description: 在 CI 环境中使用 Biome
+anchors: ["biome-check-vs-biome-ci","github-actions","third-party-actions","gitlab-ci"]
+toc: [{"level":3,"text":"biome check VS biome ci","id":"biome-check-vs-biome-ci"},{"level":2,"text":"GitHub Actions","id":"github-actions"},{"level":3,"text":"第三方 Actions","id":"third-party-actions"},{"level":2,"text":"GitLab CI","id":"gitlab-ci"}]
+---
+import Code from "@/components/mdx/Code.astro";
+
+在持续集成（CI）环境中运行 Biome 很简单。下面列出几个示例，供你参考。
+
+### `biome check` VS `biome ci`
+
+Biome 提供两条 CLI 命令来运行所有检查：`biome check` 和 `biome ci`，其中后者应当用于持续集成环境。
+
+与 `check` 命令相比，`ci` 命令：
+- 不提供任何 `--write`/`--fix` 选项。
+- 与特定 runner 的集成更好。例如在 GitHub 上运行时，诊断信息会以 GitHub annotations 的形式输出。
+- 允许控制线程数量。
+- 启用 VCS 集成时，使用 `--changed` 选项而不是 `--staged`，因为远程仓库并没有「暂存文件」这一概念。
+
+随着版本演进，`ci` 命令会持续获得更多功能。
+
+## GitHub Actions
+
+我们提供第一方的 [GitHub Action](https://github.com/marketplace/actions/setup-biome)，用于在你的 runner 中配置 Biome。
+一个简单的 workflow 大致如下所示：
+
+<Code lang="yaml" title="pull_request.yml" code={"name: Code quality\n\non:\n  push:\n  pull_request:\n\njobs:\n  quality:\n    runs-on: ubuntu-latest\n    permissions:\n      contents: read\n    steps:\n      - name: Checkout\n        uses: actions/checkout@v5\n        with:\n          persist-credentials: false\n      - name: Setup Biome\n        uses: biomejs/setup-biome@v2\n        with:\n          version: latest\n      - name: Run Biome\n        run: biome ci ."} />
+
+如果你的 Biome 配置存在外部依赖（例如通过 extends 继承某个包中的配置），那么在运行 Biome 之前，你需要先配置 Node.js 并使用你选择的包管理器安装依赖：
+
+```yaml
+- name: Setup Node.js
+  uses: actions/setup-node@v4
+  with:
+    node-version: 22 # 或你偏好的版本
+    cache: "npm" # 或 'yarn'、'pnpm'
+- name: Install dependencies
+  run: npm ci # 或 yarn install --frozen-lockfile、pnpm install --frozen-lockfile
+```
+
+### 第三方 Actions
+
+以下是由其他社区维护的 Actions，你可以在自己的 runner 中使用：
+
+- [reviewdog-action-biome](https://github.com/marketplace/actions/run-biome-with-reviewdog)：在 reviewdog 中运行 Biome，并在 pull request 上发表评论与提交建议。
+
+<Code lang="yaml" title="pull_request.yml" code={"name: reviewdog\non: [pull_request]\njobs:\n  biome:\n    name: runner / Biome\n    runs-on: ubuntu-latest\n    permissions:\n      contents: read\n      pull-requests: write\n    steps:\n      - uses: actions/checkout@v5\n      - uses: mongolyy/reviewdog-action-biome@v1\n        with:\n          github_token: ${{ secrets.github_token }}\n          reporter: github-pr-review"} />
+
+## GitLab CI
+
+下面是一个示例配置：
+
+<Code lang="yaml" title=".gitlab-ci.yml" code={"# 定义流水线阶段\nstages:\n  - quality\n\n# Lint 任务配置：使用 Biome 运行代码质量检查\nlint:\n    image:\n      name: ghcr.io/biomejs/biome:latest  # 使用最新的 Biome Docker 镜像\n      entrypoint: [\"\"]                    # 镜像在 GitLab CI 中工作所必需\n    stage: quality                        # 在 quality 阶段运行\n    script:\n        - biome ci --reporter=gitlab --colors=off > /tmp/code-quality.json\n        - cp /tmp/code-quality.json code-quality.json\n    artifacts:\n      reports:\n        codequality:\n          - code-quality.json    # 收集代码质量报告产物\n    rules:\n        - if: $CI_COMMIT_BRANCH    # 为分支上的提交运行任务\n        - if: $CI_MERGE_REQUEST_ID # 为 merge request 运行任务"} />
+

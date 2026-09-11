@@ -1,0 +1,353 @@
+---
+title: Linter
+description: 如何使用 Biome Linter。
+anchors: ["rules","safe-fixes","unsafe-fixes","rule-pillars","configure-the-linter","disable-a-rule","disable-recommended-rules","change-rule-severity","change-group-severity","configure-the-code-fix","skip-a-rule-or-a-group","run-only-a-rule-or-a-group","rule-options","domains","suppress-lint-rules","integration-with-editors","apply-actions-on-save","editor-suppressions","migrate-from-other-linters","linter-groups","accessibility","complexity","correctness","nursery","performance","security","style","suspicious","frequently-asked-questions-faq","why-does-rule-x-have-an-unsafe-fix-it-seems-safe-to-me","why-is-biome-linter-so-slow-compared-to-v1","why-is-biome-using-so-much-memory"]
+toc: [{"level":2,"text":"规则","id":"rules"},{"level":3,"text":"安全修复","id":"safe-fixes"},{"level":3,"text":"不安全修复","id":"unsafe-fixes"},{"level":3,"text":"规则支柱","id":"rule-pillars"},{"level":2,"text":"配置 Linter","id":"configure-the-linter"},{"level":3,"text":"禁用某条规则","id":"disable-a-rule"},{"level":3,"text":"禁用推荐规则","id":"disable-recommended-rules"},{"level":3,"text":"更改规则严重性等级","id":"change-rule-severity"},{"level":3,"text":"更改分组严重性等级","id":"change-group-severity"},{"level":3,"text":"配置代码修复","id":"configure-the-code-fix"},{"level":3,"text":"跳过某条规则或某个分组","id":"skip-a-rule-or-a-group"},{"level":3,"text":"只运行某条规则或某个分组","id":"run-only-a-rule-or-a-group"},{"level":3,"text":"规则选项","id":"rule-options"},{"level":3,"text":"规则域","id":"domains"},{"level":2,"text":"抑制 Lint 规则","id":"suppress-lint-rules"},{"level":2,"text":"与编辑器集成","id":"integration-with-editors"},{"level":3,"text":"在保存时应用操作","id":"apply-actions-on-save"},{"level":3,"text":"编辑器抑制","id":"editor-suppressions"},{"level":2,"text":"从其他 Linter 迁移","id":"migrate-from-other-linters"},{"level":2,"text":"Linter 分组","id":"linter-groups"},{"level":3,"text":"无障碍","id":"accessibility"},{"level":3,"text":"复杂度","id":"complexity"},{"level":3,"text":"正确性","id":"correctness"},{"level":3,"text":"nursery（实验分组）","id":"nursery"},{"level":3,"text":"性能","id":"performance"},{"level":3,"text":"安全","id":"security"},{"level":3,"text":"风格","id":"style"},{"level":3,"text":"可疑","id":"suspicious"},{"level":2,"text":"常见问题（FAQ）","id":"frequently-asked-questions-faq"},{"level":3,"text":"为什么规则 X 有一个不安全的修复？在我看来它是安全的。","id":"why-does-rule-x-have-an-unsafe-fix-it-seems-safe-to-me"},{"level":3,"text":"与 v1 相比，为什么 Biome Linter 这么慢？","id":"why-is-biome-linter-so-slow-compared-to-v1"},{"level":3,"text":"为什么 Biome 占用这么多内存？","id":"why-is-biome-using-so-much-memory"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import Code from "@/components/mdx/Code.astro";
+import EditorAction from "@/components/mdx/EditorAction.astro";
+import PackageManagerBiomeCommand from "@/components/mdx/PackageManagerBiomeCommand.astro";
+import Steps from "@/components/mdx/Steps.astro";
+
+Biome 的 Linter 会静态分析你的代码，查找并修复常见错误，帮助你编写更好的现代代码。
+它[支持多种语言](/internals/language-support)，总共提供 **545 条规则**。
+
+你可以通过 CLI 快速试用 Biome Linter。以下命令会从项目根目录对所有文件运行 Linter：
+
+<PackageManagerBiomeCommand command="lint" />
+
+你也可以指定一个或多个目录，例如 `./src` 和 `./public`。
+
+<PackageManagerBiomeCommand command="lint ./src ./public" />
+
+该命令接受文件和目录的列表。
+
+```shell
+biome lint ./src/**/*.test.{js,ts}
+```
+<Aside type="caution">
+
+如果你把 glob 模式作为参数传入，你的 shell 会对其展开。**Biome 不支持 glob 模式**。
+展开的结果取决于你所用的 shell。
+例如，某些 shell 不支持以下命令中的递归 glob 模式 `**` 或交替 `{}`：
+
+shell 展开会带来性能开销，并且会限制你能传给命令的文件数量。
+
+**不建议**使用 glob 模式，请改用 `includes` 配置。
+
+</Aside>
+
+关于所有可用选项的更多信息，请查看 [CLI 参考](/reference/cli#biome-lint)。
+
+## 规则
+
+Linter 按规则组织。规则用于强制执行或禁止某种代码风格、某种可能导致 bug 的用法等。通常，一条规则不应与另一条规则冲突，除非另有说明。
+Biome 规则有命名约定：以 `use*` 开头的规则用于强制执行或建议某事，而以 `no*` 开头的规则用于禁止某事。当规则检测到对其理念的*违规*时，会输出一条诊断信息。
+
+例如，[noDebugger](/linter/rules/no-debugger) 禁止在 JavaScript 代码中使用 `debugger` 语句，发现时就会输出一条诊断信息。
+
+Biome Linter 自带一组随语言而变化的推荐规则。当你运行 `lint` 或 `check` 命令并采用 Biome 默认配置（或无配置）时，它们会默认启用：
+
+```shell
+biome lint
+biome check
+```
+
+每条 Lint 规则都带有一个默认[严重性等级](/reference/diagnostics#diagnostic-severity)，你可以通过阅读该规则的文档了解更多。
+
+这些规则被划分为若干[分组](#linter-groups)。例如，`noDebugger` 规则属于 [`suspicious` 分组](#suspicious)。
+
+Biome 支持*语言无关规则*。这类规则可以跨多种语言工作，例如 `noUselessEscapeInString`，它能在 JavaScript 和 CSS 中报告无用的转义序列。
+
+与其他 Linter 不同，Biome 不提供任何检查代码格式的规则；所有格式化决策都由 [Biome 格式化器](/formatter/) 负责。
+
+许多规则提供一个可以自动应用的**代码修复**。
+
+Biome 区分[**安全修复**](#safe-fixes)和[**不安全修复**](#unsafe-fixes)，二者的工作方式略有不同：主要区别在于，安全修复可以在保存文件时自动应用，而不安全修复不能。不过用户可以自行覆盖哪些修复被视为安全。
+
+Biome Linter 自带一组会自动启用、随语言而变化的推荐规则。
+
+### 安全修复
+
+安全修复保证不会改变你代码的语义。
+它们无需显式审查即可应用。
+
+要从 CLI 应用_安全修复_，请使用 `--write`：
+
+<PackageManagerBiomeCommand command="lint --write ./src" />
+
+在支持 LSP 的编辑器中，你可以使用代码操作 `source.fixAll.biome` 在**保存时**应用安全修复。
+如何应用请参考你所用扩展的文档。
+
+### 不安全修复
+
+不安全修复可能会改变你程序的语义。
+因此，建议手动审查这些更改。
+
+要从 CLI 同时应用_安全修复_和_不安全修复_，请使用 `--write --unsafe`：
+
+<PackageManagerBiomeCommand command="lint --write --unsafe ./src" />
+
+在支持 LSP 的编辑器中，无法在保存时应用所有不安全修复。因为在保存时改变代码语义并不理想。不过，你可以审查单个代码修复并选择应用它。
+
+### 规则支柱
+
+在 Biome 中，规则应当提供信息，向用户解释规则为何被触发，并告诉他们该做什么来修复错误。
+一条规则应遵循以下**支柱**：
+
+1. 向用户解释这个错误。通常这就是诊断信息的消息。
+2. 向用户解释错误**为何**被触发。通常通过一条额外的说明来实现。
+3. 告诉用户该做什么。通常通过一个代码操作来实现。
+如果代码操作不适用，则应通过一条说明告诉用户该做什么来修复错误。
+
+如果你认为某条规则没有遵循这些支柱，请[提交一个 issue](https://github.com/biomejs/biome/issues/new?assignees=&labels=S-To+triage&projects=&template=01_bug.yml&title=%F0%9F%90%9B+%3CTITLE%3E)。
+
+## 配置 Linter
+
+很多时候，你会想根据个人需求，或组织、项目的需求来调整 Linter。
+Biome 允许你自定义 Linter，本节将介绍如何做到这一点。
+
+### 禁用某条规则
+
+你可以用 `off` 关闭一条规则。
+
+以下配置会禁用推荐规则 `noDebugger`：
+
+<Code lang="json" title="biome.json" code={"{\n  \"linter\": {\n    \"rules\": {\n      \"suspicious\": {\n        \"noDebugger\": \"off\"\n      }\n    }\n  }\n}"} />
+
+### 禁用推荐规则
+
+你可以用一个简单的配置禁用推荐规则。当你只想启用少数几条规则时，这会很有用。
+
+<Code lang="json" ins={4} code={"{\n  \"linter\": {\n    \"rules\": {\n      \"recommended\": false\n    }\n  }\n}"} />
+
+### 更改规则严重性等级
+
+Biome Lint 规则自带各自的默认严重性等级。如果你想应用默认严重性等级，可以使用 `"on"` 配置。
+
+例如，`noShoutyConstants` 默认并非推荐规则，被触发时会输出一条 info 严重性等级的诊断信息。
+
+如果你对这个默认值满意并想使用它，配置将如下所示：
+
+<Code lang="json" title="biome.json" code={"{\n  \"linter\": {\n    \"rules\": {\n      \"style\": {\n        \"noShoutyConstants\": \"on\"\n      }\n    }\n  }\n}"} />
+
+如果你对默认严重性等级不满意，Biome 允许你用 `"error"`、`"warn"` 和 `"info"` 来更改它。
+
+带有 [`"error"`](/reference/diagnostics#error) 严重性等级的诊断信息总是会让 CLI 以错误代码退出。当你想在出现属于某条规则的违规时阻断 CI，这个严重性等级会很有用。
+
+[`"warn"`](/reference/diagnostics#warning) 与错误类似，但除非使用 `--error-on-warnings` 选项，否则它们不会让 CLI 以错误代码退出。`warn` 严重性等级的一种可能用法是：当某条规则仍有诊断信息时，你仍希望 CI 通过。
+
+[`"info"`](/reference/diagnostics#information) 严重性等级不会影响 CLI 的退出状态代码，即使传入了 `--error-on-warnings`。
+
+### 更改分组严重性等级
+
+此外，你可以**在分组级别**控制 Lint 规则的严重性等级。这样就能控制属于某个分组的**所有规则**的诊断严重性等级。
+
+例如，某个项目不需要使用 `a11y` 规则，因为它的代码运行在后端，所以无障碍并非关注点。以下示例会关闭属于 `a11y` 分组的所有规则：
+
+<Code lang="json" ins={4} code={"{\n  \"linter\": {\n    \"rules\": {\n      \"a11y\": \"off\"\n    }\n  }\n}"} />
+
+### 配置代码修复
+
+如前所述，规则输出的代码修复可能是**安全**或**不安全**的。Biome 允许你把安全修复配置为按不安全处理，反之亦然。你也可以完全关闭代码修复。
+
+可以使用 `fix` 选项配置代码修复。它可以取以下三个值之一：
+
+- `none`：该规则不会输出代码修复；
+- `safe`：该规则会输出一条[安全修复](#safe-fixes)；
+- `unsafe`：该规则会输出一条[不安全修复](#unsafe-fixes)；
+
+<Code lang="json" title="biome.jsonc" ins={7} code={"{\n  \"linter\": {\n    \"rules\": {\n      \"correctness\": {\n        \"noUnusedVariables\": {\n          \"level\": \"error\",\n          \"fix\": \"none\" // 不为 noUnusedVariables 建议代码修复\n        }\n      },\n      \"style\": {\n        \"useConst\": {\n          \"level\": \"warn\",\n          \"fix\": \"unsafe\" // `useConst` 的代码修复现在被视为不安全\n        },\n        \"useTemplate\": {\n          \"level\": \"warn\",\n          \"fix\": \"safe\" // `useTemplate` 的代码修复现在被视为安全\n        }\n      }\n    }\n  }\n}"} />
+
+### 跳过某条规则或某个分组
+
+`biome lint` 命令接受 `--skip` 选项，可以禁用单条规则或规则分组。
+
+例如，以下命令会跳过属于 `style` 分组的所有规则以及 `suspicious/noExplicitAny` 规则：
+
+```shell
+biome lint --skip=style --skip=suspicious/noExplicitAny
+```
+
+### 只运行某条规则或某个分组
+
+`biome lint` 命令接受 `--only` 选项，可以只运行单条规则或规则分组。
+
+例如，以下命令只运行 `style/useNamingConvention` 规则、`style/noInferrableTypes` 规则以及属于 `a11y` 的规则。如果某条规则在配置中被禁用，那么推荐规则的严重性等级会被设为 `error`，其余的设为 `warn`。
+
+```shell
+biome lint --only=style/useNamingConvention --only=style/noInferrableTypes --only=a11y
+```
+
+### 规则选项
+
+少数规则带有选项。
+你可以通过以不同方式构造规则的值来设置它们。
+
+- `level` 表示诊断信息的严重性等级；
+- `options` 会随规则而变化。
+
+<Code lang="json" title="biome.json" code={"{\n  \"linter\": {\n    \"rules\": {\n      \"style\": {\n        \"useNamingConvention\": {\n          \"level\": \"error\",\n          \"options\": {\n            \"strictCase\": false\n          }\n        }\n      }\n    }\n  }\n}"} />
+
+### 规则域
+
+规则域（domain）是 Biome 的一项功能，可以按技术，也就是按_领域_来对规则分组。规则域的例子有 `"react"`、`"solid"` 和 `"test"`。
+
+一个规则域：
+- 有自己的一组推荐规则。
+- 当 Biome 在你的 `package.json` 文件中检测到特定依赖时，可以自动启用。
+- 可以定义额外的全局变量。
+
+当 Biome 的 Linter 在最近的 `package.json` 中检测到特定依赖时，它会自动启用属于某个规则域的对应规则。例如，如果检测到 `mocha` 依赖，Biome 会启用 [`test`](/linter/domains#test) 规则域的**推荐规则**。
+
+不过，如果没有 `package.json` 或默认配置不适用，你可以通过配置启用该规则域：
+
+<Code lang="json" title="biome.json" ins={4} code={"{\n  \"linter\": {\n    \"domains\": {\n      \"test\": \"recommended\"\n    }\n  }\n}"} />
+
+此外，你可以使用 `"all"` 值启用属于某个规则域的**所有**规则：
+
+<Code lang="json" title="biome.json" ins={4} code={"{\n  \"linter\": {\n    \"domains\": {\n      \"test\": \"all\"\n    }\n  }\n}"} />
+
+与规则和分组一样，你也可以用 `"off"` 值关闭属于某个规则域的规则：
+
+<Code lang="json" title="biome.json" ins={4} code={"{\n  \"linter\": {\n    \"domains\": {\n      \"test\": \"off\"\n    }\n  }\n}"} />
+
+要了解更多关于每个规则域的信息，请查阅[相应页面](/linter/domains)。
+
+## 抑制 Lint 规则
+
+你可以参阅[抑制页面](/analyzer/suppressions)。
+
+## 与编辑器集成
+
+与支持 LSP 的编辑器的深度集成，让你能够配置 Biome 行为的某些方面。
+
+当 Biome 检测到违规时，会向编辑器发送一条诊断信息，并附带任意数量的代码操作来处理该诊断信息。
+这些操作是：
+- 可能的代码修复。只有当该规则**有**代码修复时才会出现。无论修复是安全还是不安全都会出现。
+- [以内联抑制的方式](/analyzer/suppressions#inline-suppressions)抑制该诊断信息。
+- [以顶层抑制的方式](/analyzer/suppressions#top-level-suppressions)抑制该诊断信息。
+
+通常，把光标放在诊断信息的范围内并按下某个快捷键（因编辑器而异），会出现一个包含可用代码操作的提示框。
+
+默认情况下，编辑器总会显示这些操作，不过你也可以选择退出。
+
+### 在保存时应用操作
+
+使用 `source.fixAll.biome` 代码操作，指示 Biome 在保存时应用所有**安全修复**。
+
+<EditorAction action="source.fixAll.biome" />
+
+### 编辑器抑制
+
+使用 `source.suppressRule.inline.biome` 控制编辑器是否显示内联抑制代码操作：
+
+<EditorAction action="source.suppressRule.inline.biome" off={true} />
+
+使用 `source.suppressRule.topLevel.biome` 控制编辑器是否显示顶层抑制代码操作：
+
+<EditorAction action="source.suppressRule.topLevel.biome" off={true} />
+
+## 从其他 Linter 迁移
+
+Biome 的许多 Lint 规则都借鉴自其他 Linter。
+如果你想从 ESLint 或 `typescript-eslint` 等其他 Linter 迁移，请查看[规则来源页面](/linter/rules-sources)。
+如果你从 ESLint 迁移，有一份专门的[迁移指南](/guides/migrate-eslint-prettier#migrate-from-eslint)。
+
+<Steps>
+
+1. 使用 `biome migrate eslint` 命令，把你在 `eslint` 配置文件中定义的规则移植到 `biome.json`：
+    ```shell
+    biome migrate eslint
+    ```
+2. 使用以下命令对项目进行 Lint，同时抑制 Biome 可能捕获的新规则：
+    ```shell
+    biome lint --suppress --reason "suppressed due to migration"
+    ```
+   该命令会用抑制原因 `"suppressed due to migration"` 抑制 Biome 发现的所有 Lint 违规。这样 Linter 就不该再报错了，之后你可以再移除这些抑制注释。
+</Steps>
+
+## Linter 分组
+
+Linter 把规则划分到若干_分组_之下。分组用于提供规则所属的某种分类。对用户而言，在挑选要启用或禁用的规则时，这些信息很有用；对开发者而言，在创建新的 Lint 规则时也大有裨益。
+
+### 无障碍
+
+专注于预防无障碍问题的规则。
+
+### 复杂度
+专注于检查可被简化的复杂代码的规则。
+
+### 正确性
+检测那些必定不正确或无用的代码的规则。
+
+### nursery（实验分组）
+仍在开发中的新规则。
+
+nursery 规则在稳定版本中需要通过配置显式选择启用，因为它们可能仍带有 bug 或性能问题（即便已被标记为推荐）。在 nightly 构建中它们默认启用，但由于尚不稳定，其诊断严重性等级可能被设为 error 或 warning，具体取决于我们打算在该规则最终稳定后是否将其列为推荐。nursery 规则一旦稳定就会被提升到其他分组，也可能被移除。
+
+<Aside type="caution">
+
+属于该分组的规则不受语义化版本约束。
+
+</Aside>
+
+### 性能
+捕捉能让你的代码运行得更快或整体更高效的写法的规则。
+
+### 安全
+检测潜在安全缺陷的规则。
+
+### 风格
+强制以一致且地道的方式编写代码的规则。默认情况下，这些规则只会生成 warning 而非 error。
+
+### 可疑
+检测很可能不正确或无用的代码的规则。
+
+## 常见问题（FAQ）
+
+### 为什么规则 X 有一个*不安全*的修复？在我看来它是安全的。
+
+Biome 团队决定将某条修复标记为不安全有不同的原因，但主要归结为以下几点：
+- 该 Lint 规则仍在大量开发中，其修复也一样。
+- 该规则的修复可能改变程序语义，因此必须由用户主动选择启用。
+- 该规则的修复可能在输入和/或保存时降低 DX。一个例子是 `noUnusedVariables`，它会给未使用变量的名字加上 `_`。这可能让程序员在输入和保存时的 DX 变差。你可以通过[配置](/linter/#configure-the-code-fix)更改这一行为。
+
+如果某条代码修复不符合这三条准则，那可能是团队忘记了把该规则的修复设为安全。请提交一个 issue 或发起一个 PR！
+
+### 与 v1 相比，为什么 Biome Linter 这么慢？
+
+自 Biome v2 起，我们用名为 Scanner 的工具扩展了其架构。Scanner 负责遍历你的项目文件，并生成模块图、推断类型等重要信息。
+
+有些规则**需要**这些信息，例如 `noFloatingPromises`、`noUnresolvedImports` 或 `noImportCycles`，否则它们无法工作。通常是需要[项目规则域](/linter/domains/#project)的规则。
+
+Scanner 需要**主动启用**，只有当属于[项目规则域](/linter/domains#project-rules)的规则被启用时才会触发。
+
+根据我们的测试，我们观察到大致如下数字：
+|           | 无 Scanner | 有 Scanner |
+|-----------|-----------------|--------------|
+| ~2k 个文件 | ~800ms          | ~2s          |
+| ~5k 个文件 | ~1000ms         | ~8s          |
+
+同样值得一提的是，**我们已经意识到**这对性能的影响，团队致力于改善软件这部分的表现。
+
+关于如何排查和缓解变慢，请查看[排查缓慢问题指南](/guides/investigate-slowness)。
+
+如果你发现内存或耗时方面有一些异常数字，请提交一个 issue 并附上仓库链接，以便我们提供帮助。
+
+### 为什么 Biome 占用这么多内存？
+
+如果你使用基于 Biome 的编辑器扩展，你可能会注意到它的某个进程会占用大量内存。
+
+这通常发生在你启用属于[项目规则域](/linter/domains/#project)的某条规则时。
+
+自 Biome v2 起，工具链现在能够使用 TypeScript 推断类型，从而提供更强大的规则。为此，Biome 会扫描 `node_modules` 文件夹内的 `.d.ts` 文件，包括传递依赖的文件。
+
+这看起来似乎是个低级错误，但受语言机制所限，这是有意为之。库
+**可以从其依赖中导出类型**，而终端用户未必直接依赖这些类型。
+
+例如，你可能依赖某个导出类型 `Validator` 的库 `@org/foo`，但这个 `Validator` 来自库 `@other-org/validator`，而它是 *`@org/foo` 的一个依赖*。然而，
+库 `@other-org/validator` 并不是该项目的直接依赖。
+
+**团队已经意识到**这一限制，将会投入时间和资源持续优化基础设施。

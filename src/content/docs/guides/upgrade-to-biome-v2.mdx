@@ -1,0 +1,235 @@
+---
+title: 升级到 Biome v2
+description: 了解如何升级到 Biome v2
+anchors: ["upgrade-via-cli","breaking-changes","rome-related-features-arent-supported-anymore","the-option---config-path-is-removed","the-options-ignore-and-include-are-removed-and-replaced-by-includes","paths-and-globs-are-now-relative-to-the-configuration-file","the-option-all-is-removed-from-the-linter","syntax-assert-no-longer-supported","the-linter-works-differently","style-rules-dont-emit-errors-anymore","different-default-formatting-of-packagejson","the-import-organizer-sorts-the-imports-differently","zed-extension-v020-isnt-compatible-with-v1","vs-code-extension-v3-needs-complete-restart"]
+toc: [{"level":2,"text":"通过 CLI 升级","id":"upgrade-via-cli"},{"level":2,"text":"破坏性变更","id":"breaking-changes"},{"level":3,"text":"不再支持 Rome 相关功能","id":"rome-related-features-arent-supported-anymore"},{"level":3,"text":"移除 --config-path 选项","id":"the-option---config-path-is-removed"},{"level":3,"text":"移除 ignore 和 include 选项，改由 includes 取代","id":"the-options-ignore-and-include-are-removed-and-replaced-by-includes"},{"level":3,"text":"路径和 glob 现在相对于配置文件","id":"paths-and-globs-are-now-relative-to-the-configuration-file"},{"level":3,"text":"从 Linter 移除 all 选项","id":"the-option-all-is-removed-from-the-linter"},{"level":3,"text":"不再支持 assert 语法","id":"syntax-assert-no-longer-supported"},{"level":3,"text":"Linter 的工作方式有所不同","id":"the-linter-works-differently"},{"level":3,"text":"style 规则不再发出错误","id":"style-rules-dont-emit-errors-anymore"},{"level":3,"text":"package.json 的默认格式化方式有所不同","id":"different-default-formatting-of-packagejson"},{"level":3,"text":"导入整理器以不同方式排序导入","id":"the-import-organizer-sorts-the-imports-differently"},{"level":3,"text":"Zed 扩展 v0.2.0 与 v1 不兼容","id":"zed-extension-v020-isnt-compatible-with-v1"},{"level":3,"text":"VS Code 扩展 v3 需要完全重启","id":"vs-code-extension-v3-needs-complete-restart"}]
+---
+import Code from "@/components/mdx/Code.astro";
+import EditorSettings from "@/components/mdx/EditorSettings.astro";
+import FileTree from "@/components/mdx/FileTree.astro";
+import PackageManagerBiomeCommand from "@/components/mdx/PackageManagerBiomeCommand.astro";
+import PackageManagerCommand from "@/components/mdx/PackageManagerCommand.astro";
+import Steps from "@/components/mdx/Steps.astro";
+
+如果你有一个使用 Biome v1 的项目，并且想升级到 v2，本指南将提供你所需的全部信息。
+
+## 通过 CLI 升级
+
+<Steps>
+    <ol>
+        <li>
+
+            使用你的包管理器安装 Biome 的 `2.0.6` 版本：
+            <PackageManagerCommand
+                npm={["install --save-dev --save-exact @biomejs/biome@2.0.6"]}
+                pnpm={["add --save-dev --save-exact @biomejs/biome@2.0.6"]}
+                yarn={["add --dev --exact @biomejs/biome@2.0.6"]}
+                bun={["add --dev --exact @biomejs/biome@2.0.6"]}
+                deno={["add --dev npm:@biomejs/biome@2.0.6"]} />
+        </li>
+        <li>
+            运行 `migrate` 命令以更新配置：
+            <PackageManagerBiomeCommand command="migrate --write" />
+        </li>
+        <li>
+            一切就绪！`migrate` 命令应该已经更新了你的配置，以*缓解*可能的[破坏性变更](#breaking-changes)。不过请务必检查命令的输出；在某些情况下，你可能需要执行一些手动步骤。如果是这样，migrate 命令会向你指出这些步骤。
+        </li>
+    </ol>
+</Steps>
+
+## 破坏性变更
+
+尽管项目团队致力于减少破坏性变更的数量，v2 仍带来了一些值得说明的破坏。本节将逐一介绍最关键的变化，解释破坏性变更的原因，并在适用时提供解决方案。
+
+### 不再支持 Rome 相关功能
+
+所有与旧 Rome 项目相关的功能都不再支持。如果你仍然依赖这些功能，就必须升级你的项目：
+- 将 `rome.json` 重命名为 `biome.json`。
+- 将 `// rome-ignore` 重命名为 `// biome-ignore`。
+- 将 `ROME_BINARY` 重命名为 `BIOME_BINARY`。
+- 不再支持抑制注释格式 `// biome-ignore lint(<GROUP_NAME>/<RULE_NAME>): <explanation>`。请改用 `// biome-ignore lint/<GROUP_NAME>/<RULE_NAME>: <explanation>`。
+
+### 移除 `--config-path` 选项
+
+已从 `biome lsp-proxy` 和 `biome start` 命令中移除 CLI 选项 `--config-path`。
+
+该选项会覆盖在 Biome 守护进程中打开的所有工作区的配置路径，这导致在某些编辑器或 IDE 中打开多个项目时出现配置不匹配的问题。
+
+如果你使用支持 LSP 的编辑器，你可以用它的设置来定义项目的配置路径。
+
+<EditorSettings zedName="configuration_path" zedValue="&quot;./frontend/biome.json&quot;" vsName="configurationPath" vsValue="&quot;./frontend/biome.json&quot;" />
+
+如果你是插件开发者，请更新你的插件，使用 `workspace/configuration` 响应，而不是使用 `--config-path` 参数。Biome 的 LSP 会自动解析工作区中的配置，因此建议将其留空，除非你使用了自定义配置路径。
+
+### 移除 `ignore` 和 `include` 选项，改由 `includes` 取代
+
+如果你已经运行过 `migrate` 命令，就不应该出现回归。之所以把这两个字段合并为一个新字段，是因为 Biome 旧 glob 引擎的实现存在缺陷，导致一些边缘情况，除非更换引擎否则我们无法修复。不幸的是，要做到这一点无法避免破坏性变更。
+
+之前的 glob 引擎会在用户提供的任何 glob 前加上匹配器 `**/`。这意味着 glob `src/**` 总是被转换为 `**/src/**`，在某些情况下导致一些意外行为：
+
+|             | `/projectA/src/file.js`     | `src/file.js`     | `/projectB/frontend/src/file.js` |
+|-------------|-----------------------------|-------------------|----------------------------------|
+| `src/**`    | Glob *不*匹配路径 | Glob 匹配路径 | Glob *不*匹配路径      |
+| `**/src/**` | Glob 匹配路径           | Glob 匹配路径 | Glob 匹配                     |
+
+如你所见，glob `**/src/**` **过于**激进，它会匹配本不该匹配的路径，例如  `/Users/www/projectB/frontend/src/file.js`。
+
+从 v2 开始，Biome **不再**在 glob 前加上 `**/`。
+
+在之前的 glob 引擎中，模式 `*` 匹配任意字符序列，包括路径分隔符 `/`。
+这意味着 glob `**/src/*.js` 总是被转换为 `**/src/**/*.js`。
+从 v2 开始，Biome 的 `*` **不再匹配路径分隔符 `/`**。
+
+### 路径和 glob 现在相对于配置文件
+
+在 v1 中，配置文件中声明的 glob 和文件是相对于工作目录的。这种行为可能会导致一些意外结果，特别是当你从其他工具迁移过来时。
+
+在下面的示例中，配置文件位于项目根目录，`check` 命令从一个子目录运行，并被配置为只分析 `src/` 文件夹内的文件。
+
+<FileTree>
+
+- biome.json
+    - src/
+        - deploy.js
+    - ui/
+        - package.json
+        - src/
+            - main.tsx
+            - utils.ts
+
+</FileTree>
+
+<Code lang="json" title="ui/package.json" code={"{\n  \"name\": \"@org/ui\",\n  \"publish\": false,\n  \"scripts\": {\n    \"check\": \"biome check\"\n  }\n}"} />
+
+<Code lang="json" title="biome.json" code={"{\n  \"files\": {\n    \"includes\": [\"src/**\"]\n  }\n}"} />
+
+在 **v1** 中，当你运行 `npm run check` 时，会发生以下情况：
+- Biome 在 `ui/` 中查找 `biome.json`
+- 未找到配置文件，Biome 开始检查父文件夹
+- Biome **在父文件夹中**找到 `biome.json`
+- *工作目录*是 `ui/`，因为 CLI 命令是在那里运行的
+- Biome 在 `src/**` 前加上 `ui/`
+- glob `ui/src/**` 匹配 `ui/src/main.tsx` 和 `ui/src/utils.ts`，但不匹配 `src/deploy.js`
+- 分析两个文件
+
+在 **v2** 中，当你运行 `npm run check` 时，会发生以下情况：
+- Biome 在 `ui/` 中查找 `biome.json`
+- 未找到配置文件，Biome 开始检查父文件夹
+- Biome **在父文件夹中**找到 `biome.json`
+- glob `src/**` 不匹配 `ui/src/main.tsx` 和 `ui/src/utils.ts`，但匹配 `src/deploy.js`
+- 分析一个文件
+
+要与之前的行为保持一致，必须将 glob 更新为 `ui/src/**`：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n  \"files\": {\n    \"includes\": [\"ui/src/**\"]\n  }\n}"} />
+
+### 从 Linter 移除 `all` 选项
+
+在 Biome 的极早期版本中，我们引入了 `all`，用于启用 Linter 的所有规则，或启用属于某个分组的所有规则。那时 Biome 规则很少，对维护者和最终用户来说维护成本很低。我们没有多想，就直接加入了它。
+
+如今 Biome 已有超过 300 条规则，其中一些规则*彼此冲突*，导致项目无法修复规则违规的情况，因为一个修复会触发另一条规则，反之亦然。
+
+我们决定**退一步**，移除该选项，并在未来以另一种形式重新引入它，也许采用不同的语义和配置。我们清楚这一破坏性变更可能会带来一些不便。
+
+项目维护者已经在 Discord 和 [GitHub](https://github.com/biomejs/biome/issues/5764) 上讨论这一话题。欢迎你参与讨论，帮助我们找到一个好的解决方案。
+
+作为一种*有限的*变通办法，你可以启用推荐规则，并启用所有 Linter 规则域（domain）。不过，你无法禁用单条规则，而且 `react` 和 `solid` 这两个规则域会启用彼此冲突的规则：
+
+<Code lang="json" title="biome.json" code={"{\n  \"linter\": {\n    \"domains\": {\n      \"next\": \"all\",\n      \"react\": \"all\",\n      \"test\": \"all\",\n      \"solid\": \"all\",\n      \"project\": \"all\"\n    },\n    \"rules\": {\n      \"recommended\": true\n    }\n  }\n}"} />
+
+### 不再支持 `assert` 语法
+
+已进入 Stage 3 的 `assert` 语法不再受支持，已由 `with` 语法取代。
+
+所有 LTS 版本的 Node.js 都支持新语法，所有浏览器引擎和无服务器运行时也同样支持。
+
+```diff mark="with" mark="assert"
+-import {test} from "foo.json" assert { for: "for" }
+-export * from "mod" assert { type: "json" }
++import {test} from "foo.json" with { for: "for" }
++export * from "mod" with { type: "json" }
+```
+
+### Linter 的工作方式有所不同
+
+在 v1 中，Linter 的工作方式如下：
+- 推荐规则默认只发出错误级别的诊断信息。
+- 非推荐规则需要手动启用，并且必须由用户决定严重性等级。
+
+这种工作方式与其他 Linter（ESLint、clippy、golint 等）略有不同，而且局限性很大。
+
+在 v2 中，Linter 像其他 Linter 一样工作，也就是说：
+- 每条规则都关联一个由 Biome 建议的默认严重性等级。
+- 推荐规则可以发出不同严重性等级的诊断信息。
+- 用户现在可以使用规则的默认严重性等级，或自行选择严重性等级。
+
+如果你依赖推荐规则始终发出错误，`biome migrate` 命令会将这些规则的严重性等级设置为 `"error"`。
+
+### `style` 规则不再发出错误
+
+过去几个月里，我们就推荐规则收到了大量宝贵反馈。我们意识到，要为用户平衡一套"推荐"规则颇具挑战。有些人很喜欢我们的默认设置，而另一些人则认为它们过于嘈杂。
+
+从 v2 开始，所有属于 `style` 分组的规则除非另有配置，否则不会发出错误。`biome migrate` 命令会更新配置，使得如果你之前启用了它们，它们仍然发出错误。请确保配置符合你的标准。
+
+### `package.json` 的默认格式化方式有所不同
+
+Biome 现在以不同的默认设置格式化 `package.json`。现在对象和数组始终跨多行格式化，无论其宽度如何：
+
+<Code lang="text" title="package.json" code={"-{ \"name\": \"project\", \"dependencies\": { \"foo\": \"^1.0.0\" } }\n+{\n+ \"name\": \"project\",\n+ \"dependencies\": {\n+   \"foo\": \"^1.0.0\"\n+ }\n+}"} />
+
+如果你喜欢之前的格式化风格，就必须向配置添加一个覆盖设置，并将 `"auto"` 用作 `expand` 选项的值：
+
+<Code lang="json" title="biome.json" ins={6} code={"{\n  \"overrides\": [{\n    \"includes\": [\"package.json\"],\n    \"json\": {\n      \"formatter\": {\n        \"expand\": \"auto\"\n      }\n    }\n  }]\n}"} />
+
+### 导入整理器以不同方式排序导入
+
+Biome v2 附带了一个全新的导入整理器，带来许多新功能：
+
+- 支持自定义排序。
+- 整理 `export` 语句。
+- 忽略 `import` 语句之间的空行。
+- 合并 `import`/`export`。
+- 它的默认排序比以往更一致。
+
+所有这些变化都可能导致你项目中导入和导出的排序有所不同。
+相关配置也已从专门的 `organizeImports` 字段移到了 [Assist 辅助操作](/assist/)。
+`biome migrate` 会负责按如下方式迁移配置：
+
+<Code lang="diff" title="biome.json" code={"  {\n-    \"organizeImports\": { \"enabled\": true }\n+    \"assist\": { \"actions\": { \"source\": { \"organizeImports\": \"on\" } } }\n  }"} />
+
+新旧默认排序器之间的一个显著区别是：不带 `node:` 协议的 Node.js 模块不再被放在其他导入之前。
+例如，在 Biome 1.x 中，以下导入的排序方式为：
+
+```js
+
+```
+
+在 Biome 2.0 中，它们的排序方式如下：
+
+```js
+
+```
+
+要恢复旧的行为，请使用如下所示的自定义顺序：
+
+<Code lang="json5" title="biome.jsonc" code={"{\n    \"assist\": {\n        \"actions\": {\n            \"source\": {\n                \"organizeImports\": {\n                    \"level\": \"on\",\n                    \"options\": {\n                        \"groups\": [\n                            // Bun 模块\n                            \":BUN:\",\n                            // Node.js 模块\n                            \":NODE:\",\n                            // 通过 `npm:` 协议导入的模块\n                            [\"npm:*\", \"npm:*/**\"],\n                            // 通过其他协议导入的模块，例如 `jsr:`\n                            \":PACKAGE_WITH_PROTOCOL:\",\n                            // URL\n                            \":URL:\",\n                            // 库\n                            \":PACKAGE:\",\n                            // 绝对路径\n                            [\"/**\"],\n                            // Sharp 别名\n                            [\"#*\", \"#*/**\"],\n                            // 所有其他路径\n                            \":PATH:\"\n                        ]\n                    }\n                }\n            }\n        }\n    }\n}"} />
+
+请注意，无法完全实现与 Biome v1.x 相同的行为。
+我们建议使用新的默认设置，它更加一致也更简单。
+
+详情请阅读[导入整理器文档](/assist/actions/organize-imports/)。
+
+### Zed 扩展 `v0.2.0` 与 v1 不兼容
+
+新版 Zed 扩展与 Biome v1 不兼容，因为不再支持 `--config-path`。团队
+曾尝试保持向后兼容，但不幸的是，Zed 为扩展作者提供的调试能力非常有限。
+
+### VS Code 扩展 v3 需要完全重启
+
+虽然这与 Biome v2 没有直接关系，但新版 VS Code 扩展使用另一种方法连接到
+Biome 守护进程。如果你升级了扩展，并且使用了 `"source.fixAll.biome": "explicit"`，那么在保存时你可能会遇到**错误的代码**。
+要解决此问题，你需要：
+1. 升级扩展；
+1. 关闭编辑器；
+1. 结束可能残留的 `biome` 进程；
+1. 重启编辑器；

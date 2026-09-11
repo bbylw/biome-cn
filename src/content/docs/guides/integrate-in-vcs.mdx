@@ -1,0 +1,64 @@
+---
+title: 将 Biome 集成到你的 VCS
+description: 了解如何将 Biome 与 VCS 集成
+anchors: ["use-the-ignore-file","process-only-changed-files","process-only-staged-files"]
+toc: [{"level":3,"text":"使用忽略文件","id":"use-the-ignore-file"},{"level":3,"text":"仅处理已更改的文件","id":"process-only-changed-files"},{"level":3,"text":"仅处理已暂存的文件","id":"process-only-staged-files"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import Code from "@/components/mdx/Code.astro";
+
+VCS（版本控制系统）集成旨在利用只有 VCS 才能提供的**额外**功能。
+目前，Biome 仅支持 Git。该集成需要**主动启用**。
+
+你需要在 Biome 配置文件中启用 `vcs.enabled` 并设置 `vcs.clientKind`：
+
+<Code lang="json" title="biome.json" code={"{\n  \"vcs\": {\n    \"enabled\": true,\n    \"clientKind\": \"git\"\n  }\n}"} />
+
+该配置本身并不做**任何事**。你需要主动启用自己想要的功能。
+
+### 使用忽略文件
+
+启用 `vcs.useIgnoreFile`，让 Biome 忽略项目 VCS 忽略文件中列出的所有文件和目录，以及 `.ignore` 文件。
+
+对于 Git 仓库，Biome 会读取 `.gitignore` 文件以及位于 `.git/info/exclude` 的 Git 本地排除文件。在关联的工作树（linked worktrees）中，`.git/info/exclude` 会从公共 Git 目录读取，这与 Git 自身的行为一致。
+
+<Code lang="json" title="biome.json" ins={5} code={"{\n  \"vcs\": {\n    \"enabled\": true,\n    \"clientKind\": \"git\",\n    \"useIgnoreFile\": true\n  }\n}"} />
+
+### 仅处理已更改的文件
+
+这是一项只能通过 CLI 使用的功能，它允许**仅**处理从一个修订版本到另一个修订版本发生**更改**的文件。
+
+首先，你需要更新配置文件，通过 `vcs.defaultBranch` 字段告诉 Biome 默认分支是什么：
+
+<Code lang="json" title="biome.json" ins={6} code={"{\n  \"vcs\": {\n    \"enabled\": true,\n    \"clientKind\": \"git\",\n    \"useIgnoreFile\": true,\n    \"defaultBranch\": \"main\"\n  }\n}"} />
+
+然后，在你的命令中添加 `--changed` 选项，只处理那些被你的 VCS 认定为“已更改”的文件。Biome 会借助 VCS，从 `main` 分支和你当前的修订版本之间确定发生更改的文件：
+
+```shell showLineNumbers=false
+biome check --changed
+```
+
+<Aside type="caution">
+
+Biome 不检查代码中实际改动了什么，也就是说，哪怕只给一个文件加上空格或换行，它也会被标记为“已更改”。
+
+另外请注意，`--changed` 同时作用于格式化器和 Linter。Biome 只处理存在差异的文件，它不会自动检查从这些文件导入的下游文件。如果你在一个文件里改动了某个导出的类型，你可能仍需运行一次完整的 Lint，才能捕获其他文件中的相关错误。
+
+</Aside>
+
+你也可以使用 `--since` 选项指定任意分支。该选项**优先于** `vcs.defaultBranch` 选项。例如，你可能想针对 `next` 分支检查自己的更改：
+
+```shell showLineNumbers=false
+biome check --changed --since=next
+```
+
+### 仅处理已暂存的文件
+
+在提交更改之前，你可能想在不对整个项目运行 Biome 的情况下，检查已添加到索引（即已暂存文件）中的文件的格式和 Lint。
+要让 Biome 只处理将要提交的文件，请在命令中传入 `--staged` 选项：
+
+```shell showLineNumbers=false
+biome check --staged
+```
+
+`--staged` 选项在 `ci` 命令中不可用，因为你通常不会在 CI 期间提交更改。

@@ -1,0 +1,537 @@
+---
+title: 规则域
+description: 可用规则域列表
+anchors: ["astro","astro-activation","astro-dependencies","astro-rules","drizzle","drizzle-activation","drizzle-dependencies","drizzle-rules","next","next-activation","next-dependencies","next-rules","playwright","playwright-activation","playwright-dependencies","playwright-globals","playwright-rules","project","project-activation","project-rules","qwik","qwik-activation","qwik-dependencies","qwik-rules","react","react-activation","react-dependencies","react-rules","reactnative","reactnative-activation","reactnative-dependencies","reactnative-rules","solid","solid-activation","solid-dependencies","solid-rules","svelte","svelte-activation","svelte-dependencies","svelte-rules","tailwind","tailwind-activation","tailwind-dependencies","tailwind-rules","test","test-activation","test-dependencies","test-globals","test-rules","turborepo","turborepo-activation","turborepo-dependencies","turborepo-rules","types","types-activation","types-rules","vue","vue-activation","vue-dependencies","vue-rules"]
+toc: [{"level":2,"text":"Astro","id":"astro"},{"level":3,"text":"Astro 启用","id":"astro-activation"},{"level":3,"text":"Astro 依赖","id":"astro-dependencies"},{"level":3,"text":"Astro 规则","id":"astro-rules"},{"level":2,"text":"Drizzle","id":"drizzle"},{"level":3,"text":"Drizzle 启用","id":"drizzle-activation"},{"level":3,"text":"Drizzle 依赖","id":"drizzle-dependencies"},{"level":3,"text":"Drizzle 规则","id":"drizzle-rules"},{"level":2,"text":"Next","id":"next"},{"level":3,"text":"Next 启用","id":"next-activation"},{"level":3,"text":"Next 依赖","id":"next-dependencies"},{"level":3,"text":"Next 规则","id":"next-rules"},{"level":2,"text":"Playwright","id":"playwright"},{"level":3,"text":"Playwright 启用","id":"playwright-activation"},{"level":3,"text":"Playwright 依赖","id":"playwright-dependencies"},{"level":3,"text":"Playwright 全局变量","id":"playwright-globals"},{"level":3,"text":"Playwright 规则","id":"playwright-rules"},{"level":2,"text":"Project","id":"project"},{"level":3,"text":"Project 启用","id":"project-activation"},{"level":3,"text":"Project 规则","id":"project-rules"},{"level":2,"text":"Qwik","id":"qwik"},{"level":3,"text":"Qwik 启用","id":"qwik-activation"},{"level":3,"text":"Qwik 依赖","id":"qwik-dependencies"},{"level":3,"text":"Qwik 规则","id":"qwik-rules"},{"level":2,"text":"React","id":"react"},{"level":3,"text":"React 启用","id":"react-activation"},{"level":3,"text":"React 依赖","id":"react-dependencies"},{"level":3,"text":"React 规则","id":"react-rules"},{"level":2,"text":"ReactNative","id":"reactnative"},{"level":3,"text":"ReactNative 启用","id":"reactnative-activation"},{"level":3,"text":"ReactNative 依赖","id":"reactnative-dependencies"},{"level":3,"text":"ReactNative 规则","id":"reactnative-rules"},{"level":2,"text":"Solid","id":"solid"},{"level":3,"text":"Solid 启用","id":"solid-activation"},{"level":3,"text":"Solid 依赖","id":"solid-dependencies"},{"level":3,"text":"Solid 规则","id":"solid-rules"},{"level":2,"text":"Svelte","id":"svelte"},{"level":3,"text":"Svelte 启用","id":"svelte-activation"},{"level":3,"text":"Svelte 依赖","id":"svelte-dependencies"},{"level":3,"text":"Svelte 规则","id":"svelte-rules"},{"level":2,"text":"Tailwind","id":"tailwind"},{"level":3,"text":"Tailwind 启用","id":"tailwind-activation"},{"level":3,"text":"Tailwind 依赖","id":"tailwind-dependencies"},{"level":3,"text":"Tailwind 规则","id":"tailwind-rules"},{"level":2,"text":"Test","id":"test"},{"level":3,"text":"Test 启用","id":"test-activation"},{"level":3,"text":"Test 依赖","id":"test-dependencies"},{"level":3,"text":"Test 全局变量","id":"test-globals"},{"level":3,"text":"Test 规则","id":"test-rules"},{"level":2,"text":"Turborepo","id":"turborepo"},{"level":3,"text":"Turborepo 启用","id":"turborepo-activation"},{"level":3,"text":"Turborepo 依赖","id":"turborepo-dependencies"},{"level":3,"text":"Turborepo 规则","id":"turborepo-rules"},{"level":2,"text":"Types","id":"types"},{"level":3,"text":"Types 启用","id":"types-activation"},{"level":3,"text":"Types 规则","id":"types-rules"},{"level":2,"text":"Vue","id":"vue"},{"level":3,"text":"Vue 启用","id":"vue-activation"},{"level":3,"text":"Vue 依赖","id":"vue-dependencies"},{"level":3,"text":"Vue 规则","id":"vue-rules"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import Code from "@/components/mdx/Code.astro";
+
+## Astro
+在 Astro 项目中使用该规则域（domain）。该规则域启用了一批 Astro 项目专属的规则。
+### Astro 启用
+启用该规则域中**推荐、非 nursery（实验分组）** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"astro\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+<Aside type="note" title="没有推荐规则">
+
+由于该规则域中的所有规则都是 nursery 规则，启用该规则域时不会激活任何规则。你需要单独启用各条规则。
+
+</Aside>
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"astro\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"astro\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### Astro 依赖
+声明了以下依赖时启用：
+- `astro`: `>=1.0.0`
+
+### Astro 规则
+属于该规则域的规则：
+- [noAstroSetHtmlDirective](/linter/rules/no-astro-set-html-directive/html) [(nursery)](/linter/#nursery)
+- [useAstroClientOnlyDirectiveValue](/linter/rules/use-astro-client-only-directive-value/html) [(nursery)](/linter/#nursery)
+## Drizzle
+在基于 Drizzle 的项目中使用该规则域。
+### Drizzle 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"drizzle\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+<Aside type="note" title="没有推荐规则">
+
+由于该规则域中的所有规则都是 nursery 规则，启用该规则域时不会激活任何规则。你需要单独启用各条规则。
+
+</Aside>
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"drizzle\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"drizzle\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### Drizzle 依赖
+声明了以下依赖时启用：
+- `drizzle-orm`: `>=0.9.0`
+
+### Drizzle 规则
+属于该规则域的规则：
+- [noDrizzleDeleteWithoutWhere](/linter/rules/no-drizzle-delete-without-where/javascript) [(nursery)](/linter/#nursery)
+- [noDrizzleUpdateWithoutWhere](/linter/rules/no-drizzle-update-without-where/javascript) [(nursery)](/linter/#nursery)
+## Next
+在 Next.js 项目中使用该规则域。
+### Next 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"next\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"next\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"next\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### Next 依赖
+声明了以下依赖时启用：
+- `next`: `>=14.0.0`
+
+### Next 规则
+属于该规则域的规则：
+- [noBeforeInteractiveScriptOutsideDocument](/linter/rules/no-before-interactive-script-outside-document/javascript)
+- [noNextAsyncClientComponent](/linter/rules/no-next-async-client-component/javascript)
+- [useExhaustiveDependencies](/linter/rules/use-exhaustive-dependencies/javascript) （推荐）
+- [useHookAtTopLevel](/linter/rules/use-hook-at-top-level/javascript) （推荐）
+- [useInlineScriptId](/linter/rules/use-inline-script-id/javascript) （推荐）
+- [noImgElement](/linter/rules/no-img-element/javascript) （推荐）
+- [noSyncScripts](/linter/rules/no-sync-scripts/javascript)
+- [noUnwantedPolyfillio](/linter/rules/no-unwanted-polyfillio/javascript) （推荐）
+- [useGoogleFontPreconnect](/linter/rules/use-google-font-preconnect/javascript) （推荐）
+- [noHeadElement](/linter/rules/no-head-element/javascript) （推荐）
+- [noDocumentImportInPage](/linter/rules/no-document-import-in-page/javascript) （推荐）
+- [noHeadImportInDocument](/linter/rules/no-head-import-in-document/javascript) （推荐）
+## Playwright
+在 Playwright 测试项目中使用该规则域。该规则域启用了一批规则，帮助你在编写 Playwright 测试时落实最佳实践并捕捉常见错误。
+### Playwright 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"playwright\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+<Aside type="note" title="没有推荐规则">
+
+由于该规则域中的所有规则都是 nursery 规则，启用该规则域时不会激活任何规则。你需要单独启用各条规则。
+
+</Aside>
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"playwright\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"playwright\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### Playwright 依赖
+声明了以下依赖时启用：
+- `@playwright/test`: `>=1.0.0`
+
+### Playwright 全局变量
+启用后，Biome 会识别以下全局绑定：
+- `test`
+- `expect`
+
+### Playwright 规则
+属于该规则域的规则：
+- [noPlaywrightElementHandle](/linter/rules/no-playwright-element-handle/javascript) [(nursery)](/linter/#nursery)
+- [noPlaywrightEval](/linter/rules/no-playwright-eval/javascript) [(nursery)](/linter/#nursery)
+- [noPlaywrightForceOption](/linter/rules/no-playwright-force-option/javascript) [(nursery)](/linter/#nursery)
+- [noPlaywrightMissingAwait](/linter/rules/no-playwright-missing-await/javascript) [(nursery)](/linter/#nursery)
+- [noPlaywrightNetworkidle](/linter/rules/no-playwright-networkidle/javascript) [(nursery)](/linter/#nursery)
+- [noPlaywrightPagePause](/linter/rules/no-playwright-page-pause/javascript) [(nursery)](/linter/#nursery)
+- [noPlaywrightUselessAwait](/linter/rules/no-playwright-useless-await/javascript) [(nursery)](/linter/#nursery)
+- [noPlaywrightWaitForNavigation](/linter/rules/no-playwright-wait-for-navigation/javascript) [(nursery)](/linter/#nursery)
+- [noPlaywrightWaitForSelector](/linter/rules/no-playwright-wait-for-selector/javascript) [(nursery)](/linter/#nursery)
+- [noPlaywrightWaitForTimeout](/linter/rules/no-playwright-wait-for-timeout/javascript) [(nursery)](/linter/#nursery)
+- [usePlaywrightValidDescribeCallback](/linter/rules/use-playwright-valid-describe-callback/javascript) [(nursery)](/linter/#nursery)
+## Project
+该规则域包含执行项目级分析的规则，其中包括用于依赖解析的模块图。启用属于该规则域的规则时，Biome 会扫描整个项目。扫描阶段会影响 Lint 过程的性能。参阅我们关于[扫描器](/internals/architecture/#scanner)的文档，进一步了解扫描器。
+### Project 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"project\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"project\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"project\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### Project 规则
+属于该规则域的规则：
+- [noPrivateImports](/linter/rules/no-private-imports/javascript) （推荐）
+- [noUndeclaredDependencies](/linter/rules/no-undeclared-dependencies/javascript)
+- [noUnresolvedImports](/linter/rules/no-unresolved-imports/javascript)
+- [useImportExtensions](/linter/rules/use-import-extensions/javascript)
+- [useJsonImportAttributes](/linter/rules/use-json-import-attributes/javascript)
+- [noUndeclaredClasses](/linter/rules/no-undeclared-classes/javascript) [(nursery)](/linter/#nursery)
+- [noUndeclaredCustomProperties](/linter/rules/no-undeclared-custom-properties/javascript) [(nursery)](/linter/#nursery)
+- [noDeprecatedImports](/linter/rules/no-deprecated-imports/javascript)
+- [noImportCycles](/linter/rules/no-import-cycles/javascript)
+- [noUntrustedLicenses](/linter/rules/no-untrusted-licenses/json) [(nursery)](/linter/#nursery)
+- [noUndeclaredCustomProperties](/linter/rules/no-undeclared-custom-properties/css) [(nursery)](/linter/#nursery)
+- [noUnusedClasses](/linter/rules/no-unused-classes/css) [(nursery)](/linter/#nursery)
+- [noUndeclaredClasses](/linter/rules/no-undeclared-classes/html) [(nursery)](/linter/#nursery)
+- [noUndeclaredCustomProperties](/linter/rules/no-undeclared-custom-properties/html) [(nursery)](/linter/#nursery)
+## Qwik
+在 Qwik 项目中使用该规则域。该规则域启用了一批 Qwik 项目专属的规则。
+### Qwik 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"qwik\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"qwik\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"qwik\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### Qwik 依赖
+声明了以下依赖时启用：
+- `@builder.io/qwik`: `>=1.0.0`
+- `@qwik.dev/core`: `>=2.0.0`
+
+### Qwik 规则
+属于该规则域的规则：
+- [noQwikUseVisibleTask](/linter/rules/no-qwik-use-visible-task/javascript) （推荐）
+- [useImageSize](/linter/rules/use-image-size/javascript) （推荐）
+- [useJsxKeyInIterable](/linter/rules/use-jsx-key-in-iterable/javascript) （推荐）
+- [useQwikClasslist](/linter/rules/use-qwik-classlist/javascript) （推荐）
+- [useQwikMethodUsage](/linter/rules/use-qwik-method-usage/javascript) （推荐）
+- [useQwikValidLexicalScope](/linter/rules/use-qwik-valid-lexical-scope/javascript) （推荐）
+- [useQwikLoaderLocation](/linter/rules/use-qwik-loader-location/javascript) [(nursery)](/linter/#nursery)
+- [noReactSpecificProps](/linter/rules/no-react-specific-props/javascript) （推荐）
+## React
+在 React 项目中使用该规则域。它启用了一组规则，有助于捕捉 bug 并落实正确的实践。该规则域启用的规则可能与 Solid 规则域冲突。
+### React 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"react\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"react\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"react\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### React 依赖
+声明了以下依赖时启用：
+- `react`: `>=16.0.0`
+
+### React 规则
+属于该规则域的规则：
+- [noChildrenProp](/linter/rules/no-children-prop/javascript) （推荐）
+- [noNestedComponentDefinitions](/linter/rules/no-nested-component-definitions/javascript)
+- [noReactPropAssignments](/linter/rules/no-react-prop-assignments/javascript)
+- [noRenderReturnValue](/linter/rules/no-render-return-value/javascript) （推荐）
+- [useExhaustiveDependencies](/linter/rules/use-exhaustive-dependencies/javascript) （推荐）
+- [useHookAtTopLevel](/linter/rules/use-hook-at-top-level/javascript) （推荐）
+- [useJsxKeyInIterable](/linter/rules/use-jsx-key-in-iterable/javascript) （推荐）
+- [useUniqueElementIds](/linter/rules/use-unique-element-ids/javascript)
+- [noComponentHookFactories](/linter/rules/no-component-hook-factories/javascript) [(nursery)](/linter/#nursery)
+- [noJsxLeakedDollar](/linter/rules/no-jsx-leaked-dollar/javascript) [(nursery)](/linter/#nursery)
+- [noJsxNamespace](/linter/rules/no-jsx-namespace/javascript) [(nursery)](/linter/#nursery)
+- [noReactStringRefs](/linter/rules/no-react-string-refs/javascript) [(nursery)](/linter/#nursery)
+- [useReactAsyncServerFunction](/linter/rules/use-react-async-server-function/javascript) [(nursery)](/linter/#nursery)
+- [useReactCompiler](/linter/rules/use-react-compiler/javascript) [(nursery)](/linter/#nursery)
+- [useReactFunctionComponentDefinition](/linter/rules/use-react-function-component-definition/javascript) [(nursery)](/linter/#nursery)
+- [useReactNamingConvention](/linter/rules/use-react-naming-convention/javascript) [(nursery)](/linter/#nursery)
+- [noJsxPropsBind](/linter/rules/no-jsx-props-bind/javascript)
+- [noSyncScripts](/linter/rules/no-sync-scripts/javascript)
+- [noDangerouslySetInnerHtml](/linter/rules/no-dangerously-set-inner-html/javascript) （推荐）
+- [noDangerouslySetInnerHtmlWithChildren](/linter/rules/no-dangerously-set-inner-html-with-children/javascript) （推荐）
+- [useComponentExportOnlyModules](/linter/rules/use-component-export-only-modules/javascript)
+- [useReactFunctionComponents](/linter/rules/use-react-function-components/javascript)
+- [noArrayIndexKey](/linter/rules/no-array-index-key/javascript) （推荐）
+- [noDuplicatedSpreadProps](/linter/rules/no-duplicated-spread-props/javascript)
+- [noLeakedRender](/linter/rules/no-leaked-render/javascript)
+- [noReactForwardRef](/linter/rules/no-react-forward-ref/javascript)
+- [noUnknownAttribute](/linter/rules/no-unknown-attribute/javascript)
+## ReactNative
+在 React Native 项目中使用该规则域。它启用了一组规则，有助于捕捉 React Native 特有的运行时问题，例如在 `<Text>` 组件之外渲染纯文本。
+### ReactNative 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"reactnative\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+<Aside type="note" title="没有推荐规则">
+
+由于该规则域中的所有规则都是 nursery 规则，启用该规则域时不会激活任何规则。你需要单独启用各条规则。
+
+</Aside>
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"reactnative\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"reactnative\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### ReactNative 依赖
+声明了以下依赖时启用：
+- `react-native`: `>=0.60.0`
+
+### ReactNative 规则
+属于该规则域的规则：
+- [noReactNativeDeepImports](/linter/rules/no-react-native-deep-imports/javascript) [(nursery)](/linter/#nursery)
+- [noReactNativeLiteralColors](/linter/rules/no-react-native-literal-colors/javascript) [(nursery)](/linter/#nursery)
+- [noReactNativeRawText](/linter/rules/no-react-native-raw-text/javascript) [(nursery)](/linter/#nursery)
+- [useReactNativePlatformComponents](/linter/rules/use-react-native-platform-components/javascript) [(nursery)](/linter/#nursery)
+## Solid
+在 Solid 项目中使用该规则域。该规则域启用的规则可能与 React 规则域冲突。
+### Solid 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"solid\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"solid\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"solid\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### Solid 依赖
+声明了以下依赖时启用：
+- `solid`: `>=1.0.0`
+
+### Solid 规则
+属于该规则域的规则：
+- [noSolidDestructuredProps](/linter/rules/no-solid-destructured-props/javascript)
+- [useSolidForComponent](/linter/rules/use-solid-for-component/javascript)
+- [noDuplicatedSpreadProps](/linter/rules/no-duplicated-spread-props/javascript)
+- [noReactSpecificProps](/linter/rules/no-react-specific-props/javascript) （推荐）
+## Svelte
+在 Svelte 项目中使用该规则域。该规则域启用了一批 Svelte 项目专属的规则。
+### Svelte 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"svelte\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+<Aside type="note" title="没有推荐规则">
+
+由于该规则域中的所有规则都是 nursery 规则，启用该规则域时不会激活任何规则。你需要单独启用各条规则。
+
+</Aside>
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"svelte\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"svelte\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### Svelte 依赖
+声明了以下依赖时启用：
+- `svelte`: `>=3.0.0`
+
+### Svelte 规则
+属于该规则域的规则：
+- [noSvelteUnnecessaryStateWrap](/linter/rules/no-svelte-unnecessary-state-wrap/javascript) [(nursery)](/linter/#nursery)
+- [noSvelteAtHtmlTags](/linter/rules/no-svelte-at-html-tags/html) [(nursery)](/linter/#nursery)
+- [noSvelteLegacyConst](/linter/rules/no-svelte-legacy-const/html) [(nursery)](/linter/#nursery)
+- [useSvelteRequireEachKey](/linter/rules/use-svelte-require-each-key/html) [(nursery)](/linter/#nursery)
+## Tailwind
+在 Tailwind CSS 项目中使用该规则域。该规则域启用了一批 Tailwind CSS 专属的规则。
+### Tailwind 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"tailwind\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+<Aside type="note" title="没有推荐规则">
+
+由于该规则域中的所有规则都是 nursery 规则，启用该规则域时不会激活任何规则。你需要单独启用各条规则。
+
+</Aside>
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"tailwind\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"tailwind\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### Tailwind 依赖
+声明了以下依赖时启用：
+- `tailwindcss`: `>=3.0.0`
+
+### Tailwind 规则
+属于该规则域的规则：
+- [noTailwindArbitraryValue](/linter/rules/no-tailwind-arbitrary-value/javascript) [(nursery)](/linter/#nursery)
+- [useTailwindShorthandClasses](/linter/rules/use-tailwind-shorthand-classes/javascript) [(nursery)](/linter/#nursery)
+- [noTailwindArbitraryValue](/linter/rules/no-tailwind-arbitrary-value/html) [(nursery)](/linter/#nursery)
+- [useTailwindShorthandClasses](/linter/rules/use-tailwind-shorthand-classes/html) [(nursery)](/linter/#nursery)
+## Test
+在 Lint 测试文件时使用该规则域。它启用了一组与测试库无关的规则，有助于捕捉对测试 API 的可能误用。
+### Test 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"test\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"test\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"test\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### Test 依赖
+声明了以下依赖时启用：
+- `jest`: `>=26.0.0`
+- `mocha`: `>=8.0.0`
+- `ava`: `>=2.0.0`
+- `vitest`: `>=1.0.0`
+
+### Test 全局变量
+启用后，Biome 会识别以下全局绑定：
+- `after`
+- `afterAll`
+- `afterEach`
+- `before`
+- `beforeEach`
+- `beforeAll`
+- `context`
+- `describe`
+- `it`
+- `expect`
+- `run`
+- `setup`
+- `specify`
+- `suite`
+- `suiteSetup`
+- `suiteTeardown`
+- `teardown`
+- `test`
+- `xcontext`
+- `xdescribe`
+- `xit`
+- `xspecify`
+
+### Test 规则
+属于该规则域的规则：
+- [noExcessiveNestedTestSuites](/linter/rules/no-excessive-nested-test-suites/javascript)
+- [noConditionalExpect](/linter/rules/no-conditional-expect/javascript) [(nursery)](/linter/#nursery)
+- [noIdenticalTestTitle](/linter/rules/no-identical-test-title/javascript) [(nursery)](/linter/#nursery)
+- [useConsistentTestIt](/linter/rules/use-consistent-test-it/javascript) [(nursery)](/linter/#nursery)
+- [useExpect](/linter/rules/use-expect/javascript) [(nursery)](/linter/#nursery)
+- [useTestHooksInOrder](/linter/rules/use-test-hooks-in-order/javascript) [(nursery)](/linter/#nursery)
+- [useTestHooksOnTop](/linter/rules/use-test-hooks-on-top/javascript) [(nursery)](/linter/#nursery)
+- [useValidTestTitle](/linter/rules/use-valid-test-title/javascript) [(nursery)](/linter/#nursery)
+- [noDuplicateTestHooks](/linter/rules/no-duplicate-test-hooks/javascript) （推荐）
+- [noExportsInTest](/linter/rules/no-exports-in-test/javascript) （推荐）
+- [noFocusedTests](/linter/rules/no-focused-tests/javascript) （推荐）
+- [noSkippedTests](/linter/rules/no-skipped-tests/javascript)
+## Turborepo
+在 Turborepo 项目中使用该规则域。该规则域启用了一批 Turborepo 项目专属的规则。
+### Turborepo 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"turborepo\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"turborepo\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"turborepo\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### Turborepo 依赖
+声明了以下依赖时启用：
+- `turbo`: `>=1.0.0`
+
+### Turborepo 规则
+属于该规则域的规则：
+- [noUndeclaredEnvVars](/linter/rules/no-undeclared-env-vars/javascript) （推荐）
+## Types
+该规则域包含执行项目级分析的规则，其中包括用于依赖解析的模块图。启用属于该规则域的规则时，Biome 会扫描整个项目，*并启用推理引擎来解析和展平类型*。扫描阶段会影响 Lint 过程的性能。参阅我们关于[扫描器](/internals/architecture/#scanner)的文档，进一步了解扫描器。
+### Types 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"types\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"types\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"types\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### Types 规则
+属于该规则域的规则：
+- [useArrayFind](/linter/rules/use-array-find/javascript)
+- [noBaseToString](/linter/rules/no-base-to-string/javascript) [(nursery)](/linter/#nursery)
+- [noFloatingPromises](/linter/rules/no-floating-promises/javascript) [(nursery)](/linter/#nursery)
+- [noMisleadingReturnType](/linter/rules/no-misleading-return-type/javascript) [(nursery)](/linter/#nursery)
+- [noMisusedPromises](/linter/rules/no-misused-promises/javascript) [(nursery)](/linter/#nursery)
+- [noUnsafePlusOperands](/linter/rules/no-unsafe-plus-operands/javascript) [(nursery)](/linter/#nursery)
+- [noUselessTypeConversion](/linter/rules/no-useless-type-conversion/javascript) [(nursery)](/linter/#nursery)
+- [useAwaitThenable](/linter/rules/use-await-thenable/javascript) [(nursery)](/linter/#nursery)
+- [useDisposables](/linter/rules/use-disposables/javascript) [(nursery)](/linter/#nursery)
+- [useExhaustiveSwitchCases](/linter/rules/use-exhaustive-switch-cases/javascript) [(nursery)](/linter/#nursery)
+- [useIncludes](/linter/rules/use-includes/javascript) [(nursery)](/linter/#nursery)
+- [useNullishCoalescing](/linter/rules/use-nullish-coalescing/javascript) [(nursery)](/linter/#nursery)
+- [useRegexpExec](/linter/rules/use-regexp-exec/javascript) [(nursery)](/linter/#nursery)
+- [useStringStartsEndsWith](/linter/rules/use-string-starts-ends-with/javascript) [(nursery)](/linter/#nursery)
+- [useConsistentEnumValueType](/linter/rules/use-consistent-enum-value-type/javascript)
+- [noUnnecessaryConditions](/linter/rules/no-unnecessary-conditions/javascript)
+- [useArraySortCompare](/linter/rules/use-array-sort-compare/javascript)
+## Vue
+在 Vue 项目中使用该规则域。该规则域启用了一批 Vue 项目专属的规则。
+### Vue 启用
+启用该规则域中**推荐、非 nursery** 的规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"vue\": \"recommended\"\n\t\t}\n\t}\n}"} />
+
+启用该规则域的**全部**规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"vue\": \"all\"\n\t\t}\n\t}\n}"} />
+
+**停用**该规则域的全部规则：
+
+<Code lang="json" title="biome.json" ins={3} code={"{\n\t\"linter\": {\n\t\t\"domains\": {\n\t\t\t\"vue\": \"none\"\n\t\t}\n\t}\n}"} />
+
+### Vue 依赖
+声明了以下依赖时启用：
+- `vue`: `>=3.0.0`
+
+### Vue 规则
+属于该规则域的规则：
+- [noVueDataObjectDeclaration](/linter/rules/no-vue-data-object-declaration/javascript) （推荐）
+- [noVueDuplicateKeys](/linter/rules/no-vue-duplicate-keys/javascript) （推荐）
+- [noVueReservedKeys](/linter/rules/no-vue-reserved-keys/javascript) （推荐）
+- [noVueReservedProps](/linter/rules/no-vue-reserved-props/javascript) （推荐）
+- [noVueSetupPropsReactivityLoss](/linter/rules/no-vue-setup-props-reactivity-loss/javascript)
+- [noVueDeprecatedScopedSlots](/linter/rules/no-vue-deprecated-scoped-slots/javascript) [(nursery)](/linter/#nursery)
+- [noVueImportCompilerMacros](/linter/rules/no-vue-import-compiler-macros/javascript) [(nursery)](/linter/#nursery)
+- [noVueRefAsOperand](/linter/rules/no-vue-ref-as-operand/javascript) [(nursery)](/linter/#nursery)
+- [useVueBaseImport](/linter/rules/use-vue-base-import/javascript) [(nursery)](/linter/#nursery)
+- [useVueConsistentDefinePropsDeclaration](/linter/rules/use-vue-consistent-define-props-declaration/javascript) [(nursery)](/linter/#nursery)
+- [useVueNextTickPromise](/linter/rules/use-vue-next-tick-promise/javascript) [(nursery)](/linter/#nursery)
+- [noVueOptionsApi](/linter/rules/no-vue-options-api/javascript)
+- [useVueDefineMacrosOrder](/linter/rules/use-vue-define-macros-order/javascript)
+- [useVueMultiWordComponentNames](/linter/rules/use-vue-multi-word-component-names/javascript) （推荐）
+- [noVueArrowFuncInWatch](/linter/rules/no-vue-arrow-func-in-watch/javascript) （推荐）
+- [noVueVIfWithVFor](/linter/rules/no-vue-v-if-with-v-for/html) （推荐）
+- [useVueVForKey](/linter/rules/use-vue-v-for-key/html) （推荐）
+- [useVueValidTemplateRoot](/linter/rules/use-vue-valid-template-root/html) （推荐）
+- [useVueValidVBind](/linter/rules/use-vue-valid-v-bind/html) （推荐）
+- [useVueValidVCloak](/linter/rules/use-vue-valid-v-cloak/html) （推荐）
+- [useVueValidVElse](/linter/rules/use-vue-valid-v-else/html) （推荐）
+- [useVueValidVElseIf](/linter/rules/use-vue-valid-v-else-if/html) （推荐）
+- [useVueValidVHtml](/linter/rules/use-vue-valid-v-html/html) （推荐）
+- [useVueValidVIf](/linter/rules/use-vue-valid-v-if/html) （推荐）
+- [useVueValidVOn](/linter/rules/use-vue-valid-v-on/html) （推荐）
+- [useVueValidVOnce](/linter/rules/use-vue-valid-v-once/html) （推荐）
+- [useVueValidVPre](/linter/rules/use-vue-valid-v-pre/html) （推荐）
+- [useVueValidVText](/linter/rules/use-vue-valid-v-text/html) （推荐）
+- [noVueVOnNumberValues](/linter/rules/no-vue-v-on-number-values/html) [(nursery)](/linter/#nursery)
+- [useScopedStyles](/linter/rules/use-scoped-styles/html) [(nursery)](/linter/#nursery)
+- [useVueValidVFor](/linter/rules/use-vue-valid-v-for/html) [(nursery)](/linter/#nursery)
+- [useVueVapor](/linter/rules/use-vue-vapor/html)
+- [useVueConsistentVBindStyle](/linter/rules/use-vue-consistent-v-bind-style/html) （推荐）
+- [useVueConsistentVOnStyle](/linter/rules/use-vue-consistent-v-on-style/html) （推荐）
+- [useVueHyphenatedAttributes](/linter/rules/use-vue-hyphenated-attributes/html) （推荐）

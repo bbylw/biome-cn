@@ -1,0 +1,143 @@
+---
+title: Git 钩子
+description: 在 Git 钩子中使用 Biome
+anchors: ["lefthook","husky","lint-staged","git-format-staged","pre-commit","shell-script"]
+toc: [{"level":2,"text":"Lefthook","id":"lefthook"},{"level":2,"text":"Husky","id":"husky"},{"level":3,"text":"lint-staged","id":"lint-staged"},{"level":3,"text":"git-format-staged","id":"git-format-staged"},{"level":2,"text":"pre-commit","id":"pre-commit"},{"level":2,"text":"Shell 脚本","id":"shell-script"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import Code from "@/components/mdx/Code.astro";
+
+Git 允许在运行 git 命令的过程中执行脚本，这套机制称为 [Git 钩子](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks)。
+例如，你可以在提交或推送之前对已暂存的文件进行格式化和 Lint。
+市面上有不少工具可以简化 Git 钩子的管理。
+下面几节将介绍其中一些工具，以及如何把它们与 Biome 配合使用。
+
+## Lefthook
+
+[Lefthook](https://github.com/evilmartians/lefthook) 提供一个快速、跨平台、无依赖的钩子管理器。
+它可以[通过 NPM 安装](https://github.com/evilmartians/lefthook#install)。
+
+在你的 Git 仓库根目录添加一个名为 `lefthook.yml` 的文件。
+以下是一些 _Lefthook_ 配置示例：
+
+- 提交前检查格式与 Lint
+
+<Code lang="yaml" title="lefthook.yml" code={"  pre-commit:\n    commands:\n      check:\n        glob: \"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,css}\"\n        run: npx @biomejs/biome check --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}"} />
+
+- 提交前格式化、Lint 并应用安全的代码修复
+
+<Code lang="yaml" title="lefthook.yml" code={"  pre-commit:\n    commands:\n      check:\n        glob: \"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,css}\"\n        run: npx @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}\n        stage_fixed: true"} />
+
+  `stage_fixed: true` 会把已修复的文件重新加入暂存区。
+
+- 推送前检查格式与 Lint
+
+<Code lang="yaml" title="lefthook.yml" code={"  pre-push:\n    commands:\n      check:\n        glob: \"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,css}\"\n        run: npx @biomejs/biome check --no-errors-on-unmatched --files-ignore-unknown=true {push_files}"} />
+
+注意，`glob` 和 `--files-ignore-unknown=true` 并不需要同时使用。
+只使用 `--files-ignore-unknown=true` 就能处理 Biome 目前以及将来所支持的文件。
+如果你希望对处理哪些文件有更细粒度的控制，就应当使用 `glob`。
+
+`--no-errors-on-unmatched` 会在*未处理任何文件*的情况下静默可能出现的错误。
+
+配置完成后，运行 `lefthook install` 来安装钩子。
+
+<Aside type="note">
+
+如果你使用的 Lefthook 版本早于 `v2.1.6`，并且在终端中看到未渲染的 ANSI 转义序列，那么你应该升级 Lefthook，或者配置 Lefthook 的颜色 / 设置 `NO_COLOR`。此外，也可以给 Biome 传入 `--colors=off`。
+
+</Aside>
+
+## Husky
+
+[Husky](https://github.com/typicode/husky) 是 JavaScript 生态中被广泛使用的钩子管理器。
+Husky 不会隐藏未暂存的更改，也无法提供已暂存文件的列表。
+因此它通常与 _lint-staged_ 或 _git-format-staged_ 等其他工具搭配使用。
+
+如果你的项目包含 `package.json`，
+可以通过 `scripts.prepare` 在安装依赖包时自动配置 _husky_ 钩子：
+
+<Code lang="json" title="package.json" code={"{\n  \"scripts\": {\n    \"prepare\": \"husky\"\n  }\n}"} />
+
+### lint-staged
+
+[lint-staged](https://github.com/lint-staged/lint-staged) 是 JavaScript 生态中使用最广泛的工具之一。
+
+添加以下 husky 配置：
+
+<Code lang="shell" title=".husky/pre-commit" code={"lint-staged"} />
+
+lint-staged 的配置直接嵌入在 `package.json` 中。
+下面列出的是运行 Git 钩子时你可能用得上的若干命令示例：
+
+<Code lang="jsonc" title="package.json" code={"{\n  \"lint-staged\": {\n    // 对具有以下扩展名的已暂存文件运行 Biome：js、ts、jsx、tsx、json、jsonc 与 css\n    \"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,css}\": [\n      \"biome check --files-ignore-unknown=true\", // 检查格式与 Lint\n      \"biome check --write --no-errors-on-unmatched\", // 格式化、整理导入、Lint，并应用安全修复\n      \"biome check --write --organize-imports-enabled=false --no-errors-on-unmatched\", // 格式化并应用安全修复\n      \"biome check --write --unsafe --no-errors-on-unmatched\", // 格式化、整理导入、Lint，并应用安全或不安全修复\n      \"biome format --write --no-errors-on-unmatched\", // 格式化\n      \"biome lint --write --no-errors-on-unmatched\", // Lint 并应用安全修复\n    ],\n    // 也可以把所有文件都传入，并忽略未知扩展名\n    \"*\": [\n      \"biome check --no-errors-on-unmatched --files-ignore-unknown=true\", // 检查格式与 Lint\n    ]\n  }\n}"} />
+
+记得在你的命令中使用 CLI 选项 `--no-errors-on-unmatched`，以在*未处理任何文件*时静默可能出现的错误。
+
+### git-format-staged
+
+与 _lefthook_、_pre-commit_、_lint-staged_ 等其他工具不同，
+[git-format-staged](https://github.com/hallettj/git-format-staged) 内部并不使用 `git stash`。
+这可以避免当未暂存的更改与被更新的已暂存更改发生冲突时需要人工介入。
+参见 [_git-format-staged_ 与其他工具的对比](https://github.com/hallettj/git-format-staged#comparisons-to-similar-utilities)。
+
+以下是一些配置示例：
+
+- 提交前检查格式与 Lint
+
+<Code lang="shell" title=".husky/pre-commit" code={"  git-format-staged --formatter 'biome check --files-ignore-unknown=true --no-errors-on-unmatched --stdin-file-path=\"{}\"' '*'"} />
+
+- 提交前格式化、Lint 并应用安全的代码修复
+
+<Code lang="shell" title=".husky/pre-commit" code={"  git-format-staged --formatter 'biome check --write --files-ignore-unknown=true --no-errors-on-unmatched --stdin-file-path=\"{}\"' '*'"} />
+
+## pre-commit
+
+[pre-commit](https://pre-commit.com/) 提供一个多语言钩子管理器。
+Biome 通过 [biomejs/pre-commit](https://github.com/biomejs/pre-commit) 仓库提供四个 [pre-commit](https://pre-commit.com/) 钩子。
+
+| 钩子 `id`       | 描述                                                                    |
+| --------------- | ----------------------------------------------------------------------- |
+| `biome-ci`      | 检查格式、检查导入是否已整理，并执行 Lint                               |
+| `biome-check`   | 对已提交的文件进行格式化、整理导入、Lint，并应用安全修复                |
+| `biome-format`  | 格式化已提交的文件                                                      |
+| `biome-lint`    | 对已提交的文件执行 Lint，并应用安全修复                                 |
+
+在下面的示例中，我们假设你已经[安装了 pre-commit](https://pre-commit.com/index.html#install)，并在仓库中运行了 `pre-commit install`。
+如果你想使用 `biome-check` 钩子，请把以下 pre-commit 配置写入项目根目录中名为 `.pre-commit-config.yaml` 的文件：
+
+<Code lang="yaml" title=".pre-commit-config.yaml" code={"repos:\n-   repo: https://github.com/biomejs/pre-commit\n    rev: \"v2.0.6\"  # 填写你希望指向的 sha 或 tag\n    hooks:\n    -   id: biome-check\n        additional_dependencies: [\"@biomejs/biome@2.1.1\"]"} />
+
+这样，当你运行 `git commit` 时就会执行 `biome check --write`。
+
+注意，你必须借助 `additional_dependencies` 选项指定要使用的 Biome 版本。
+[pre-commit](https://pre-commit.com/) 会独立安装工具，需要知道安装的是哪一个。
+
+如果 Biome 已经作为 `npm` 包安装在你的本地仓库中，
+那么每次升级 Biome 时都要同时更新 `package.json` 和 `.pre-commit-config.yaml`，这会是一种负担。
+你可以不使用官方提供的 Biome 钩子，而是指定自己的[本地钩子](https://pre-commit.com/index.html#repository-local-hooks)。
+
+例如，如果你使用 `npm`，可以在 `.pre-commit-config.yaml` 中写下如下钩子：
+
+<Code lang="yaml" title=".pre-commit-config.yaml" code={"repos:\n  - repo: local\n    hooks:\n      - id: local-biome-check\n        name: biome check\n        entry: npx @biomejs/biome check --write --files-ignore-unknown=true --no-errors-on-unmatched\n        language: system\n        types: [text]\n        files: \"\\\\.(jsx?|tsx?|c(js|ts)|m(js|ts)|d\\\\.(ts|cts|mts)|jsonc?|css)$\""} />
+
+pre-commit 的 `files` 选项是可选的，
+因为 Biome 能够忽略未知文件（借助 `--files-ignore-unknown=true` 选项）。
+
+## Shell 脚本
+
+你也可以使用自定义 shell 脚本。
+注意，你可能会遇到跨平台不兼容的问题。
+我们更推荐使用前面几节介绍的专用工具。
+
+以下是一些 shell 脚本示例：
+
+- 提交前检查格式与 Lint
+
+<Code lang="shell" title=".git/hooks/pre-commit" code={"  #!/bin/sh\n  set -eu\n\n  npx @biomejs/biome check --staged --files-ignore-unknown=true --no-errors-on-unmatched"} />
+
+- 提交前格式化、Lint 并应用安全的代码修复
+
+<Code lang="shell" title=".git/hooks/pre-commit" code={"  #!/bin/sh\n  set -eu\n\n  if git status --short | grep --quiet '^MM'; then\n    printf '%s\\n' \"ERROR: Some staged files have unstaged changes\" >&2\n    exit 1;\n  fi\n\n  npx @biomejs/biome check --write --staged --files-ignore-unknown=true --no-errors-on-unmatched\n\n  git update-index --again"} />
+
+  注意，这里我们让钩子在已暂存文件同时存在未暂存更改时失败退出。

@@ -1,0 +1,101 @@
+---
+title: 从 ESLint 和 Prettier 迁移
+description: 了解如何更顺畅地从 ESLint 和 Prettier 迁移
+anchors: ["migrate-from-eslint","migrate-from-prettier"]
+toc: [{"level":2,"text":"从 ESLint 迁移","id":"migrate-from-eslint"},{"level":2,"text":"从 Prettier 迁移","id":"migrate-from-prettier"}]
+---
+import Code from "@/components/mdx/Code.astro";
+import PackageManagerBiomeCommand from "@/components/mdx/PackageManagerBiomeCommand.astro";
+
+Biome 提供了专门的命令，帮助你更轻松地迁移 ESLint 和 Prettier。
+
+如果你不想了解细节，直接运行以下命令即可：
+
+```shell showLineNumbers=false
+biome migrate eslint --write
+biome migrate prettier --write
+```
+
+## 从 ESLint 迁移
+
+许多 Biome Linter 规则的灵感来自 ESLint 规则或某个 ESLint 插件的规则，甚至与之完全相同。
+我们支持一些 ESLint 插件，例如 [TypeScript ESLint](https://typescript-eslint.io/)、[ESLint JSX A11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y)、[ESLint React](https://github.com/jsx-eslint/eslint-plugin-react) 和 [ESLint Unicorn](https://github.com/sindresorhus/eslint-plugin-unicorn)。
+不过，Biome 对自己的规则有一套独立的命名约定。
+Biome 使用 `camelCaseRuleName`，而 ESLint 使用 `kebab-case-rule-name`。
+此外，为了更好地表达规则的意图，Biome 常常选用不同的名称。
+规则的来源可以在描述该规则的页面上找到。
+你也可以通过[专门页面](/linter/rules-sources)，从某条 ESLint 规则找到对应的 Biome 规则。
+
+为便于迁移，Biome 提供了 `biome migrate eslint` 子命令。
+该子命令会读取你的 ESLint 配置，并尝试将其设置移植到 Biome。
+该子命令能处理旧式配置文件和扁平（flat）配置文件两种格式。
+它支持旧式配置中的 `extends` 字段，并会加载共享配置和插件配置。
+对于扁平配置文件，该子命令只会尝试查找扩展名为 JavaScript（`js`、`cjs`、`mjs`）的文件，以便加载到 Node.js 中。
+该子命令需要 Node.js 来加载并解析 ESLint 配置文件中配置的所有插件和 `extends`。
+该子命令也会迁移 `.eslintignore`。
+
+假设有如下 ESLint 配置：
+
+<Code lang="json" title=".eslintrc.json" code={"{\n  \"extends\": [\"plugin:unicorn/recommended\"],\n  \"plugins\": [\"unicorn\"],\n  \"ignore_patterns\": [\"dist/**\"],\n  \"globals\": {\n    \"Global1\": \"readonly\"\n  },\n  \"rules\": {\n    \"eqeqeq\": \"error\"\n  },\n  \"overrides\": [\n    {\n      \"files\": [\"tests/**\"],\n      \"rules\": {\n        \"eqeqeq\": \"off\"\n      }\n    }\n  ]\n}"} />
+
+以及如下 Biome 配置：
+
+<Code lang="json" title="biome.json" code={"{\n\t\"linter\": {\n\t\t\"enabled\": true,\n\t\t\"rules\": {\n\t\t\t\"recommended\": true\n\t\t}\n\t}\n}"} />
+
+运行以下命令，将你的 ESLint 配置迁移到 Biome。
+
+<PackageManagerBiomeCommand command="migrate eslint --write"/>
+
+该子命令会覆盖你最初的 Biome 配置。
+例如，它会禁用 `recommended`。
+最终得到的 Biome 配置如下：
+
+<Code lang="json" title="biome.json" code={"{\n\t\"organizeImports\": { \"enabled\": true },\n\t\"linter\": {\n\t\t\"enabled\": true,\n\t\t\"rules\": {\n\t\t\t\"recommended\": false,\n\t\t\t\"complexity\": {\n\t\t\t\t\"noForEach\": \"error\",\n\t\t\t\t\"noStaticOnlyClass\": \"error\",\n\t\t\t\t\"noUselessSwitchCase\": \"error\",\n\t\t\t\t\"useFlatMap\": \"error\"\n\t\t\t},\n\t\t\t\"style\": {\n\t\t\t\t\"noNegationElse\": \"off\",\n\t\t\t\t\"useForOf\": \"error\",\n\t\t\t\t\"useNodejsImportProtocol\": \"error\",\n\t\t\t\t\"useNumberNamespace\": \"error\"\n\t\t\t},\n\t\t\t\"suspicious\": {\n\t\t\t\t\"noDoubleEquals\": \"error\",\n\t\t\t\t\"noThenProperty\": \"error\",\n\t\t\t\t\"useIsArray\": \"error\"\n\t\t\t}\n\t\t}\n\t},\n\t\"javascript\": { \"globals\": [\"Global1\"] },\n\t\"overrides\": [\n\t\t{\n\t\t\t\"include\": [\"tests/**\"],\n\t\t\t\"linter\": { \"rules\": { \"suspicious\": { \"noDoubleEquals\": \"off\" } } }\n\t\t}\n\t]\n}"} />
+
+目前，`biome migrate eslint` 尚不支持用 YAML 编写的配置。
+
+默认情况下，Biome 不会迁移那些仅受 ESLint 规则启发的规则。
+你可以使用 CLI 选项 `--include-inspired` 来迁移它们。
+
+<PackageManagerBiomeCommand command="migrate eslint --write --include-inspired"/>
+
+请注意，你不太可能得到与 ESLint 完全一致的行为，因为 Biome 选择不去实现某些规则选项，或略微偏离了原始实现。
+
+由于 ESLint 会考虑 VCS 的忽略文件，
+我们建议你启用 Biome 的 [VCS 集成](/guides/integrate-in-vcs)。
+
+某些插件或共享配置可能会导出带有循环引用的对象。
+Biome 可能无法加载这样的配置。
+
+**变通办法：** 如果出现这种情况，请暂时注释掉可能导致问题的插件或共享配置，运行迁移，然后再逐个启用它们，以找出有问题的配置。
+
+例如，如果你的 `eslint.config.js` 像下面这样，你可以注释掉有问题的条目：
+
+<Code lang="js" title="eslint.config.js" ins={10} code={"\nexport default defineConfig([\n  react.configs.recommended,   // 可能导致循环引用\n  jsxA11y.flatConfigs.recommended, // 可能导致循环引用\n  // react.configs.recommended,\n  // jsxA11y.flatConfigs.recommended,\n  {\n    plugins: {\n      '@stylistic': stylistic,           // 可能导致循环引用\n      '@typescript-eslint': tsEslint.plugin, // 可能导致循环引用\n      // '@stylistic': stylistic,\n      // '@typescript-eslint': tsEslint.plugin,\n    },\n  }\n]);"} />
+
+迁移完成后，你可以在新的 `biome.json` 中恢复并手动配置这些插件里的任意规则。
+
+## 从 Prettier 迁移
+
+Biome 尽力与 Prettier 格式化器保持一致。
+不过，Biome 的格式化器使用了不同的默认值。
+例如，它用制表符缩进而非空格。
+你可以通过运行 `biome migrate prettier --write` 轻松迁移到 Biome。
+
+假设有如下 Prettier 配置：
+
+<Code lang="json" title=".prettierrc.json" code={"{\n\t\"useTabs\": false,\n\t\"singleQuote\": true,\n\t\"overrides\": [\n\t\t{\n      \t\t\"files\": [\"*.json\"],\n      \t\t\"options\": { \"tabWidth\": 2 }\n    \t}\n\t]\n}"} />
+
+运行以下命令，将你的 Prettier 配置迁移到 Biome。
+
+<PackageManagerBiomeCommand command="migrate prettier --write"/>
+
+最终得到的 Biome 配置如下：
+
+<Code lang="json" title="biome.json" code={"{\n\t\"formatter\": {\n\t\t\"enabled\": true,\n\t\t\"formatWithErrors\": false,\n\t\t\"indentStyle\": \"space\",\n\t\t\"indentWidth\": 2,\n\t\t\"lineEnding\": \"lf\",\n\t\t\"lineWidth\": 80,\n\t\t\"attributePosition\": \"auto\"\n\t},\n\t\"organizeImports\": { \"enabled\": true },\n\t\"linter\": { \"enabled\": true, \"rules\": { \"recommended\": true } },\n\t\"javascript\": {\n\t\t\"formatter\": {\n\t\t\t\"jsxQuoteStyle\": \"double\",\n\t\t\t\"quoteProperties\": \"asNeeded\",\n\t\t\t\"trailingCommas\": \"all\",\n\t\t\t\"semicolons\": \"asNeeded\",\n\t\t\t\"arrowParentheses\": \"always\",\n\t\t\t\"bracketSpacing\": true,\n\t\t\t\"bracketSameLine\": false,\n\t\t\t\"quoteStyle\": \"single\",\n\t\t\t\"attributePosition\": \"auto\"\n\t\t}\n\t},\n\t\"overrides\": [\n\t\t{\n\t\t\t\"include\": [\"*.json\"],\n\t\t\t\"formatter\": {\n\t\t\t\t\"indentWidth\": 2\n\t\t\t}\n\t\t}\n\t]\n}"} />
+
+该子命令需要 Node.js 来加载像 `.prettierrc.js` 这样的 JavaScript 配置。
+`biome migrate prettier` 不支持用 JSON5、TOML 或 YAML 编写的配置。
+
+由于 Prettier 会考虑 VCS 的忽略文件，
+我们建议你启用 Biome 的 [VCS 集成](/guides/integrate-in-vcs)。

@@ -1,0 +1,1387 @@
+---
+title: 配置参考
+description: 如何用 biome.json 定制和配置 Biome。
+anchors: ["schema","extends","root","plugins","pluginsitempath","pluginsitemincludes","files","filesincludes","interaction-with-the-scanner","filesignoreunknown","filesmaxsize","filesexperimentalscannerignores","vcs","vcsenabled","vcsclientkind","vcsuseignorefile","vcsroot","vcsdefaultbranch","linter","linterenabled","linterincludes","linterrulesrecommended","linterrulespreset","linterrulesgroup","linterrulesgrouprecommended","assist","assistenabled","assistincludes","assistactionsrecommended","assistactionsgroup","assistactionsgrouprecommended","formatter","formatterenabled","formatterincludes","formatterformatwitherrors","formatterindentstyle","formatterindentwidth","formatterlineending","formatterlinewidth","formatterattributeposition","formatterbracketspacing","formatterdelimiterspacing","formatterexpand","formattertrailingnewline","formatteruseeditorconfig","javascript","javascriptparserunsafeparameterdecoratorsenabled","javascriptparserjsxeverywhere","javascriptformatterquotestyle","javascriptformatterjsxquotestyle","javascriptformatterquoteproperties","javascriptformattertrailingcommas","javascriptformattersemicolons","javascriptformatterarrowparentheses","javascriptformatterenabled","javascriptformatterindentstyle","javascriptformatterindentwidth","javascriptformatterlineending","javascriptformatterlinewidth","javascriptformatterbracketsameline","javascriptformatterbracketspacing","javascriptformatterdelimiterspacing","javascriptformatterattributeposition","javascriptformatterexpand","javascriptformatteroperatorlinebreak","javascriptformattertrailingnewline","javascriptglobals","javascriptjsxruntime","javascriptresolverexperimentalpnpmcatalogs","javascriptlinterenabled","javascriptassistenabled","javascriptexperimentalembeddedsnippetsenabled","json","jsonparserallowcomments","jsonparserallowtrailingcommas","jsonformatterenabled","jsonformatterindentstyle","jsonformatterindentwidth","jsonformatterlineending","jsonformatterlinewidth","jsonformattertrailingcommas","jsonformatterbracketspacing","jsonformatterdelimiterspacing","jsonformatterexpand","jsonformattertrailingnewline","jsonlinterenabled","jsonassistenabled","css","cssparsercssmodules","cssparsertailwinddirectives","cssformatterenabled","cssformatterindentstyle","cssformatterindentwidth","cssformatterlineending","cssformatterlinewidth","cssformatterquotestyle","cssformatterdelimiterspacing","cssformattertrailingnewline","csslinterenabled","cssassistenabled","graphql","graphqlformatterenabled","graphqlformatterindentstyle","graphqlformatterindentwidth","graphqlformatterlineending","graphqlformatterlinewidth","graphqlformatterquotestyle","graphqlformattertrailingnewline","graphqllinterenabled","graphqlassistenabled","grit","gritformatterenabled","gritformatterindentstyle","gritformatterindentwidth","gritformatterlineending","gritformatterlinewidth","gritformatterquotestyle","gritformattertrailingnewline","gritlinterenabled","gritassistenabled","html","htmlexperimentalfullsupportenabled","htmlparserinterpolation","htmlparservue","htmlformatterenabled","htmlformatterindentstyle","htmlformatterindentwidth","htmlformatterlineending","htmlformatterlinewidth","htmlformatterattributeposition","htmlformatterbracketsameline","htmlformatterwhitespacesensitivity","htmlformatterindentscriptandstyle","htmlformatterselfclosevoidelements","htmlformattertrailingnewline","htmllinterenabled","htmlassistenabled","overrides","overridesitemincludes","overridesitemformatter","examples","overridesitemlinter","examples","overridesitemjavascript","examples","overridesitemjson","examples","overridesitemlanguage","glob-syntax-reference"]
+toc: [{"level":2,"text":"$schema","id":"schema"},{"level":2,"text":"extends","id":"extends"},{"level":2,"text":"root","id":"root"},{"level":2,"text":"plugins","id":"plugins"},{"level":3,"text":"plugins.<ITEM>.path","id":"pluginsitempath"},{"level":3,"text":"plugins.<ITEM>.includes","id":"pluginsitemincludes"},{"level":2,"text":"files","id":"files"},{"level":3,"text":"files.includes","id":"filesincludes"},{"level":3,"text":"files.ignoreUnknown","id":"filesignoreunknown"},{"level":3,"text":"files.maxSize","id":"filesmaxsize"},{"level":3,"text":"files.experimentalScannerIgnores","id":"filesexperimentalscannerignores"},{"level":2,"text":"vcs","id":"vcs"},{"level":3,"text":"vcs.enabled","id":"vcsenabled"},{"level":3,"text":"vcs.clientKind","id":"vcsclientkind"},{"level":3,"text":"vcs.useIgnoreFile","id":"vcsuseignorefile"},{"level":3,"text":"vcs.root","id":"vcsroot"},{"level":3,"text":"vcs.defaultBranch","id":"vcsdefaultbranch"},{"level":2,"text":"linter","id":"linter"},{"level":3,"text":"linter.enabled","id":"linterenabled"},{"level":3,"text":"linter.includes","id":"linterincludes"},{"level":3,"text":"linter.rules.recommended","id":"linterrulesrecommended"},{"level":3,"text":"linter.rules.preset","id":"linterrulespreset"},{"level":3,"text":"linter.rules.[group]","id":"linterrulesgroup"},{"level":3,"text":"linter.rules.[group].recommended","id":"linterrulesgrouprecommended"},{"level":2,"text":"assist","id":"assist"},{"level":3,"text":"assist.enabled","id":"assistenabled"},{"level":3,"text":"assist.includes","id":"assistincludes"},{"level":3,"text":"assist.actions.recommended","id":"assistactionsrecommended"},{"level":3,"text":"assist.actions.[group]","id":"assistactionsgroup"},{"level":3,"text":"assist.actions.[group].recommended","id":"assistactionsgrouprecommended"},{"level":2,"text":"formatter","id":"formatter"},{"level":3,"text":"formatter.enabled","id":"formatterenabled"},{"level":3,"text":"formatter.includes","id":"formatterincludes"},{"level":3,"text":"formatter.formatWithErrors","id":"formatterformatwitherrors"},{"level":3,"text":"formatter.indentStyle","id":"formatterindentstyle"},{"level":3,"text":"formatter.indentWidth","id":"formatterindentwidth"},{"level":3,"text":"formatter.lineEnding","id":"formatterlineending"},{"level":3,"text":"formatter.lineWidth","id":"formatterlinewidth"},{"level":3,"text":"formatter.attributePosition","id":"formatterattributeposition"},{"level":3,"text":"formatter.bracketSpacing","id":"formatterbracketspacing"},{"level":3,"text":"formatter.delimiterSpacing","id":"formatterdelimiterspacing"},{"level":3,"text":"formatter.expand","id":"formatterexpand"},{"level":3,"text":"formatter.trailingNewline","id":"formattertrailingnewline"},{"level":3,"text":"formatter.useEditorconfig","id":"formatteruseeditorconfig"},{"level":2,"text":"javascript","id":"javascript"},{"level":3,"text":"javascript.parser.unsafeParameterDecoratorsEnabled","id":"javascriptparserunsafeparameterdecoratorsenabled"},{"level":3,"text":"javascript.parser.jsxEverywhere","id":"javascriptparserjsxeverywhere"},{"level":3,"text":"javascript.formatter.quoteStyle","id":"javascriptformatterquotestyle"},{"level":3,"text":"javascript.formatter.jsxQuoteStyle","id":"javascriptformatterjsxquotestyle"},{"level":3,"text":"javascript.formatter.quoteProperties","id":"javascriptformatterquoteproperties"},{"level":3,"text":"javascript.formatter.trailingCommas","id":"javascriptformattertrailingcommas"},{"level":3,"text":"javascript.formatter.semicolons","id":"javascriptformattersemicolons"},{"level":3,"text":"javascript.formatter.arrowParentheses","id":"javascriptformatterarrowparentheses"},{"level":3,"text":"javascript.formatter.enabled","id":"javascriptformatterenabled"},{"level":3,"text":"javascript.formatter.indentStyle","id":"javascriptformatterindentstyle"},{"level":3,"text":"javascript.formatter.indentWidth","id":"javascriptformatterindentwidth"},{"level":3,"text":"javascript.formatter.lineEnding","id":"javascriptformatterlineending"},{"level":3,"text":"javascript.formatter.lineWidth","id":"javascriptformatterlinewidth"},{"level":3,"text":"javascript.formatter.bracketSameLine","id":"javascriptformatterbracketsameline"},{"level":3,"text":"javascript.formatter.bracketSpacing","id":"javascriptformatterbracketspacing"},{"level":3,"text":"javascript.formatter.delimiterSpacing","id":"javascriptformatterdelimiterspacing"},{"level":3,"text":"javascript.formatter.attributePosition","id":"javascriptformatterattributeposition"},{"level":3,"text":"javascript.formatter.expand","id":"javascriptformatterexpand"},{"level":3,"text":"javascript.formatter.operatorLinebreak","id":"javascriptformatteroperatorlinebreak"},{"level":3,"text":"javascript.formatter.trailingNewline","id":"javascriptformattertrailingnewline"},{"level":3,"text":"javascript.globals","id":"javascriptglobals"},{"level":3,"text":"javascript.jsxRuntime","id":"javascriptjsxruntime"},{"level":3,"text":"javascript.resolver.experimentalPnpmCatalogs","id":"javascriptresolverexperimentalpnpmcatalogs"},{"level":3,"text":"javascript.linter.enabled","id":"javascriptlinterenabled"},{"level":3,"text":"javascript.assist.enabled","id":"javascriptassistenabled"},{"level":3,"text":"javascript.experimentalEmbeddedSnippetsEnabled","id":"javascriptexperimentalembeddedsnippetsenabled"},{"level":2,"text":"json","id":"json"},{"level":3,"text":"json.parser.allowComments","id":"jsonparserallowcomments"},{"level":3,"text":"json.parser.allowTrailingCommas","id":"jsonparserallowtrailingcommas"},{"level":3,"text":"json.formatter.enabled","id":"jsonformatterenabled"},{"level":3,"text":"json.formatter.indentStyle","id":"jsonformatterindentstyle"},{"level":3,"text":"json.formatter.indentWidth","id":"jsonformatterindentwidth"},{"level":3,"text":"json.formatter.lineEnding","id":"jsonformatterlineending"},{"level":3,"text":"json.formatter.lineWidth","id":"jsonformatterlinewidth"},{"level":3,"text":"json.formatter.trailingCommas","id":"jsonformattertrailingcommas"},{"level":3,"text":"json.formatter.bracketSpacing","id":"jsonformatterbracketspacing"},{"level":3,"text":"json.formatter.delimiterSpacing","id":"jsonformatterdelimiterspacing"},{"level":3,"text":"json.formatter.expand","id":"jsonformatterexpand"},{"level":3,"text":"json.formatter.trailingNewline","id":"jsonformattertrailingnewline"},{"level":3,"text":"json.linter.enabled","id":"jsonlinterenabled"},{"level":3,"text":"json.assist.enabled","id":"jsonassistenabled"},{"level":2,"text":"css","id":"css"},{"level":3,"text":"css.parser.cssModules","id":"cssparsercssmodules"},{"level":3,"text":"css.parser.tailwindDirectives","id":"cssparsertailwinddirectives"},{"level":3,"text":"css.formatter.enabled","id":"cssformatterenabled"},{"level":3,"text":"css.formatter.indentStyle","id":"cssformatterindentstyle"},{"level":3,"text":"css.formatter.indentWidth","id":"cssformatterindentwidth"},{"level":3,"text":"css.formatter.lineEnding","id":"cssformatterlineending"},{"level":3,"text":"css.formatter.lineWidth","id":"cssformatterlinewidth"},{"level":3,"text":"css.formatter.quoteStyle","id":"cssformatterquotestyle"},{"level":3,"text":"css.formatter.delimiterSpacing","id":"cssformatterdelimiterspacing"},{"level":3,"text":"css.formatter.trailingNewline","id":"cssformattertrailingnewline"},{"level":3,"text":"css.linter.enabled","id":"csslinterenabled"},{"level":3,"text":"css.assist.enabled","id":"cssassistenabled"},{"level":2,"text":"graphql","id":"graphql"},{"level":3,"text":"graphql.formatter.enabled","id":"graphqlformatterenabled"},{"level":3,"text":"graphql.formatter.indentStyle","id":"graphqlformatterindentstyle"},{"level":3,"text":"graphql.formatter.indentWidth","id":"graphqlformatterindentwidth"},{"level":3,"text":"graphql.formatter.lineEnding","id":"graphqlformatterlineending"},{"level":3,"text":"graphql.formatter.lineWidth","id":"graphqlformatterlinewidth"},{"level":3,"text":"graphql.formatter.quoteStyle","id":"graphqlformatterquotestyle"},{"level":3,"text":"graphql.formatter.trailingNewline","id":"graphqlformattertrailingnewline"},{"level":3,"text":"graphql.linter.enabled","id":"graphqllinterenabled"},{"level":3,"text":"graphql.assist.enabled","id":"graphqlassistenabled"},{"level":2,"text":"grit","id":"grit"},{"level":3,"text":"grit.formatter.enabled","id":"gritformatterenabled"},{"level":3,"text":"grit.formatter.indentStyle","id":"gritformatterindentstyle"},{"level":3,"text":"grit.formatter.indentWidth","id":"gritformatterindentwidth"},{"level":3,"text":"grit.formatter.lineEnding","id":"gritformatterlineending"},{"level":3,"text":"grit.formatter.lineWidth","id":"gritformatterlinewidth"},{"level":3,"text":"grit.formatter.quoteStyle","id":"gritformatterquotestyle"},{"level":3,"text":"grit.formatter.trailingNewline","id":"gritformattertrailingnewline"},{"level":3,"text":"grit.linter.enabled","id":"gritlinterenabled"},{"level":3,"text":"grit.assist.enabled","id":"gritassistenabled"},{"level":2,"text":"html","id":"html"},{"level":3,"text":"html.experimentalFullSupportEnabled","id":"htmlexperimentalfullsupportenabled"},{"level":3,"text":"html.parser.interpolation","id":"htmlparserinterpolation"},{"level":3,"text":"html.parser.vue","id":"htmlparservue"},{"level":3,"text":"html.formatter.enabled","id":"htmlformatterenabled"},{"level":3,"text":"html.formatter.indentStyle","id":"htmlformatterindentstyle"},{"level":3,"text":"html.formatter.indentWidth","id":"htmlformatterindentwidth"},{"level":3,"text":"html.formatter.lineEnding","id":"htmlformatterlineending"},{"level":3,"text":"html.formatter.lineWidth","id":"htmlformatterlinewidth"},{"level":3,"text":"html.formatter.attributePosition","id":"htmlformatterattributeposition"},{"level":3,"text":"html.formatter.bracketSameLine","id":"htmlformatterbracketsameline"},{"level":3,"text":"html.formatter.whitespaceSensitivity","id":"htmlformatterwhitespacesensitivity"},{"level":3,"text":"html.formatter.indentScriptAndStyle","id":"htmlformatterindentscriptandstyle"},{"level":3,"text":"html.formatter.selfCloseVoidElements","id":"htmlformatterselfclosevoidelements"},{"level":3,"text":"html.formatter.trailingNewline","id":"htmlformattertrailingnewline"},{"level":3,"text":"html.linter.enabled","id":"htmllinterenabled"},{"level":3,"text":"html.assist.enabled","id":"htmlassistenabled"},{"level":2,"text":"overrides","id":"overrides"},{"level":3,"text":"overrides.<ITEM>.includes","id":"overridesitemincludes"},{"level":3,"text":"overrides.<ITEM>.formatter","id":"overridesitemformatter"},{"level":3,"text":"overrides.<ITEM>.linter","id":"overridesitemlinter"},{"level":3,"text":"overrides.<ITEM>.javascript","id":"overridesitemjavascript"},{"level":3,"text":"overrides.<ITEM>.json","id":"overridesitemjson"},{"level":3,"text":"overrides.<ITEM>.[language]","id":"overridesitemlanguage"},{"level":2,"text":"Glob 语法参考","id":"glob-syntax-reference"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import Code from "@/components/mdx/Code.astro";
+
+{/** Make sure to update the redirect in `static/_redirects` when changing the configuration title --> **/}
+
+## `$schema`
+
+允许传入指向 JSON schema 文件的路径。
+
+我们为 `biome.json`/`biome.jsonc` 文件发布了一份 JSON schema 文件。
+
+如果 `@biomejs/biome` NPM 包安装在 `node_modules` 文件夹中，你可以在其中为该 schema 指定一个相对路径：
+
+<Code lang="json" title="biome.json" code={"{\n  \"$schema\": \"./node_modules/@biomejs/biome/configuration_schema.json\"\n}"} />
+
+如果你在解析实际文件时遇到问题，可以使用本站发布的那份：
+
+<Code lang="json" title="biome.json" code={"{\n  \"$schema\": \"https://biomejs.dev/schemas/2.3.11/schema.json\"\n}"} />
+
+## `extends`
+
+指向其他 Biome 配置文件的路径列表。Biome 会解析并应用 `extends` 列表中所含文件的配置项，最后再应用本 `biome.json`/`biome.jsonc` 文件中包含的选项。
+
+要继承的路径顺序，从相关性最低到相关性最高排列。
+
+自 v2 起，该选项接受一个必须等于值 `"//"` 的字符串，可在搭建 [monorepo](/guides/big-projects#monorepo) 时使用。
+
+## `root`
+
+该配置是否应被视为根配置。默认情况下，任何配置文件都默认被视为根配置。
+当某个配置文件是「嵌套配置」时，它必须设置 `"root": false`，否则会抛出错误。
+
+这是必需的，以便 Biome 能在命令行接口和编辑器中同时编排多个文件。
+
+> 默认值：`true`
+
+## `plugins`
+
+要启用的 [GritQL 插件](/linter/plugins/) 列表。每个条目可以是简单的路径字符串，也可以是带路径和可选文件过滤选项的对象。
+
+简单路径：
+
+<Code lang="json" title="biome.json" code={"{\n  \"plugins\": [\"./my-plugin.grit\"]\n}"} />
+
+限定到特定文件：
+
+<Code lang="json" title="biome.json" code={"{\n  \"plugins\": [\n    {\n      \"path\": \"./react-plugin.grit\",\n      \"includes\": [\"src/components/**\", \"!src/components/generated/**\"]\n    }\n  ]\n}"} />
+
+你可以在同一个列表中混用这两种形式。
+
+### `plugins.<ITEM>.path`
+
+**必填。**
+
+指向插件 `.grit` 文件的路径。
+
+### `plugins.<ITEM>.includes`
+
+指定该插件应在哪些文件上运行的一组 [glob 模式](#glob-syntax-reference)。用取反 glob（以 `!` 开头）进行排除。
+
+省略时，该插件会在 Linter 处理的每个文件上运行。如果 `includes` 为空 `[]`，该插件不会在任何文件上运行。
+
+## `files`
+
+### `files.includes`
+
+一组 [glob 模式](#glob-syntax-reference)。
+
+如果某个文件夹匹配某个 glob 模式，该文件夹内的所有文件都会被处理。
+
+下面的例子匹配 `src` 文件夹内所有带 `.js` 扩展名的文件：
+
+<Code lang="json" title="biome.json" code={"{\n  \"files\": {\n    \"includes\": [\"src/**/*.js\"]\n  }\n}"} />
+
+`*` 用于匹配 _某个文件夹内的所有文件_，而 `**` 会 _递归地_ 匹配某个文件夹内的所有文件和子文件夹。有关 glob 的更多信息，请参阅 [glob 语法参考](#glob-syntax-reference)
+
+`includes` 还支持取反模式，也就是例外。这些是以 `!` 开头的模式，可用来指示 Biome 处理所有文件，但 _排除_ 匹配该取反模式的文件。使用取反模式时，你应当始终以 `**` 开头来匹配所有文件和文件夹，否则该取反模式不会匹配任何文件。
+
+请注意，例外按顺序处理，因此你可以为例外再设置例外。
+
+考虑下面的例子：
+
+<Code lang="json" title="biome.json" code={"{\n  \"files\": {\n    \"includes\": [\"**\", \"!**/*.test.js\", \"**/special.test.js\", \"!test\"]\n  }\n}"} />
+
+这个例子说明：
+
+1. 借助 `**` 模式，所有（子）文件夹内的所有文件都会被处理……
+2. …… 但当这些文件带有 `.test.js` 扩展名时 _除外_ ……
+3. …… 不过 `special.test.js` 这个文件 _仍然_ 会被处理……
+4. …… 但当它出现在名为 `test` 的文件夹中时 _除外_，因为该文件夹内 _没有_ 文件会被处理。
+
+<Aside type="note">
+
+用 `!test` 完全排除某个目录只在 `files.includes` 中受支持。在使用 `includes` 的其他地方（`linter.includes`、`formatter.includes` 等），你需要使用 `!/test/**` 来排除该目录。
+
+</Aside>
+
+这意味着：
+
+* `src/app.js` **会** 被处理。
+* `src/app.test.js` **不会** 被处理。
+* `src/special.test.js` **会** 被处理。
+* `test/special.test.js` **不会** 被处理。
+
+请注意，无论 `files.includes` 如何设置，`node_modules/` 内的文件都会被忽略。
+
+#### 与扫描器的交互
+
+Biome 有一个 [扫描器](/internals/architecture/#scanner)，负责发现嵌套配置文件以及 `.gitignore` 文件。如果启用了 [项目域](/linter/domains/#project) 中的一条或多条规则，它还可以索引源文件。
+
+扫描器既遵循 `files.includes`，也遵循 `.gitignore` 文件中的忽略模式，但有两个例外需要注意：
+* 像 `biome.json` 和 `.gitignore` 这样的特殊文件，优先于 `files.includes` 中的任何忽略模式。
+* 如果启用了项目域中的任何规则，扫描器会索引源文件 _及其依赖_。这意味着作为 `files.includes` 一部分而被忽略的文件，仍可能被扫描器索引，只要另有被包含的文件导入了这些文件。这也意味着 `node_modules/` 内的 `.d.ts` 文件和 `package.json` 清单同样可能被索引。
+
+在遍历文件系统时，Biome 最多跟随三层深的符号链接链。更长的链会被跳过，并产生一条警告级别的诊断信息。
+
+如果你想显式强制扫描器忽略某些文件，可以使用所谓的 _强制忽略模式_。强制忽略模式看起来像普通的取反模式，但以双感叹号（`!!`）开头。
+
+例如，你可以用以下配置告诉 Biome 永远不查看任何 `dist/` 文件夹：
+
+<Code lang="json" title="biome.json" code={"{\n  \"files\": {\n    \"includes\": [\"**\", \"!!**/dist\"]\n  }\n}"} />
+
+我们建议对包含 _输出_ 文件的任何文件夹（如 `build/` 和 `dist/`）使用强制忽略语法。对于这类文件夹，索引几乎不可能带来什么好处。对于包含生成文件的文件夹，我们建议使用普通的忽略模式，以便仍能从这些文件中提取类型信息。
+
+对于嵌套的 `biome.json` 文件以及你希望显式忽略的 `.gitignore` 文件，同样必须使用强制忽略语法。
+
+### `files.ignoreUnknown`
+
+如果为 `true`，Biome 遇到它无法处理的文件时不会发出诊断信息。
+
+<Code lang="json" title="biome.json" code={"{\n  \"files\": {\n    \"ignoreUnknown\": true\n  }\n}"} />
+
+> 默认值：`false`
+
+### `files.maxSize`
+
+源代码文件允许的最大大小，以字节计。超过此限制的文件会因性能原因被忽略。
+
+> 默认值：`1048576` (1024*1024, 1MB)
+
+### `files.experimentalScannerIgnores`
+
+<Aside type="caution">
+
+此选项已被 **弃用**，并可能在未来的版本中移除。
+请改为在 `files.includes` 中使用
+[_强制忽略语法_](/reference/configuration/#interaction-with-the-scanner)。
+
+</Aside>
+
+一个由字面路径段组成的数组，扫描器在遍历过程中会忽略这些路径。被忽略的文件不会被索引，这意味着这些文件不会出现在模块图中，也不会从中推断出类型。
+
+## `vcs`
+
+一组用于将 Biome 与 VCS（版本控制软件）集成的属性。
+
+### `vcs.enabled`
+
+Biome 是否应当与 VCS 客户端集成。
+
+> 默认值：`false`
+
+### `vcs.clientKind`
+
+客户端的类型。
+
+取值：
+- `"git"`
+
+### `vcs.useIgnoreFile`
+
+Biome 是否应使用项目的 VCS 忽略文件。当为 `true` 时，Biome 会忽略 VCS 忽略文件中指定的文件、Git 的本地 exclude 文件以及 `.ignore` 文件。
+
+此功能也支持嵌套的忽略文件。
+
+根忽略文件产生的语义与根 [`files.includes`](/reference/configuration#filesincludes) 相同。
+
+### `vcs.root`
+
+Biome 应在其中检查 VCS 文件的文件夹。默认情况下，Biome 会使用找到 `biome.json` 的同一文件夹。
+
+如果你的配置文件不在 VCS 仓库的根目录，你应当在此指定到 VCS 根的路径。该路径必须相对于配置文件。这可确保 Biome 能正确找到并遵循你的 VCS 忽略文件。
+
+例如，如果你的 Biome 配置位于 `frontend/biome.json`，而你的 VCS 根在项目根目录，你应当像这样配置 `vcs.root`：
+
+<Code lang="json" title="frontend/biome.json" code={"{\n  \"vcs\": {\n    \"enabled\": true,\n    \"clientKind\": \"git\",\n    \"useIgnoreFile\": true,\n    \"root\": \"../\"\n  }\n}"} />
+
+如果 Biome 找不到该配置，它会尝试使用当前工作目录。如果连当前工作目录也找不到，Biome 就不会使用 VCS 集成，并发出一条诊断信息。
+
+### `vcs.defaultBranch`
+
+项目的主分支。Biome 在评估发生更改的文件时会使用该分支。
+
+## `linter`
+
+### `linter.enabled`
+
+启用 Biome 的 Linter。
+
+> 默认值：`true`
+
+### `linter.includes`
+
+要 Lint 的文件的一组 [glob 模式](#glob-syntax-reference)。
+
+下面的例子会 Lint `src` 文件夹内所有带 `.js` 扩展名的文件：
+
+<Code lang="json" title="biome.json" code={"{\n  \"linter\": {\n    \"includes\": [\"src/**/*.js\"]\n  }\n}"} />
+
+`*` 用于匹配 _某个文件夹内的所有文件_，而 `**` 会 _递归地_ 匹配某个文件夹内的所有文件和子文件夹。有关 glob 的更多信息，请参阅 [glob 语法参考](#glob-syntax-reference)
+
+`includes` 还支持取反模式，也就是例外。这些是以 `!` 开头的模式，可用来指示 Biome 处理所有文件，但 _排除_ 匹配该取反模式的文件。
+
+请注意，例外按顺序处理，因此你可以为例外再设置例外。
+
+考虑下面的例子：
+
+<Code lang="json" title="biome.json" code={"{\n  \"linter\": {\n    \"includes\": [\"**\", \"!**/*.test.js\", \"**/special.test.js\"]\n  }\n}"} />
+
+这个例子说明：
+
+1. 借助 `**` 模式，所有（子）文件夹内的所有文件都会被 Lint……
+2. …… 但当这些文件带有 `.test.js` 扩展名时 _除外_ ……
+3. …… 不过 `special.test.ts` 这个文件 _仍然_ 会被 Lint。
+
+这意味着：
+
+* `src/app.js` **会** 被 Lint。
+* `src/app.test.js` **不会** 被 Lint。
+* `src/special.test.js` **会* 被 Lint。
+
+请注意，`linter.includes` 是在 `files.includes` *之后* 应用的。这意味着任何未被 `files.includes` 匹配的文件，都无法再被 `linter.includes` 匹配。所以下面这个例子 **不起作用**：
+
+<Code lang="json5" title="biome.jsonc" code={"{\n  \"files\": {\n    \"includes\": \"src/**\"\n  },\n  \"linter\": {\n    // 这不会匹配任何文件，因为它与 `files.includes` 没有重叠：\n    \"includes\": \"scripts/**\"\n  }\n}"} />
+
+如果没有指定 `linter.includes`，所有被 [`files.includes`](#filesincludes) 匹配的文件都会被 Lint。
+
+<Aside type="note">
+
+由于一项技术限制，`linter.includes` 也无法匹配文件夹，而 `files.includes` 可以。如果你想匹配某个文件夹内的所有文件，应当在末尾显式添加 `/**`。
+
+</Aside>
+
+### `linter.rules.recommended`
+
+为所有分组启用推荐规则。
+
+> 默认值：`true`
+
+<Aside type="caution">
+
+此选项已被弃用。请改用 [`linter.rules.preset`](/reference/configuration#lintrulespreset)。
+
+</Aside>
+
+### `linter.rules.preset`
+
+它允许启用某一组特定的规则。它接受以下值：
+- `"recommended"`：启用 Biome 的推荐规则（默认）
+- `"all"`：启用所有 Lint 规则，但 nursery 规则除外。
+- `"none"`：禁用所有 Lint 规则。
+
+### `linter.rules.[group]`
+
+影响单个分组规则的选项。Biome 支持以下分组：
+
+- a11y: 专注于预防无障碍访问问题的规则。
+- complexity: 专注于检查可被简化的复杂代码的规则。
+- correctness: 检测保证有误或无用的代码的规则。
+- nursery: 仍在开发中的新规则。在稳定版本中，nursery 规则需要通过配置显式选择启用，因为它们可能仍存在 bug 或性能问题（即使它们被标记为推荐）。在 nightly 构建中它们默认启用，但由于尚不稳定，其诊断严重性可能被设置为 error 或 warning，具体取决于我们在该规则最终稳定时是否打算将其设为推荐。nursery 规则在稳定后会被提升为其他分组，也可能被移除。属于此分组的规则不受语义化版本约束。
+- performance: 发现可以让代码运行更快或总体更高效的写法的规则。
+- security: 检测潜在安全缺陷的规则。
+- style: 强制以一种一致且符合惯用方式编写代码的规则。
+- suspicious: 检测很可能有误或无用的代码的规则。
+
+每个分组可以接受一个表示严重性的字符串，或一个可逐条配置规则的对象作为值。
+
+传入严重性时，你可以控制属于某个分组的所有规则所发出的严重性。
+例如，你可以将 `a11y` 分组配置为发出 information 级别的诊断信息：
+
+<Code lang="json" title="biome.json" code={"{\n  \"linter\": {\n    \"rules\": {\n      \"a11y\": \"info\"\n    }\n  }\n}"} />
+
+以下是接受的值：
+- `"on"`：属于该分组的每条规则都会以该规则的默认严重性发出一条诊断信息。请参阅该规则的文档，或使用 `explain` 命令：
+    ```shell showLineNumbers=false
+    biome explain noDebugger
+    ```
+- `"off"`：属于该分组的规则都不会发出任何诊断信息。
+- `"info"`：属于该分组的所有规则都会发出 [information 严重性的诊断信息](/reference/diagnostics#information)。
+- `"warn"`：属于该分组的所有规则都会发出 [warning 严重性的诊断信息](/reference/diagnostics#warning)。
+- `"error"`：属于该分组的所有规则都会发出 [error 严重性的诊断信息](/reference/diagnostics#error)。
+
+### `linter.rules.[group].recommended`
+
+为单个分组启用推荐规则。
+
+示例：
+
+<Code lang="json" title="biome.json" code={"{\n  \"linter\": {\n    \"enabled\": true,\n    \"rules\": {\n      \"nursery\": {\n        \"recommended\": true\n      }\n    }\n  }\n}"} />
+
+## `assist`
+
+### `assist.enabled`
+
+启用 Biome 的 Assist。
+
+> 默认值：`true`
+
+### `assist.includes`
+
+要 Lint 的文件的一组 [glob 模式](#glob-syntax-reference)。
+
+下面的例子会分析 `src` 文件夹内所有带 `.js` 扩展名的文件：
+
+<Code lang="json" title="biome.json" code={"{\n  \"assist\": {\n    \"includes\": [\"src/**/*.js\"]\n  }\n}"} />
+
+`*` 用于匹配 _某个文件夹内的所有文件_，而 `**` 会 _递归地_ 匹配某个文件夹内的所有文件和子文件夹。有关 glob 的更多信息，请参阅 [glob 语法参考](#glob-syntax-reference)
+
+`includes` 还支持取反模式，也就是例外。这些是以 `!` 开头的模式，可用来指示 Biome 处理所有文件，但 _排除_ 匹配该取反模式的文件。
+
+请注意，例外按顺序处理，因此你可以为例外再设置例外。
+
+考虑下面的例子：
+
+<Code lang="json" title="biome.json" code={"{\n  \"assist\": {\n    \"includes\": [\"**\", \"!**/*.test.js\", \"**/special.test.js\"]\n  }\n}"} />
+
+这个例子说明：
+
+1. 借助 `**` 模式，所有（子）文件夹内的所有文件都会被分析……
+2. …… 但当这些文件带有 `.test.js` 扩展名时 _除外_ ……
+3. …… 不过 `special.test.ts` 这个文件 _仍然_ 会被分析。
+
+这意味着：
+
+* `src/app.js` **会** 被分析。
+* `src/app.test.js` **不会** 被分析。
+* `src/special.test.js` **会* 被分析。
+
+请注意，`assist.includes` 是在 `files.includes` *之后* 应用的。这意味着任何未被 `files.includes` 匹配的文件，都无法再被 `assist.includes` 匹配。所以下面这个例子 **不起作用**：
+
+<Code lang="json5" title="biome.jsonc" code={"{\n  \"files\": {\n    \"includes\": \"src/**\"\n  },\n  \"assist\": {\n    // 这不会匹配任何文件，因为它与 `files.includes` 没有重叠：\n    \"includes\": \"scripts/**\"\n  }\n}"} />
+
+如果没有指定 `assist.includes`，所有被 [`files.includes`](#filesincludes) 匹配的文件都会被 Lint。
+
+<Aside type="note">
+
+由于一项技术限制，`assist.includes` 也无法匹配文件夹，而 `files.includes` 可以。如果你想匹配某个文件夹内的所有文件，应当在末尾显式添加 `/**`。
+
+</Aside>
+
+### `assist.actions.recommended`
+
+为所有分组启用推荐操作。
+
+### `assist.actions.[group]`
+
+影响单个分组规则的选项。Biome 支持以下分组：
+
+- source: 该分组表示那些在保存时可安全应用到文档的操作。这些操作通常都是安全的，一般不会改变程序的功能。
+
+### `assist.actions.[group].recommended`
+
+为单个分组启用推荐规则。
+
+示例：
+
+<Code lang="json" title="biome.json" code={"{\n  \"assist\": {\n    \"enabled\": true,\n    \"actions\": {\n      \"source\": {\n        \"recommended\": true\n      }\n    }\n  }\n}"} />
+
+## `formatter`
+
+这些选项适用于所有语言。下面还有针对各语言的格式化选项。
+
+### `formatter.enabled`
+
+启用 Biome 的格式化器。
+
+> 默认值：`true`
+
+### `formatter.includes`
+
+要格式化的文件的一组 [glob 模式](#glob-syntax-reference)。
+
+下面的例子会格式化 `src` 文件夹内所有带 `.js` 扩展名的文件：
+
+<Code lang="json" title="biome.json" code={"{\n  \"formatter\": {\n    \"includes\": [\"src/**/*.js\"]\n  }\n}"} />
+
+`*` 用于匹配 _某个文件夹内的所有文件_，而 `**` 会 _递归地_ 匹配某个文件夹内的所有文件和子文件夹。有关 glob 的更多信息，请参阅 [glob 语法参考](#glob-syntax-reference)
+
+`includes` 还支持取反模式，也就是例外。这些是以 `!` 开头的模式，可用来指示 Biome 处理所有文件，但 _排除_ 匹配该取反模式的文件。
+
+请注意，例外按顺序处理，因此你可以为例外再设置例外。
+
+考虑下面的例子：
+
+<Code lang="json" title="biome.json" code={"{\n  \"formatter\": {\n    \"includes\": [\"**\", \"!**/*.test.js\", \"**/special.test.js\"]\n  }\n}"} />
+
+这个例子说明：
+
+1. 借助 `**` 模式，所有（子）文件夹内的所有文件都会被格式化……
+2. …… 但当这些文件带有 `.test.js` 扩展名时 _除外_ ……
+3. …… 不过 `special.test.ts` 这个文件 _仍然_ 会被格式化。
+
+这意味着：
+
+* `src/app.js` **会** 被格式化。
+* `src/app.test.js` **不会** 被格式化。
+* `src/special.test.js` **会** 被格式化。
+
+请注意，`formatter.includes` 是在 `files.includes` *之后* 应用的。这意味着任何未被 `files.includes` 匹配的文件，都无法再被 `formatter.includes` 匹配。所以下面这个例子 **不起作用**：
+
+<Code lang="json5" title="biome.jsonc" code={"{\n  \"files\": {\n    \"includes\": \"src/**\"\n  },\n  \"formatter\": {\n    // 这不会匹配任何文件，因为它与 `files.includes` 没有重叠：\n    \"includes\": \"scripts/**\"\n  }\n}"} />
+
+如果没有指定 `formatter.includes`，所有被 [`files.includes`](#filesincludes) 匹配的文件都会被格式化。
+
+<Aside type="note">
+
+由于一项技术限制，`formatter.includes` 也无法匹配文件夹，而 `files.includes` 可以。如果你想匹配某个文件夹内的所有文件，应当在末尾显式添加 `/**`。
+
+</Aside>
+
+### `formatter.formatWithErrors`
+
+允许格式化带有语法错误的文档。
+
+<Code lang="json" title="biome.json" code={"{\n  \"formatter\": {\n    \"formatWithErrors\": true\n  }\n}"} />
+
+> 默认值：`false`
+
+### `formatter.indentStyle`
+
+缩进的风格。可以是 `"tab"` 或 `"space"`。
+
+> 默认值：`"tab"`
+
+### `formatter.indentWidth`
+
+缩进应当有多大。
+
+<Aside type="note">
+
+当 `indentStyle` 设置为 `tab` 时，此属性会被忽略。
+
+</Aside>
+
+> 默认值：`2`
+
+### `formatter.lineEnding`
+
+行尾的类型。
+- `"lf"`，仅换行符 Line Feed（`\n`），在 Linux、macOS 以及 git 仓库中常见；
+- `"crlf"`，回车符加换行符（`\r\n`），在 Windows 上常见；
+- `"cr"`，仅回车符（`\r`），极少使用。
+- `"auto"`，匹配操作系统的预期行尾风格：在 Windows 上为 CRLF（`\r\n`），在 macOS/Linux 上为 LF（`\n`）。
+
+> 默认值：`"lf"`
+
+### `formatter.lineWidth`
+
+单行上可以书写的字符数。
+
+> 默认值：`80`
+
+### `formatter.attributePosition`
+
+类 HTML 语言中的属性位置风格。
+- `"auto"`，属性会被自动格式化，只有当它们满足某些条件时才会折成多行；
+- `"multiline"`，如果使用了多于 1 个属性，属性会折成多行。
+
+> 默认值：`"auto"`
+
+### `formatter.bracketSpacing`
+
+选择在括号与内部值之间是否添加空格。
+
+> 默认值：`true`
+
+### `formatter.delimiterSpacing`
+
+是否在分隔符内部插入空格（在起始分隔符之后、结束分隔符之前）。空的分隔符不受影响，且不会在起始分隔符之前添加空格。
+
+> 默认值：`false`
+
+### `formatter.expand`
+
+是否将数组和对象展开到多行。
+- `"auto"`，如果第一个属性带有换行，则对象字面量被格式化到多行；如果数组字面量能放进一行，则被格式化到单行。
+- `"always"`，这些字面量被格式化到多行，不论列表有多长。
+- `"never"`，如果这些字面量能放进一行，则被格式化到单行。
+
+格式化 `package.json` 时，除非另有配置，Biome 会使用 `always`。
+
+> 默认值：`"auto"`
+
+### `formatter.trailingNewline`
+
+是否在文件末尾添加一个结尾换行。
+
+> 默认值为 true。
+
+<Aside type="danger">
+
+将此选项设置为 `false` 是 **强烈不建议的**，因为它可能给其他工具带来许多问题：
+- https://thoughtbot.com/blog/no-newline-at-end-of-file
+- https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804
+- https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files
+
+请自行承担禁用结尾换行的风险。
+
+</Aside>
+
+### `formatter.useEditorconfig`
+
+Biome 是否应使用 `.editorconfig` 文件来确定格式化选项。
+
+配置文件 `.editorconfig` 和 `biome.json` 会遵循以下规则：
+
+- `biome.json` 中的格式化设置始终优先于 `.editorconfig` 文件。
+- 位于 `biome.json` 文件所在层级之上的 `.editorconfig` 文件已被忽略。这是为了避免把某人主目录中的格式化设置加载到带有 `biome.json` 文件的项目中。
+- 目前不支持嵌套的 `.editorconfig` 文件。
+
+> 默认值：`false`
+
+## `javascript`
+
+这些选项仅适用于 JavaScript（以及 TypeScript）文件。
+
+### `javascript.parser.unsafeParameterDecoratorsEnabled`
+
+允许支持不安全/实验性的参数装饰器。
+
+<Code lang="json" title="biome.json" code={"{\n  \"javascript\": {\n    \"parser\": {\n\t    \"unsafeParameterDecoratorsEnabled\": true\n    }\n  }\n}"} />
+
+> 默认值：`false`
+
+### `javascript.parser.jsxEverywhere`
+
+设置为 `true` 时，允许解析 `.js` 文件内的 JSX 语法。设置为 `false` 时，Biome 遇到 `.js` 文件内的 JSX 语法会抛出诊断信息。
+
+> 默认值：`true`
+
+<Code lang="json" title="biome.json" code={"{\n  \"javascript\": {\n    \"parser\": {\n      \"jsxEverywhere\": false\n    }\n  }\n}"} />
+
+### `javascript.formatter.quoteStyle`
+
+表示字符串字面量时所使用的引号类型。可以是 `"single"` 或 `"double"`。
+
+> 默认值：`"double"`
+
+<Code lang="json" title="biome.json" code={"{\n  \"javascript\": {\n    \"formatter\": {\n      \"quoteStyle\": \"single\"\n    }\n  }\n}"} />
+
+### `javascript.formatter.jsxQuoteStyle`
+
+表示 jsx 字符串字面量时所使用的引号类型。可以是 `"single"` 或 `"double"`。
+
+> 默认值：`"double"`
+
+<Code lang="json" title="biome.json" code={"{\n  \"javascript\": {\n    \"formatter\": {\n      \"jsxQuoteStyle\": \"single\"\n    }\n  }\n}"} />
+
+### `javascript.formatter.quoteProperties`
+
+对象内的属性在何时应被加引号。可以是 `"asNeeded"` 或 `"preserve"`。
+
+> 默认值：`"asNeeded"`
+
+<Code lang="json" title="biome.json" code={"{\n  \"javascript\": {\n    \"formatter\": {\n      \"quoteProperties\": \"preserve\"\n    }\n  }\n}"} />
+
+### `javascript.formatter.trailingCommas`
+
+在多行的逗号分隔语法结构中，凡是可能之处都打印结尾逗号。可能的取值：
+- `"all"`，始终添加结尾逗号；
+- `"es5"`，仅在旧版 JavaScript 支持的地方添加结尾逗号；
+- `"none"`，从不添加结尾逗号。
+
+> 默认值：`"all"`
+
+### `javascript.formatter.semicolons`
+
+它配置格式化器在何处打印分号：
+- `"always"`，始终在每条语句末尾添加分号；
+- `"asNeeded"`，仅在需要之处添加分号，以防 [ASI](https://en.wikibooks.org/wiki/JavaScript/Automatic_semicolon_insertion)。
+
+> 默认值：`"always"`
+
+示例：
+
+<Code lang="json" title="biome.json" code={"{\n  \"javascript\": {\n    \"formatter\": {\n      \"semicolons\": \"asNeeded\"\n    }\n  }\n}"} />
+
+### `javascript.formatter.arrowParentheses`
+
+是否为箭头函数添加非必需的括号：
+- `"always"`，始终添加括号；
+- `"asNeeded"`，仅在需要时添加括号。
+
+> 默认值：`"always"`
+
+### `javascript.formatter.enabled`
+
+为 JavaScript（及其超语言）文件启用 Biome 的格式化器。
+
+> 默认值：`true`
+
+### `javascript.formatter.indentStyle`
+
+JavaScript（及其超语言）文件的缩进风格。可以是 `"tab"` 或 `"space"`。
+
+> 默认值：`"tab"`
+
+### `javascript.formatter.indentWidth`
+
+JavaScript（及其超语言）文件的缩进应当有多大。
+
+> 默认值：`2`
+
+### `javascript.formatter.lineEnding`
+
+JavaScript（及其超语言）文件的行尾类型。
+- `"lf"`，仅换行符 Line Feed（`\n`），在 Linux、macOS 以及 git 仓库中常见；
+- `"crlf"`，回车符加换行符（`\r\n`），在 Windows 上常见；
+- `"cr"`，仅回车符（`\r`），极少使用。
+- `"auto"`，匹配操作系统的预期行尾风格：在 Windows 上为 CRLF（`\r\n`），在 macOS/Linux 上为 LF（`\n`）。
+
+> 默认值：`"lf"`
+
+### `javascript.formatter.lineWidth`
+
+在 JavaScript（及其超语言）文件中，单行上可以书写的字符数。
+
+> 默认值：`80`
+
+### `javascript.formatter.bracketSameLine`
+
+选择多行 JSX 元素结尾的 `>` 是否应放在最后一个属性所在的那一行
+
+> 默认值：`false`
+
+### `javascript.formatter.bracketSpacing`
+
+选择在括号与内部值之间是否添加空格。
+
+> 默认值：`true`
+
+### `javascript.formatter.delimiterSpacing`
+
+是否在分隔符内部插入空格（在起始分隔符之后、结束分隔符之前）。空的分隔符不受影响，且不会在起始分隔符之前添加空格。
+
+对于 JavaScript，它影响圆括号（例如 `foo( a, b )`）、方括号（例如 `[ a, b ]`）、模板字面量插值（例如 `${ expr }`）、TypeScript 尖括号（例如 `foo< T >()`）、JSX 表达式大括号（例如 `{ value }`），以及逻辑非运算符（例如 `! x`）。
+
+> 默认值：`false`
+
+### `javascript.formatter.attributePosition`
+
+jsx 元素中的属性位置风格。
+- `"auto"`，不强制每行一个属性。
+- `"multiline"`，强制每行一个属性。
+
+> 默认值：`"auto"`
+
+### `javascript.formatter.expand`
+
+是否将数组和对象展开到多行。
+- `"auto"`，如果第一个属性带有换行，则对象字面量被格式化到多行；如果数组字面量能放进一行，则被格式化到单行。
+- `"always"`，这些字面量被格式化到多行，不论列表有多长。
+- `"never"`，如果这些字面量能放进一行，则被格式化到单行。
+
+> 默认值：`"auto"`
+
+### `javascript.formatter.operatorLinebreak`
+
+在把二元表达式折成多行时，是在二元运算符之前还是之后折行。
+
+> 默认值：`"after"`。
+
+- `"after`：运算符放在表达式之后：
+
+<Code lang="js" title="file.js" code={"  if (\n    expressionOne &&\n    expressionTwo &&\n    expressionThree &&\n    expressionFour\n  ) {}"} />
+
+- `"before`：运算符放在表达式之前：
+
+<Code lang="js" title="file.js" code={"  if (\n    expressionOne\n    && expressionTwo\n    && expressionThree\n    && expressionFour\n  ) {}"} />
+
+### `javascript.formatter.trailingNewline`
+
+是否在文件末尾添加一个结尾换行。
+
+> 默认值为 true。
+
+<Aside type="danger">
+
+将此选项设置为 `false` 是 **强烈不建议的**，因为它可能给其他工具带来许多问题：
+- https://thoughtbot.com/blog/no-newline-at-end-of-file
+- https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804
+- https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files
+
+请自行承担禁用结尾换行的风险。
+
+</Aside>
+
+### `javascript.globals`
+
+Biome 应当忽略的全局名称列表（分析器、Linter 等）
+
+<Code lang="json" title="biome.json" code={"{\n  \"javascript\": {\n    \"globals\": [\"$\", \"_\", \"externalVariable\"]\n  }\n}"} />
+
+### `javascript.jsxRuntime`
+
+指明用于解释 JSX 的运行时或转换的类型。
+
+- `"transparent"`：表示现代或原生的 JSX 环境，不需要 Biome 做特殊处理。
+- `"reactClassic"`：表示需要 `React` 导入的经典 React 环境。对应 TypeScript 的 [`tsconfig.json`](https://www.typescriptlang.org/tsconfig#jsx) 中 `jsx` 选项的 `react` 值。
+
+<Code lang="json" title="biome.json" code={"{\n  \"javascript\": {\n    \"jsxRuntime\": \"reactClassic\"\n  }\n}"} />
+
+有关旧版与新版 JSX 运行时的更多信息，请参阅：
+https://legacy.reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html
+
+> 默认值：`"transparent"`
+
+### `javascript.resolver.experimentalPnpmCatalogs`
+
+启用对从默认目录和命名 pnpm 目录解析依赖的支持。
+
+启用后，Biome 在解析包依赖时可以使用 `pnpm-workspace.yaml` 中的 `catalog` 和 `catalogs` 条目。
+
+> 默认值：`false`
+
+### `javascript.linter.enabled`
+
+为 JavaScript（及其超语言）文件启用 Biome 的 Linter。
+
+> 默认值：`true`
+
+<Code lang="json" title="biome.json" code={"{\n  \"javascript\": {\n    \"linter\": {\n      \"enabled\": false\n    }\n  }\n}"} />
+
+### `javascript.assist.enabled`
+
+为 JavaScript（及其超语言）文件启用 Biome 的 Assist。
+
+> 默认值：`true`
+
+<Code lang="json" title="biome.json" code={"{\n  \"javascript\": {\n    \"assist\": {\n      \"enabled\": false\n    }\n  }\n}"} />
+
+### `javascript.experimentalEmbeddedSnippetsEnabled`
+
+启用在 JavaScript（及其超语言）文件中解析和格式化嵌入的语言片段。
+
+> 默认值：`false`
+
+<Code lang="json" code={"{\n  \"javascript\": {\n    \"experimentalEmbeddedSnippetsEnabled\": true\n  }\n}"} />
+
+## `json`
+
+应用于 JSON 文件的选项。
+
+### `json.parser.allowComments`
+
+启用对 JSON 文件中注释的解析。
+
+<Code lang="json" title="biome.json" code={"{\n  \"json\": {\n    \"parser\": {\n      \"allowComments\": true\n    }\n  }\n}"} />
+
+### `json.parser.allowTrailingCommas`
+
+启用对 JSON 文件中结尾逗号的解析。
+
+<Code lang="json" title="biome.json" code={"{\n  \"json\": {\n    \"parser\": {\n      \"allowTrailingCommas\": true\n    }\n  }\n}"} />
+
+### `json.formatter.enabled`
+
+为 JSON（及其超语言）文件启用 Biome 的格式化器。
+
+> 默认值：`true`
+
+<Code lang="json" title="biome.json" code={"{\n  \"json\": {\n    \"formatter\": {\n      \"enabled\": false\n    }\n  }\n}"} />
+
+### `json.formatter.indentStyle`
+
+JSON（及其超语言）文件的缩进风格。可以是 `"tab"` 或 `"space"`。
+
+> 默认值：`"tab"`
+
+### `json.formatter.indentWidth`
+
+JSON（及其超语言）文件的缩进应当有多大。
+
+> 默认值：`2`
+
+### `json.formatter.lineEnding`
+
+JSON（及其超语言）文件的行尾类型。
+- `"lf"`，仅换行符 Line Feed（`\n`），在 Linux、macOS 以及 git 仓库中常见；
+- `"crlf"`，回车符加换行符（`\r\n`），在 Windows 上常见；
+- `"cr"`，仅回车符（`\r`），极少使用。
+- `"auto"`，匹配操作系统的预期行尾风格：在 Windows 上为 CRLF（`\r\n`），在 macOS/Linux 上为 LF（`\n`）。
+
+> 默认值：`"lf"`
+
+### `json.formatter.lineWidth`
+
+在 JSON（及其超语言）文件中，单行上可以书写的字符数。
+
+> 默认值：`80`
+
+### `json.formatter.trailingCommas`
+
+在多行的逗号分隔语法结构中，凡是可能之处都打印结尾逗号。
+
+允许的取值：
+- `"none"`：移除结尾逗号；
+- `"all"`：**保留** 结尾逗号并优先使用它。
+
+> 默认值：`"none"`
+
+### `json.formatter.bracketSpacing`
+
+选择在括号与内部值之间是否添加空格。
+
+> 默认值：`true`
+
+### `json.formatter.delimiterSpacing`
+
+是否在分隔符内部插入空格（在起始分隔符之后、结束分隔符之前）。空的分隔符不受影响，且不会在起始分隔符之前添加空格。对于 JSON，它影响方括号（例如 `[ 1, 2, 3 ]`）。
+
+> 默认值：`false`
+
+### `json.formatter.expand`
+
+是否将数组和对象展开到多行。
+- `"auto"`，如果第一个属性带有换行，则对象字面量被格式化到多行；如果数组字面量能放进一行，则被格式化到单行。
+- `"always"`，这些字面量被格式化到多行，不论列表有多长。
+- `"never"`，如果这些字面量能放进一行，则被格式化到单行。
+
+格式化 `package.json` 时，除非另有配置，Biome 会使用 `always`。
+
+> 默认值：`"auto"`
+
+### `json.formatter.trailingNewline`
+
+是否在文件末尾添加一个结尾换行。
+
+> 默认值为 true。
+
+<Aside type="danger">
+
+将此选项设置为 `false` 是 **强烈不建议的**，因为它可能给其他工具带来许多问题：
+- https://thoughtbot.com/blog/no-newline-at-end-of-file
+- https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804
+- https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files
+
+请自行承担禁用结尾换行的风险。
+
+</Aside>
+
+### `json.linter.enabled`
+
+为 JSON（及其超语言）文件启用 Biome 的格式化器。
+
+> 默认值：`true`
+
+<Code lang="json" title="biome.json" code={"{\n  \"json\": {\n    \"linter\": {\n      \"enabled\": false\n    }\n  }\n}"} />
+
+### `json.assist.enabled`
+
+为 JSON（及其超语言）文件启用 Biome 的 Assist。
+
+> 默认值：`true`
+
+<Code lang="json" title="biome.json" code={"{\n  \"json\": {\n    \"assist\": {\n      \"enabled\": false\n    }\n  }\n}"} />
+
+## `css`
+
+应用于 CSS 文件的选项。
+
+### `css.parser.cssModules`
+
+启用对 [CSS modules](https://github.com/css-modules/css-modules) 的解析。
+
+> 默认值：`false`
+
+### `css.parser.tailwindDirectives`
+
+<div style="display: none">tailwindDirectives, tailwind, tailwind directives, tailwind syntax</div>
+
+启用对 [Tailwind](https://tailwindcss.com) 专有语法的解析，例如 `@theme`、`@utility` 和 `@apply`。
+
+> 默认值：`false`
+
+### `css.formatter.enabled`
+
+为 CSS 文件启用 Biome 的格式化器。
+
+> 默认值：`false`
+
+<Code lang="json" title="biome.json" code={"{\n  \"css\": {\n    \"formatter\": {\n      \"enabled\": false\n    }\n  }\n}"} />
+
+### `css.formatter.indentStyle`
+
+CSS 文件的缩进风格。可以设为 `"tab"` 或 `"space"`。
+
+> 默认值：`"tab"`
+
+### `css.formatter.indentWidth`
+
+CSS 文件的缩进宽度。
+
+> 默认值：`2`
+
+<Code lang="json" title="biome.json" code={"{\n  \"css\": {\n    \"formatter\": {\n      \"indentWidth\": 2\n    }\n  }\n}"} />
+
+### `css.formatter.lineEnding`
+
+CSS 文件的换行类型。
+- `"lf"`，仅换行符（`\n`），常见于 Linux、macOS 以及 git 仓库内部；
+- `"crlf"`，回车符 + 换行符（`\r\n`），常见于 Windows；
+- `"cr"`，仅回车符（`\r`），极少使用；
+- `"auto"`，匹配操作系统期望的换行风格：Windows 上使用 CRLF（`\r\n`），macOS/Linux 上使用 LF（`\n`）。
+
+> 默认值：`"lf"`
+
+### `css.formatter.lineWidth`
+
+CSS 文件单行可以书写的字符数。
+
+> 默认值：`80`
+
+### `css.formatter.quoteStyle`
+
+表示字符串字面量时使用的引号类型。可以设为 `"single"` 或 `"double"`。
+
+> 默认值：`"double"`
+
+### `css.formatter.delimiterSpacing`
+
+是否在定界符内部插入空格（起始定界符之后、闭合定界符之前）。空定界符不受影响，起始定界符之前也不会添加空格。对于 CSS，影响圆括号（例如 `rgb( 0, 0, 0 )`）和方括号（例如 `[ data-attr ]`）。
+
+> 默认值：`false`
+
+### `css.formatter.trailingNewline`
+
+是否在文件末尾添加尾部换行符。
+
+> 默认为 true。
+
+<Aside type="danger">
+
+**强烈不建议**将此选项设为 `false`，因为它可能会给其他工具带来许多问题：
+- https://thoughtbot.com/blog/no-newline-at-end-of-file
+- https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804
+- https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files
+
+禁用尾部换行的风险自负。
+
+</Aside>
+
+### `css.linter.enabled`
+
+为 CSS 文件启用 Biome 的 Linter。
+
+> 默认值：`true`
+
+<Code lang="json" title="biome.json" code={"{\n  \"css\": {\n    \"linter\": {\n      \"enabled\": false\n    }\n  }\n}"} />
+
+### `css.assist.enabled`
+
+为 CSS 文件启用 Biome 的 Assist 辅助操作。
+
+> 默认值：`true`
+
+<Code lang="json" title="biome.json" code={"{\n  \"css\": {\n    \"assist\": {\n      \"enabled\": false\n    }\n  }\n}"} />
+
+## `graphql`
+
+应用于 GraphQL 文件的选项。
+
+### `graphql.formatter.enabled`
+
+为 GraphQL 文件启用 Biome 的格式化器。
+
+> 默认值：`false`
+
+### `graphql.formatter.indentStyle`
+
+GraphQL 文件的缩进风格。可以设为 `"tab"` 或 `"space"`。
+
+> 默认值：`"tab"`
+
+### `graphql.formatter.indentWidth`
+
+GraphQL 文件的缩进宽度。
+
+> 默认值：`2`
+
+### `graphql.formatter.lineEnding`
+
+GraphQL 文件的换行类型。
+- `"lf"`，仅换行符（`\n`），常见于 Linux、macOS 以及 git 仓库内部；
+- `"crlf"`，回车符 + 换行符（`\r\n`），常见于 Windows；
+- `"cr"`，仅回车符（`\r`），极少使用；
+- `"auto"`，匹配操作系统期望的换行风格：Windows 上使用 CRLF（`\r\n`），macOS/Linux 上使用 LF（`\n`）。
+
+> 默认值：`"lf"`
+
+### `graphql.formatter.lineWidth`
+
+GraphQL 文件单行可以书写的字符数。
+
+> 默认值：`80`
+
+### `graphql.formatter.quoteStyle`
+
+表示字符串字面量时使用的引号类型。可以设为 `"single"` 或 `"double"`。
+
+> 默认值：`"double"`
+
+### `graphql.formatter.trailingNewline`
+
+是否在文件末尾添加尾部换行符。
+
+> 默认为 true。
+
+<Aside type="danger">
+
+**强烈不建议**将此选项设为 `false`，因为它可能会给其他工具带来许多问题：
+- https://thoughtbot.com/blog/no-newline-at-end-of-file
+- https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804
+- https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files
+
+禁用尾部换行的风险自负。
+
+</Aside>
+
+### `graphql.linter.enabled`
+
+为 GraphQL 文件启用 Biome 的 Linter。
+
+> 默认值：`true`
+
+### `graphql.assist.enabled`
+
+为 GraphQL 文件启用 Biome 的 Assist 辅助操作。
+
+> 默认值：`true`
+
+## `grit`
+
+应用于 Grit 文件的选项。
+
+### `grit.formatter.enabled`
+
+为 Grit 文件启用 Biome 的格式化器。
+
+> 默认值：`false`
+
+### `grit.formatter.indentStyle`
+
+Grit 文件的缩进风格。可以设为 `"tab"` 或 `"space"`。
+
+> 默认值：`"tab"`
+
+### `grit.formatter.indentWidth`
+
+Grit 文件的缩进宽度。
+
+> 默认值：`2`
+
+### `grit.formatter.lineEnding`
+
+Grit 文件的换行类型。
+- `"lf"`，仅换行符（`\n`），常见于 Linux、macOS 以及 git 仓库内部；
+- `"crlf"`，回车符 + 换行符（`\r\n`），常见于 Windows；
+- `"cr"`，仅回车符（`\r`），极少使用；
+- `"auto"`，匹配操作系统期望的换行风格：Windows 上使用 CRLF（`\r\n`），macOS/Linux 上使用 LF（`\n`）。
+
+> 默认值：`"lf"`
+
+### `grit.formatter.lineWidth`
+
+Grit 文件单行可以书写的字符数。
+
+> 默认值：`80`
+
+### `grit.formatter.quoteStyle`
+
+表示字符串字面量时使用的引号类型。可以设为 `"single"` 或 `"double"`。
+
+> 默认值：`"double"`
+
+### `grit.formatter.trailingNewline`
+
+是否在文件末尾添加尾部换行符。
+
+> 默认为 true。
+
+<Aside type="danger">
+
+**强烈不建议**将此选项设为 `false`，因为它可能会给其他工具带来许多问题：
+- https://thoughtbot.com/blog/no-newline-at-end-of-file
+- https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804
+- https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files
+
+禁用尾部换行的风险自负。
+
+</Aside>
+
+### `grit.linter.enabled`
+
+为 Grit 文件启用 Biome 的 Linter。
+
+> 默认值：`true`
+
+<Code lang="json" title="biome.json" code={"{\n  \"grit\": {\n    \"linter\": {\n      \"enabled\": false\n    }\n  }\n}"} />
+
+### `grit.assist.enabled`
+
+为 Grit 文件启用 Biome 的 Assist 辅助操作。
+
+> 默认值：`true`
+
+<Code lang="json" title="biome.json" code={"{\n  \"grit\": {\n    \"assist\": {\n      \"enabled\": false\n    }\n  }\n}"} />
+
+## `html`
+
+<Aside type="caution">
+
+HTML 格式化器默认处于**禁用**状态，因为它仍是实验性功能。
+破坏性变更会被控制在最小范围，但修复项与新功能的引入仍可能改变工具的行为。
+
+</Aside>
+
+### `html.experimentalFullSupportEnabled`
+
+启用后，Biome 将对类 HTML 语言（Vue、Svelte 和 Astro 文件）提供完整支持，这些文件中嵌入式语言的解析、格式化和 Lint 行为保持一致。
+
+禁用后，Biome 只会从这些文件中提取 JavaScript/TypeScript 部分进行分析，忽略其余内容。
+
+<Aside type="note">
+
+启用此选项只会为这些文件切换上述行为，不适用于普通 `.html` 文件。若要格式化 HTML 文件，你还需要
+启用 `html.formatter.enabled`。
+
+</Aside>
+
+### `html.parser.interpolation`
+
+启用对 `.html` 文件中双花括号文本表达式（如 `{{ expression }}`）的解析。
+
+> 默认值：`false`
+
+### `html.parser.vue`
+
+启用 `.html` 文件内 Vue 专有语法的解析。由于插值语法是 Vue 语法的核心组成部分，启用此选项也会隐式启用 `html.parser.interpolation`。
+
+Biome 已能自动识别 `.vue` 文件，因此除非你的项目使用 `.html` 文件承载 Vue 组件，否则你可能无需启用此选项。
+
+> 默认值：`false`
+
+### `html.formatter.enabled`
+
+为 HTML 文件启用 Biome 的格式化器。
+
+> 默认值：`false`
+
+<Aside type="note">
+
+当 HTML 格式化器不再是实验性功能时，此选项将默认启用。
+
+</Aside>
+
+### `html.formatter.indentStyle`
+
+HTML 文件的缩进风格。可以设为 `"tab"` 或 `"space"`。
+
+> 默认值：`"tab"`
+
+### `html.formatter.indentWidth`
+
+HTML 文件的缩进宽度。
+
+> 默认值：`2`
+
+### `html.formatter.lineEnding`
+
+HTML 文件的换行类型。
+- `"lf"`，仅换行符（`\n`），常见于 Linux、macOS 以及 git 仓库内部；
+- `"crlf"`，回车符 + 换行符（`\r\n`），常见于 Windows；
+- `"cr"`，仅回车符（`\r`），极少使用；
+- `"auto"`，匹配操作系统期望的换行风格：Windows 上使用 CRLF（`\r\n`），macOS/Linux 上使用 LF（`\n`）。
+
+> 默认值：`"lf"`
+
+### `html.formatter.lineWidth`
+
+HTML 文件单行可以书写的字符数。
+
+> 默认值：`80`
+
+### `html.formatter.attributePosition`
+
+HTML 元素中属性的排布风格。
+- `"auto"`，属性自动格式化，仅在满足特定条件时才会拆分为多行；
+- `"multiline"`，若使用了超过 1 个属性，属性将拆分为多行。
+
+> 默认值：`"auto"`
+
+### `html.formatter.bracketSameLine`
+
+多行 HTML 标签的闭合右括号是否紧贴在最后一行的行尾，而不是单独占据下一行。
+
+> 默认值：`false`
+
+### `html.formatter.whitespaceSensitivity`
+
+<div style="display: none">whitespaceSensitivity, whitespace sensitivity</div>
+
+格式化 HTML（及其超集语言）时，是否考虑空白的敏感性。
+
+> 默认值："css"
+
+- `"css"`：对于在浏览器用户代理样式表中默认显示样式为 "inline" 的元素，格式化器认为其空白是有意义的。
+- `"strict"`：对所有元素而言，内容首尾的空白都被视为有意义。
+
+  若存在空白，格式化器至少应保留一个空白字符。
+  否则，若不存在空白，则不应在 `>` 之后或 `<` 之前添加任何空白。换句话说，若没有空白，文本内容应紧贴标签。
+
+  文本紧贴标签的示例：
+  ```html
+  <b
+     >content</b
+  >
+  ```
+- `"ignore"`：空白被视为无意义。格式化器可以自行决定删除或添加空白。
+
+### `html.formatter.indentScriptAndStyle`
+
+<div style="display: none">indentScriptAndStyle, indent script, indent style</div>
+
+*自 2.3 起：仅影响 `.vue` 和 `.svelte` 文件*
+
+是否对 Vue 和 Svelte 文件中 `<script>` 与 `<style>` 标签的内容进行缩进。目前不适用于普通 HTML 文件。
+
+> 默认值：`false`
+
+设为 true 时，`<script>` 和 `<style>` 标签的内容将相对标签缩进一级。
+
+<Code lang="vue" title="foo.vue" ins={3} code={"<script>\n\n  import Bar from \"./Bar.vue\";\n</script>"} />
+
+### `html.formatter.selfCloseVoidElements`
+
+<div style="display: none">selfCloseVoidElements, void elements, self closing elements</div>
+
+空元素是否应采用自闭合写法。默认为 never。
+
+> 默认值：`"never"`
+
+- `"never"`：格式化器会移除空元素中的斜杠 `/`。
+- `"always"`：始终在空元素中添加斜杠 `/`。
+
+### `html.formatter.trailingNewline`
+
+是否在文件末尾添加尾部换行符。
+
+> 默认为 true。
+
+<Aside type="danger">
+
+**强烈不建议**将此选项设为 `false`，因为它可能会给其他工具带来许多问题：
+- https://thoughtbot.com/blog/no-newline-at-end-of-file
+- https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804
+- https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files
+
+禁用尾部换行的风险自负。
+
+</Aside>
+
+### `html.linter.enabled`
+
+为 HTML 文件启用 Biome 的 Linter。
+
+> 默认值：`true`
+
+### `html.assist.enabled`
+
+为 HTML 文件启用 Biome 的 Assist 辅助操作。
+
+> 默认值：`true`
+
+## `overrides`
+
+一个模式列表。
+
+使用该配置可以针对特定文件更改工具的行为。
+
+当某个文件匹配到某个 override 模式时，该模式中指定的配置将覆盖顶层配置。
+
+模式的顺序很重要。如果一个文件*可以*匹配三个模式，只会使用第一个。
+
+### `overrides.<ITEM>.includes`
+
+用于应用自定义设置的文件所对应的 [glob 模式](https://en.wikipedia.org/wiki/Glob_(programming)) 列表。
+
+<Code lang="jsonc" title="biome.jsonc" code={"{\n  \"overrides\": [{\n    \"includes\": [\"scripts/*.js\"],\n    // 仅应用于 includes 字段所指定文件的设置。\n  }]\n}"} />
+
+### `overrides.<ITEM>.formatter`
+
+包含[顶层 formatter](#formatter)配置的选项，但不含 `ignore` 和 `include`。
+
+#### 示例
+
+例如，可以为 glob 路径 `generated/**` 匹配的文件修改格式化器的 `lineWidth`、`indentStyle`：
+
+<Code lang="json" title="biome.json" code={"{\n  \"formatter\": {\n    \"lineWidth\": 100\n  },\n  \"overrides\": [\n    {\n      \"includes\": [\"generated/**\"],\n      \"formatter\": {\n        \"lineWidth\": 160,\n        \"indentStyle\": \"space\"\n      }\n    }\n  ]\n}"} />
+
+### `overrides.<ITEM>.linter`
+
+包含[顶层 linter](#linter)配置的选项，但不含 `ignore` 和 `include`。
+
+#### 示例
+
+你可以对特定 glob 路径禁用某些规则，并对其他 glob 路径禁用 Linter：
+
+<Code lang="json" title="biome.json" code={"{\n  \"linter\": {\n    \"enabled\": true,\n    \"rules\": {\n      \"recommended\": true\n    }\n  },\n  \"overrides\": [\n    {\n      \"includes\": [\"lib/**\"],\n      \"linter\": {\n        \"rules\": {\n          \"suspicious\": {\n            \"noDebugger\": \"off\"\n          }\n        }\n      }\n    },\n    {\n      \"includes\": [\"shims/**\"],\n      \"linter\": {\n        \"enabled\": false\n      }\n    }\n  ]\n}"} />
+
+### `overrides.<ITEM>.javascript`
+
+包含[顶层 javascript](#javascript)配置的选项。允许你针对特定文件覆盖 JavaScript 专属设置。
+
+#### 示例
+
+你可以更改特定文件夹中 JavaScript 文件的格式化行为：
+
+<Code lang="json" title="biome.json" code={"{\n  \"formatter\": {\n    \"lineWidth\": 120\n  },\n  \"javascript\": {\n    \"formatter\": {\n      \"quoteStyle\": \"single\"\n    }\n  },\n  \"overrides\": [\n    {\n      \"includes\": [\"lib/**\"],\n      \"javascript\": {\n        \"formatter\": {\n          \"quoteStyle\": \"double\"\n        }\n      }\n    }\n  ]\n}"} />
+
+### `overrides.<ITEM>.json`
+
+包含[顶层 json](#json)配置的选项。允许你针对特定文件覆盖 JSON 专属设置。
+
+#### 示例
+
+你可以为特定 JSON 文件启用解析特性：
+
+<Code lang="json" title="biome.json" code={"{\n  \"linter\": {\n    \"enabled\": true,\n    \"rules\": {\n      \"recommended\": true\n    }\n  },\n  \"overrides\": [\n    {\n      \"includes\": [\".vscode/**\"],\n      \"json\": {\n        \"parser\": {\n          \"allowComments\": true,\n          \"allowTrailingCommas\": true\n        }\n      }\n    }\n  ]\n}"} />
+
+### `overrides.<ITEM>.[language]`
+
+包含顶层语言配置的选项。允许你针对特定文件覆盖语言专属设置。
+
+## Glob 语法参考
+
+glob 模式用于匹配文件和文件夹的路径。Biome 在 glob 中支持以下语法：
+
+- `*` 匹配零个或多个字符。它不能匹配路径分隔符 `/`。
+- `**` 递归匹配目录和文件。该序列必须作为完整的路径组件使用，
+  因此 `**a` 和 `b**` 都无效，会导致报错。连续超过两个 `*` 字符的序列
+  同样无效。
+- `[...]` 匹配方括号内的任意字符。
+  也可以按 Unicode 顺序指定字符范围，例如
+  `[0-9]` 表示 0 到 9（含两端）之间的任意字符。
+- `[!...]` 是 `[...]` 的取反，即匹配**不**在方括号内的任意字符。
+- 如果整个 glob 以 `!` 开头，则为所谓的否定模式。仅当路径 _不_ 匹配该 glob 时，
+  它才会命中。否定模式不能单独使用，只能作为常规 glob 的 _例外_。
+- 判断文件是否被包含时，Biome 也会考虑其父文件夹。这意味着，如果你想
+  _包含_ 某个文件夹中的所有文件，需要使用 `/**` 后缀来匹配这些文件。但如果想
+  _忽略_ 某个文件夹中的所有文件，则无需 `/**` 后缀。我们建议忽略文件夹时
+  不带尾部的 `/**`，以避免不必要的遍历，
+  也避免 Biome 从被忽略的文件夹中加载 `biome.json` 或
+  `.gitignore` 文件的风险。
+
+一些示例：
+
+- `dist/**` 匹配 `dist/` 文件夹及其内部的所有文件。
+- `!dist` 忽略 `dist/` 文件夹及其内部的所有文件。
+- `**/test/**` 匹配任意名为 `test` 的文件夹下的所有文件，无论其位于何处。
+  例如 `dist/test`、`src/test`。
+- `**/*.js` 匹配所有文件夹中以 `.js` 扩展名结尾的文件。
+
+<Aside type="caution">
+
+glob 模式可以用在 Biome 配置文件中，也可以在命令行中指定。
+当你在命令行中指定 glob 时，它由你的 shell 而非 Biome 解释。不同 shell
+支持的 glob 语法可能略有差异。例如，某些 shell 不支持
+递归模式 `**`。
+
+</Aside>

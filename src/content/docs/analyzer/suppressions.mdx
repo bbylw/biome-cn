@@ -1,0 +1,128 @@
+---
+title: 抑制列表
+description: 如何使用抑制。
+anchors: ["suppression-syntax","inline-suppressions","top-level-suppressions","range-suppressions","plugin-suppressions"]
+toc: [{"level":2,"text":"抑制语法","id":"suppression-syntax"},{"level":3,"text":"行内抑制","id":"inline-suppressions"},{"level":3,"text":"顶层抑制","id":"top-level-suppressions"},{"level":3,"text":"范围抑制","id":"range-suppressions"},{"level":3,"text":"插件抑制","id":"plugin-suppressions"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import Code from "@/components/mdx/Code.astro";
+
+Biome 分析器是 [Linter](/linter) 和 [Assist](/assist) 的基础；事实上，两者有很多相似之处。
+
+其中，它们共享同一个抑制引擎，这意味着你可以用抑制 Assist 辅助操作的方式去抑制一条 lint 规则。
+
+通过抑制，你可以针对某一行代码、一个范围或整个文件关闭一条 lint 规则（或操作）。
+
+抑制可以通过**抑制注释**来实现。
+
+## 抑制语法
+
+抑制注释具有以下格式：
+
+```js
+// biome-ignore lint: <explanation>
+// biome-ignore assist: <explanation>
+// biome-ignore syntax: <explanation>
+// biome-ignore lint/suspicious: <explanation>
+// biome-ignore lint/suspicious/noDebugger: <explanation>
+// biome-ignore lint/suspicious/noDebugger(foo): <explanation>
+// biome-ignore lint/plugin: <explanation>
+// biome-ignore lint/plugin/<plugin-name>: <explanation>
+// biome-ignore-all lint: <explanation>
+// biome-ignore-start lint: <explanation>
+// biome-ignore-end lint: <explanation>
+```
+
+我们来拆解一下：
+
+- `biome-ignore`、`biome-ignore-all`、`biome-ignore-start` 和 `biome-ignore-end` 是抑制注释的起始部分。
+- 空格之后是抑制注释的 **类别**。它可以是 `lint`、`assist` 或 `syntax`。
+- 类别之后是可选的分组，或分组加名称，用斜杠分隔。例如 `/suspicious` 或 `/suspicious/noDebugger`。你指定得越多，抑制就越具体（也就是越有针对性）。
+- 插件诊断信息使用 `lint/plugin`。你可以用 `lint/plugin` 针对所有插件，或用 `lint/plugin/<plugin-name>` 针对单个插件。
+- 某些规则甚至允许你在抑制时指定取值。这些取值可以写在圆括号里，例如 `(foo)`。请参考规则文档，查看某条规则是否支持带取值的抑制。
+- `<explanation>` 用来说明为什么禁用该规则。
+
+如果某条规则或操作的确切类别你不确定，你可以查阅它的文档页面，并使用其*诊断类别*。
+
+<Aside type="note">
+
+从这里开始，我们使用 JavaScript 来讲解抑制注释，并使用 `lint` 类别。
+
+</Aside>
+
+### 行内抑制
+
+它们为**下一行**代码禁用一条 lint 规则。
+
+在下面的示例中，抑制注释 `biome-ignore lint/suspicious/noDebugger: reason` 会禁用第 2 行的 `debugger;` 语句，但第 3 行的 `debugger` 仍会产生一条诊断信息：
+
+<Code lang="js" title="file.js" ins={1} code={"// biome-ignore lint/suspicious/noDebugger: 原因\ndebugger;\ndebugger;"} />
+
+### 顶层抑制
+
+它们为整个文件禁用一条 lint 规则。它们必须放在**文件顶部**，并且必须以 `biome-ignore-all` 开头。
+
+当你想*针对某个特定文件*抑制某条 lint 规则，而又不想依赖单条配置覆盖来实现这一点时，这些抑制注释非常有用。
+
+在下面的示例中，抑制注释 `biome-ignore-all lint/suspicious/noDebugger: reason` 会为 `generated.js` 中的所有行禁用该 lint 规则：
+
+<Code lang="js" title="generated.js" ins={1} code={"// biome-ignore-all lint/suspicious/noDebugger: 原因\ndebugger;\ndebugger;"} />
+
+当顶层抑制注释不在文件顶部时，它会被视为*未使用*，Biome 会发出一条类别为 `suppression/unused` 的诊断信息。
+
+### 范围抑制
+
+它们从文件中的某个特定 _范围_ 开始禁用一条 lint 规则，从带有开始注释的那一行起，直到带有结束注释的那一行。
+
+要标记范围抑制的开始，抑制注释必须以 `// biome-ignore-start` 开头。要标记其结束，抑制注释必须以 `// biome-ignore-end` 开头。
+
+下面的示例会为第 2 行和第 3 行禁用规则 `lint/suspicious/noDoubleEquals`，但第 5 行会产生一条诊断信息：
+
+<Code lang="js" ins={1} code={"// biome-ignore-start lint/suspicious/noDoubleEquals: 原因\na == b;\nc == d;\n// biome-ignore-end lint/suspicious/noDoubleEquals: 原因\nf == g;"} />
+
+<Aside type="note">
+
+范围抑制必须有一个与之匹配的 `biome-ignore-end` 抑制。
+
+</Aside>
+
+范围抑制也可以重叠。请考虑下面的示例：
+
+```js name="file.js"
+debugger;
+// biome-ignore-start lint/suspicious/noDebugger: 原因
+debugger;
+// biome-ignore-start lint/suspicious/noDoubleEquals: 原因
+a == b;
+c == d;
+// biome-ignore-end lint/suspicious/noDoubleEquals: 原因
+debugger;
+f == g;
+// biome-ignore-end lint/suspicious/noDebugger: 原因
+```
+
+在上面的代码中：
+
+- 第 1 行的 `debugger` 语句会产生一条诊断信息，因为没有禁用它的抑制注释。
+- 第 2 行的注释 `// biome-ignore-start lint/suspicious/noDebugger: reason` 从第 3 行开始禁用 `noDebugger`。
+- 第 4 行的注释 `// biome-ignore-start lint/suspicious/noDoubleEquals: reason` 从第 5 行开始禁用 `noDoubleEquals`。
+- 第 7 行的注释 `// biome-ignore-end lint/suspicious/noDoubleEquals: reason` 终止了由第 4 行的抑制注释启动的对 `noDoubleEquals` 的抑制。
+- 第 8 行的 `debugger` 语句**不会**产生诊断信息，因为有第 2 行的抑制注释。
+- `f == g` 语句会产生一条诊断信息，因为规则 `noDoubleEquals` 已不再被抑制。
+- 第 10 行的注释 `// biome-ignore-end lint/suspicious/noDebugger: reason` 终止了由第 2 行的抑制注释启动的对 `noDebugger` 的抑制。
+
+### 插件抑制
+
+它们会禁用由 [Linter 插件](/linter/plugins) 发出的诊断信息。
+
+使用 `lint/plugin` 可抑制来自所有插件的诊断信息，或使用 `lint/plugin/<plugin-name>` 抑制来自单个插件的诊断信息。`<plugin-name>` 是不含 `.grit` 扩展名的插件文件名。
+
+在下面的示例中，抑制注释 `biome-ignore lint/plugin/preferObjectSpread: reason` 会为下一行禁用 `preferObjectSpread.grit` 发出的诊断信息：
+
+<Code lang="js" title="file.js" ins={1} code={"// biome-ignore lint/plugin/preferObjectSpread: 原因\nObject.assign({}, foo);"} />
+
+要抑制来自所有插件的诊断信息，请省略插件名称：
+
+<Code lang="js" title="file.js" ins={1} code={"// biome-ignore lint/plugin: 原因\nObject.assign({}, foo);"} />
+
+插件抑制也可以编写为[顶层抑制](#top-level-suppressions)和[范围抑制](#range-suppressions)。

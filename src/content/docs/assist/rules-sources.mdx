@@ -1,0 +1,20 @@
+---
+title: 规则来源
+description: 将其他来源的 Lint 规则映射到 Biome 的页面
+anchors: ["biome-exclusive-rules","rules-from-other-sources","eslint-plugin-react"]
+toc: [{"level":2,"text":"Biome 独有规则","id":"biome-exclusive-rules"},{"level":2,"text":"来自其他来源的规则","id":"rules-from-other-sources"},{"level":3,"text":"eslint-plugin-react","id":"eslint-plugin-react"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+
+## Biome 独有规则
+- [useSortedKeys](/linter/rules/use-sorted-keys) 
+## 来自其他来源的规则
+<Aside type="note">
+
+与原始规则相比，某些 **Biome** 规则可能**没有**配置选项。
+
+</Aside>
+### eslint-plugin-react
+| eslint-plugin-react 规则名 | Biome 规则名 |
+| ---- | ---- |
+| [jsx-sort-props](https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/jsx-sort-props.md) |[useSortedAttributes](/linter/rules/use-sorted-attributes) |

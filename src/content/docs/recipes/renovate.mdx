@@ -1,0 +1,18 @@
+---
+title: Renovate
+description: 配置 Renovate Bot
+anchors: ["biomejson"]
+toc: [{"level":2,"text":"biome.json","id":"biomejson"}]
+---
+import Code from "@/components/mdx/Code.astro";
+
+[Renovate](https://docs.renovatebot.com/) 是一款流行的自动化依赖更新工具。
+
+## biome.json
+
+Renovate 提供了一个[共享预设规则](https://docs.renovatebot.com/presets-customManagers/#custommanagersbiomeversions)，可以帮助你在 `biome.json` 配置文件中让 `$schema` 版本保持同步并始终为最新。
+
+要使用它，把 `customManagers:biomeVersions` 加入你的 `extends` 列表。
+
+<Code lang="json" title="renovate.json" code={"{\n  \"$schema\": \"https://docs.renovatebot.com/renovate-schema.json\",\n  \"extends\": [\"customManagers:biomeVersions\"]\n}"} />
+

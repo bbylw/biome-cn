@@ -1,0 +1,192 @@
+---
+title: 在大型项目中使用 Biome
+description: 关于如何在大型项目中设置 Biome 的小型指南
+anchors: ["use-multiple-configuration-files","monorepo","other-ways-to-share-a-configuration-file","exporting-a-biome-configuration-from-an-npm-package"]
+toc: [{"level":2,"text":"使用多个配置文件","id":"use-multiple-configuration-files"},{"level":2,"text":"Monorepo","id":"monorepo"},{"level":2,"text":"共享配置文件的其他方式","id":"other-ways-to-share-a-configuration-file"},{"level":3,"text":"从 NPM 包导出 Biome 配置","id":"exporting-a-biome-configuration-from-an-npm-package"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import Code from "@/components/mdx/Code.astro";
+import FileTree from "@/components/mdx/FileTree.astro";
+import Steps from "@/components/mdx/Steps.astro";
+
+Biome 提供了一些工具，可以帮助你在大型项目中正确使用它，例如 monorepo 或包含多个项目的工作区。
+
+## 使用多个配置文件
+
+当你使用 Biome 的功能时，无论是通过 CLI 还是 LSP，工具都会基于当前工作目录查找最近的配置文件。
+
+如果 Biome 在该目录找不到配置文件，它会**开始向上遍历**文件系统的目录，直到找到一个为止。
+
+你可以利用这一特性，根据项目或文件夹应用不同的设置。
+
+假设我们有一个项目，其中包含一个后端应用和一个前端应用。
+
+<FileTree>
+
+- app
+    - backend
+      - biome.json
+      - package.json
+    - frontend
+      - biome.json
+      - legacy-app
+        - package.json
+      - new-app
+        - package.json
+
+</FileTree>
+
+这意味着当你在 `app/backend` 中运行 Biome 时，Biome 会使用配置文件 `app/backend/biome.json`。而当你在 `app/frontend/legacy-app` 或 `app/frontend/new-app` 中运行时，Biome 会使用配置文件 `app/frontend/biome.json`。
+
+## Monorepo
+
+Monorepo 是一种特殊的仓库，多个包存储在同一个大仓库中并在此维护。每个包都可以包含自己的配置。
+
+从 v2 开始，Biome 开箱即用地支持 monorepo，你需要按以下方式设置项目。
+
+<Steps>
+1. 在 monorepo 的根目录创建一个 `biome.json` 文件。我们将使用推荐规则，并自定义格式化器选项：
+
+    ```json title="biome.json"
+    {
+        "linter": {
+            "enabled": true,
+            "rules": {
+                "recommended": true
+            }
+        },
+        "formatter": {
+            "lineWidth": 120,
+            "indentStyle": "space",
+            "indentWidth": 6
+        }
+    }
+    ```
+    这个文件称为**根配置**，它设置项目内的基础选项。不过，嵌套配置可以自行决定是否遵循这些选项。下面我们来看看怎么做。
+
+2. 创建嵌套配置文件，在每个需要的包中各放一个。这些嵌套配置文件必须把 `"root"` 字段设置为 `false`。同时，我们希望这些包遵循根配置中设定的格式化标准。为此，我们将使用 Biome v2 中提供的一种**新微语法**，即 `"extends": "//"`。该语法告诉 Biome 从**根配置**继承，无论嵌套配置位于何处。
+
+    让我们创建两个配置文件，一个放在 `packages/logger` 中，一个放在 `packages/generate` 中。在前者中我们禁用 `noConsole`，而在 `packages/generate` 中我们禁用格式化器，因为这些是代码生成的文件：
+
+    ```json title="packages/logger/biome.json"
+    {
+        "root": false,
+        "extends": "//",
+        "linter": {
+            "rules": {
+                "suspicious": {
+                    "noConsole": "off"
+                }
+            }
+        }
+    }
+    ```
+
+    ```json title="packages/generate/biome.json"
+    {
+        "root": false,
+        "extends": "//",
+        "formatter": {
+            "enabled": false
+        }
+    }
+    ```
+    为了方便，当你使用微语法 `extends: "//"` 时，你可以**省略** `"root": false`，因为这已经隐含地表示该配置不是根配置：
+
+    ```diff title="packages/generate/biome.json"
+    {
+    -   "root": false,
+        "extends": "//",
+        "formatter": {
+          "enabled": false
+        }
+    }
+    ```
+3. 现在，假设我们在 `packages/analytics` 中有一个新包，由另一个团队维护。这个团队遵循完全不同的编码标准，因此他们 _不_ 希望从根配置继承选项。对他们来说，只需从配置文件中省略 `"extends": "//"`，并修改格式化选项即可：
+    ```json title="packages/analytics/biome.json"
+    {
+        "root": false,
+        "formatter": {
+            "lineWidth": 100,
+        }
+    }
+
+    ```
+4. 现在一切都设置好了，你有几个选择。你可以从项目根目录或从单个包运行 `biome` 命令。Biome 会遵循所有设置！
+</Steps>
+
+<Aside type="tip">
+
+有时候，Biome 可能会找到一个没有正确设置 `"root": false` 的嵌套配置文件。例如，如果你在 vendored 文件夹或 Git 子模块中有另一个使用 Biome 的项目，就可能出现这种情况。在这种情况下，我们建议通过使用 [`files.includes` 字段](/reference/configuration/#filesincludes) 完全忽略嵌套项目。
+
+</Aside>
+
+## 共享配置文件的其他方式
+
+如上所述，`extends` 字段允许你将配置拆分到多个文件中。这样，你就可以在不同的项目或文件夹之间共享通用设置。当你想让嵌套配置从根配置继承时，`"extends": "//"` 语法是一个便捷的快捷方式，但有时你可能希望使用更定制化的设置。
+
+除了 `"//"` 之外，`extends` 设置也接受数组值。在这种情况下，数组中的每个值都必须是另一个要继承的配置的路径。
+
+例如，下面是你设置配置以继承 `common.json` 配置文件的方式：
+
+<Code lang="json" title="biome.json" code={"{\n  \"extends\": [\"./common.json\"]\n}"} />
+
+在 `extends` 中定义的条目会从定义 `biome.json` 文件的路径进行解析。它们按列出的顺序处理，后面文件中的设置会覆盖前面的设置。
+
+你所 `extend` 的文件不能再反过来 `extend` 其他文件。
+
+请注意，配置文件中的路径始终从 `biome.json`/`biome.jsonc` 文件所在的文件夹进行解析。使用 `extends` 字段时，这意味着共享配置中的路径是从执行继承的配置所在位置进行解释的，而不是从被继承文件所在的文件夹。
+
+例如，假设有一个项目，其中包含两个目录 `backend/` 和 `frontend/`，每个目录都有自己的 `biome.json`，二者都继承根文件夹中的一个 `common.json` 配置：
+
+<FileTree>
+
+- backend/
+  - src/
+    - ...
+  - test/
+    - ...
+  - biome.json
+- frontend/
+  - src/
+    - ...
+  - test/
+    - ...
+  - biome.json
+- common.json
+
+</FileTree>
+
+<Code lang="json" title="common.json" code={"{\n  \"files\": {\n    \"includes\": [\"src/**/*.js\", \"test/**/*.js\"],\n  },\n  \"linter\": {\n    \"includes\": [\"**\", \"!test\"]\n  }\n}"} />
+
+<Code lang="json" title="frontend/biome.json" code={"{\n  \"extends\": [\"../common.json\"]\n}"} />
+
+* 当从 `frontend/` 文件夹运行 Biome 时，它会被配置为格式化和 Lint `frontend/src/` 与 `frontend/test/` 文件夹中的所有 JavaScript 文件，并且只格式化 `frontend/src/` 文件夹中的文件。之所以如此，是因为 `common.json` 中指定的路径是从 `frontend/` 文件夹解释的，因为 `biome.json` 文件就位于那里。
+* 假设 `backend/biome.json` 与 `frontend/biome.json` 看起来相同，它将具有相同的行为，只是路径会从 `backend/` 文件夹解释。
+
+请注意，在这种设置中，`frontend/biome.json` 和 `backend/biome.json` 都被视为根配置。你将无法从仓库根目录运行 Biome，除非使用 `--config-path` CLI 选项并将其指向其中一个配置。
+
+### 从 NPM 包导出 Biome 配置
+
+Biome 还能够从 `node_modules/` 文件夹解析配置文件。因此你可以从一个包导出配置文件，并在多个项目中导入它。
+
+为此，首先要以特定方式设置你的"共享"Biome 配置。假设你想从一个名为 `@org/shared-configs` 的包共享配置，使用标识符 `@org/shared-configs/biome`。你必须在这个包的 `package.json` 中创建一个 `exports` 条目：
+
+<Code lang="json" title="package.json" ins={5} code={"{\n  \"name\": \"@org/shared-configs\",\n  \"type\": \"module\",\n  \"exports\": {\n    \"./biome\": \"./biome.json\"\n  }\n}"} />
+
+确保 `@org/shared-configs` 已正确安装到你的项目中，并将 `biome.json` 文件更新为如下所示：
+
+<Code lang="json" title="biome.json" code={"{\n  \"extends\": [\"@org/shared-configs/biome\"]\n}"} />
+
+Biome 会尝试从你的工作目录解析你的库 `@org/shared-configs/`。工作目录是：
+
+- 使用 CLI 时，是你执行脚本所在的文件夹。通常它与你 `package.json` 文件的位置一致；
+- 使用 LSP 时，是你项目的根文件夹。
+
+<Aside type="caution">
+
+以点 `.` 开头或以 `.json` 或 `.jsonc` 结尾的路径始终被视为相对路径，因此不会从 `node_modules/` 解析。
+
+</Aside>
+
+有关解析算法的更多信息，请参阅 [Node.js 文档](https://nodejs.org/api/esm.html#resolution-and-loading-algorithm)。

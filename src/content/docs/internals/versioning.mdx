@@ -1,0 +1,54 @@
+---
+title: 版本管理
+description: Biome 如何确定版本号。
+anchors: ["semantic-versioning","patch-release","minor-release","major-release","visual-studio-code-extension","why-pinning-the-version-is-important"]
+toc: [{"level":2,"text":"语义化版本","id":"semantic-versioning"},{"level":3,"text":"补丁版本","id":"patch-release"},{"level":3,"text":"次版本","id":"minor-release"},{"level":3,"text":"主版本","id":"major-release"},{"level":2,"text":"Visual Studio Code 扩展","id":"visual-studio-code-extension"},{"level":2,"text":"为什么版本锁定很重要","id":"why-pinning-the-version-is-important"}]
+---
+对 Lint 规则、格式化布局等的修复，可能会导致你的脚本无法通过。由于这类变更的性质，
+**强烈建议**在 `package.json` 中记录_精确_的版本号，而不是使用范围运算符。
+
+这种做法能确保你的脚本不会意外失败。
+
+## 语义化版本
+
+Biome 遵循[语义化版本](https://semver.org/)。由于 Biome 作为工具链的特性，某项变更应归为主版本、次版本还是补丁版本，有时并不好判断。因此 Biome 采用以下版本规则：
+
+### 补丁版本
+
+* 修复会对合法代码误报 Lint 错误的规则（误报）
+* 修复不正确的代码建议
+* 修复导致无效代码或改变程序语义的语法格式化问题。
+* 文档改进
+* 不改变 Biome 功能的内部变更：
+  * 重构
+  * 性能优化
+  * 增加或调整测试覆盖率
+* 改进诊断信息的措辞，或修复诊断信息的渲染。
+* 发布失败后的重新发布
+* 调整既有语法的格式化行为。
+
+### 次版本
+
+* 新增规则，或将现有 Lint 规则提升到默认不推荐启用的稳定分组。
+* 为新引入的语言特性添加 Lint 与格式化支持，即使这会导致报告的 Lint 错误增多。
+* 移除推荐规则
+* 废弃现有规则
+* 新增可选配置项，且不会改变格式化结果或导致更多 Lint 错误。
+* 新增推荐的 Lint 规则，或将现有 Lint 规则从 nursery（实验分组）提升到稳定分组并成为推荐规则。
+* 移除 *nursery* 之外的规则，或将某条规则降级到 *nursery* 分组。
+
+### 主版本
+* 配置变更导致格式化结果不同或报告的 Lint 错误更多（添加/移除选项、更改默认值）
+* 对 Biome 公共 API 的变更
+* 将需要重点介绍的新特性或新工具提升为正式功能
+
+## Visual Studio Code 扩展
+
+Visual Studio Code [不支持扩展的预发布标签](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#prerelease-extensions)。因此 Biome 采用以下版本号方案来区分稳定版与预览版：
+* 稳定版使用偶数版本号：10, 12, 14, 16, ...
+* 预览版使用奇数版本号：11, 13, 15, 17, ...
+
+## 为什么版本锁定很重要
+
+在 `package.json` 中锁定 Biome 的版本，可以确保每位团队成员和每个持续集成（CI）环境
+都使用同一个版本的 Biome。即使是补丁版本的发布，也可能产生略有不同的格式化或 Lint 结果。

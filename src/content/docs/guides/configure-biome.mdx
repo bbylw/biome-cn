@@ -1,0 +1,256 @@
+---
+title: 配置 Biome
+description: 了解 Biome 配置的工作原理。
+anchors: ["configuration-file-structure","configuration-file-resolution","specifying-files-to-process","include-files-via-cli","control-files-via-configuration","include-files-via-configuration","exclude-files-via-configuration","control-files-via-vcs","well-known-files"]
+toc: [{"level":2,"text":"配置文件结构","id":"configuration-file-structure"},{"level":2,"text":"配置文件解析","id":"configuration-file-resolution"},{"level":2,"text":"指定要处理的文件","id":"specifying-files-to-process"},{"level":3,"text":"通过 CLI 包含文件","id":"include-files-via-cli"},{"level":3,"text":"通过配置控制文件","id":"control-files-via-configuration"},{"level":3,"text":"通过 VCS 控制文件","id":"control-files-via-vcs"},{"level":2,"text":"知名文件","id":"well-known-files"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import Code from "@/components/mdx/Code.astro";
+import FileTree from "@/components/mdx/FileTree.astro";
+
+本指南将帮助你了解如何配置 Biome。
+它解释了 Biome 配置文件的结构，以及 Biome 如何解析其配置。
+如果你已经熟悉配置，不妨看看[配置参考](/reference/configuration/)，其中详细列出了所有可用选项。
+
+Biome 允许你用 CLI 选项或名为 `biome.json` 或 `biome.jsonc` 的配置文件来定制其行为。
+我们建议你在每个项目中都创建一个配置文件。
+这样可确保每位团队成员在 CLI 以及任何支持 Biome 集成的编辑器中拥有相同的配置。
+配置文件中的许多选项在 CLI 中同样可用。
+
+## 配置文件结构
+
+Biome 配置文件名为 `biome.json` 或 `biome.jsonc`。它通常
+放在项目根目录中，紧邻项目的 `package.json`。
+
+由于 Biome 是一个工具链，它的配置围绕它所提供的工具来组织。目前，Biome 提供
+三个工具：格式化器、Linter 和 Assist 辅助操作。这些工具默认全部启用。你可以使用 `<tool>.enabled` 字段
+禁用其中一个或几个：
+
+<Code lang="json" title="biome.json" code={"{\n  \"$schema\": \"https://biomejs.dev/schemas/2.4.13/schema.json\",\n  \"formatter\": {\n    \"enabled\": false\n  },\n  \"linter\": {\n    \"enabled\": false\n  },\n  \"assist\": {\n    \"enabled\": false\n  }\n}"} />
+
+适用于多种语言的选项放在对应的工具字段中。
+某个工具的语言专属选项放在 `<language>.<tool>` 字段下。
+这也允许针对某种语言覆盖通用选项。
+你还可以根据语言来启用或禁用某个工具。
+在下面的示例中，我们为所有语言配置了通用选项 `formatter.indentStyle` 和 `formatter.lineWidth`。
+同时，我们在 `javascript.formatter` 中设置了 JavaScript 专属选项 `quoteStyle`，并覆盖 `formatter.lineWidth`。
+我们还为 JSON 文件禁用了格式化器。
+
+<Code lang="json5" title="biome.jsonc" code={"{\n  \"formatter\": {\n    \"indentStyle\": \"space\", // 默认值为 `tab`\n    \"lineWidth\": 100 // 默认值为 `80`\n  },\n  \"javascript\": {\n    \"formatter\": {\n      \"quoteStyle\": \"single\", // 默认值为 `double`\n      \"lineWidth\": 120 // 覆盖 `formatter.lineWidth`\n    }\n  },\n  \"json\": {\n    \"formatter\": {\n      \"enabled\": false\n    }\n  }\n}"} />
+
+<Aside type="note">
+
+Biome 把 JavaScript 语言的所有变体都称为 `javascript`。
+这包括 TypeScript、JSX 和 TSX。
+
+</Aside>
+
+## 配置文件解析
+
+Biome 支持以下配置文件，按以下顺序：
+1. `biome.json`
+2. `biome.jsonc`
+3. `.biome.json`
+4. `.biome.jsonc`
+
+Biome 按以下顺序尝试查找配置文件：
+1. 当前工作目录
+  - 从 CLI 使用时，工作目录是执行命令所在的位置
+  - 从编辑器使用时，工作目录是项目的根目录
+2. 逐级向上的父文件夹
+3. 主目录，它取决于你的操作系统：
+  - 在 Linux 上为 [`$XDG_CONFIG_HOME`](https://specifications.freedesktop.org/basedir/latest/#variables) 或 `$HOME/.config/biome`
+  - 在 macOS 上为 `/Users/$USER/Library/Application Support/biome`
+  - 在 Windows 上为 `C:\Users\$USER\AppData\Roaming\biome\config`
+
+如果找不到任何配置，则使用 Biome 的默认配置。
+
+举个例子：
+
+<FileTree>
+
+- app/
+  - backend/
+    - biome.json
+    - package.json
+  - frontend/
+    - legacy/
+      - package.json
+    - new/
+      - package.json
+    - biome.json
+
+</FileTree>
+
+- 在 `app/backend/package.json` 中运行的 Biome 命令会使用配置文件 `app/backend/biome.json`；
+- 在 `app/frontend/legacy/package.json` 和 `app/frontend/new/package.json` 中运行的 Biome 命令
+会使用配置文件 `app/frontend/biome.json`；
+
+<Aside type="note">
+
+Biome 支持嵌套的 `biome.json` 文件。更多信息请阅读[在大型项目中使用 Biome](/guides/big-projects#use-multiple-configuration-files)。
+
+</Aside>
+
+## 指定要处理的文件
+
+你可以用不同的策略来控制要处理的文件/目录，包括 CLI、配置和 VCS。
+
+<Aside type="note">
+
+默认情况下，Biome 总会忽略某些被称为**受保护文件**的文件。
+这意味着 Biome 永远不会为这些文件发出诊断信息。
+目前，以下文件属于受保护文件：
+
+- `composer.lock`
+- `npm-shrinkwrap.json`
+- `package-lock.json`
+- `yarn.lock`
+
+</Aside>
+
+### 通过 CLI 包含文件
+
+控制 Biome 处理哪些文件和目录的第一种方式，是在 CLI 中列出它们。在下面的命令中，我们只格式化 `file1.js` 和
+`src` 文件夹中的所有文件，因为文件夹会被递归遍历。
+
+```shell showLineNumbers=false
+biome format file1.js src/
+```
+
+<Aside type="caution">
+
+在命令行中使用的 glob 模式不会被 Biome 解释。
+它们由你的 shell 展开。
+某些 shell 不支持递归 glob `**`。
+
+</Aside>
+
+### 通过配置控制文件
+
+Biome 配置文件可用于进一步细化要处理的文件。
+你可以使用[the `files.includes` 字段](/reference/configuration/#filesincludes)显式列出要处理的文件。
+`files.includes` 接受
+[glob 模式](/reference/configuration/#glob-syntax-reference)，例如
+`src/**/*.js`。以 `!` 开头的取反模式可用于排除文件。
+
+Biome 配置文件内的路径和 glob 都相对于该配置文件所在的目录解析。例外情况是当
+一个配置文件被另一个文件[扩展](/reference/configuration/#extends)时。
+
+`files.includes` 适用于 Biome 的所有工具，也就是说，除非另有指定，此处指定的文件
+会由 Linter、格式化器和 Assist 辅助操作处理。对于单个工具，你可以使用 `<tool>.includes`
+进一步细化匹配的文件。
+
+#### 通过配置包含文件
+
+看下面的配置，我们只想包含 `src/` 文件夹和 `test/` 文件夹内的 JavaScript 文件（`.js`），并忽略文件名中含 `.min.js` 的文件：
+
+<Code lang="json" title="biome.json" code={"{\n  \"files\": {\n    \"includes\": [\"src/**/*.js\", \"test/**/*.js\", \"!**/*.min.js\"]\n  },\n  \"linter\": {\n    \"includes\": [\"**\", \"!test/**\"]\n  }\n}"} />
+
+然后运行以下命令：
+
+```shell showLineNumbers=false
+biome format test/
+```
+
+该命令会格式化 `test/` 文件夹中那些以 `.js` 结尾、且不以 `.min.js` 结尾的文件。
+
+`src/` 中的文件不会被格式化，因为该文件夹没有列在 CLI 中。
+
+如果运行下面的命令，将没有文件被 Lint，因为 `test/` 文件夹中的文件被显式地对 Linter 忽略。
+
+```shell showLineNumbers=false
+biome lint test/
+```
+
+<Aside type="caution">
+
+全局的 `files.includes` 与更具体的 `<tool>.includes` 字段在语义上略有不同。任何不匹配
+`files.includes` 的文件或目录，都会被排除在 Biome 所有工具之外。这意味着任何工具专属的
+`includes` 字段，都不可能匹配到那些本身不匹配 `files.includes` 的文件。
+
+</Aside>
+
+#### 通过配置排除文件
+
+如果你想让 Biome 不处理某些文件和目录，可以使用 `files.includes` 配置并采用取反模式：
+- 用开头的单个 `!` 让文件被排除在 Lint/格式化之外
+- 用开头的双 `!!` 让文件被排除在任何与项目相关的操作之外
+
+与项目相关的操作包括：
+- 构建内部模块图，使[某些项目规则](/linter/domains/#project)能够从导入和导出中解析信息。
+- 类型推断，使具备类型感知的 Lint 规则能正确推断类型。
+
+被纳入与项目相关操作考虑范围的文件会被**索引**。
+
+在列出取反 glob 之前，**必须先用 `**` 模式作为前导**。
+
+在下面的示例中，我们告诉 Biome 包含所有文件，但：
+- `dist/` 文件夹会被排除在任何与项目相关的操作之外，因此不会被索引。
+- 任何以 `.generated.js` 结尾的文件会被排除在格式化和 Lint 之外，但仍会被索引。
+
+<Code lang="json" title="biome.json" code={"{\n  \"files\": {\n    \"includes\": [\n      \"**\",\n      \"!**/*.generated.js\",\n      \"!!**/dist\"\n    ]\n  }\n}"} />
+
+要了解 Biome 如何与扫描器交互、以及扫描器如何索引你的文件，请查阅[相关参考页面](/reference/configuration#interaction-with-the-scanner)
+
+### 通过 VCS 控制文件
+
+你可以[忽略那些被你的 VCS 忽略的文件](/guides/integrate-in-vcs#use-the-ignore-file)。
+
+## 知名文件
+
+下面是一些知名文件（well-known files），我们依据其文件名而非扩展名对它们做专门处理。
+目前，知名文件仅包括类似 JSON 的文件，但当我们支持新的解析器时，可能会扩展这份列表以纳入其他类型。
+
+以下文件会被解析为 `JSON` 文件，且 `json.parser.allowComments` 和 `json.parser.allowTrailingCommas` 两个选项都设为 `false`。
+
+- `.all-contributorsrc`
+- `.arcconfig`
+- `.auto-changelog`
+- `.bowerrc`
+- `.c8rc`
+- `.htmlhintrc`
+- `.imgbotconfig`
+- `.jslintrc`
+- `.nycrc`
+- `.tern-config`
+- `.tern-project`
+- `.vuerc`
+- `.watchmanconfig`
+- `mcmod.info`
+
+以下文件会被解析为 `JSON` 文件，其中 `json.parser.allowComments` 设为 `true`，但 `json.parser.allowTrailingCommas` 设为 `false`。这是因为使用这些文件的工具只能去除注释。
+
+- `.ember-cli`
+- `.eslintrc.json`
+- `.jscsrc`
+- `.jshintrc`
+- `tslint.json`
+- `turbo.json`
+
+以下文件会被解析为 `JSON` 文件，其中 `json.parser.allowComments` 和 `json.parser.allowTrailingCommas` 都设为 `true`。这是因为使用这些文件的工具在设计上兼容这样的设置。
+
+- `.babelrc`
+- `.babelrc.json`
+- `.devcontainer.json`
+- `.hintrc`
+- `.hintrc.json`
+- `.oxlintrc.json`
+- `.swcrc`
+- `api-documenter.json`
+- `api-extractor.json`
+- `babel.config.json`
+- `deno.json`
+- `devcontainer.json`
+- `dprint.json`
+- `jsconfig.json`
+- `jsr.json`
+- `language-configuration.json`
+- `nx.json`
+- `project.json`
+- `tsconfig.json`
+- `typedoc.json`
+- `typescript.json`
+- `$PROJECT/.vscode/*` 文件夹下以及[用户 VS Code 设置文件夹](https://code.visualstudio.com/docs/configure/settings#_user-settingsjson-location)下的所有 `.json` 文件
+- `$PROJECT/.zed/*` 文件夹下以及[用户 Zed 设置文件夹](https://zed.dev/docs/configuring-zed#user-settings-file)下的所有 `.json` 文件
+- `$PROJECT/.cursor/*` 文件夹下以及用户 Cursor 设置文件夹下的所有 `.json` 文件

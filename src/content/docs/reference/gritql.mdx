@@ -1,0 +1,186 @@
+---
+title: GritQL
+description: GritQL 在 Biome 中的基本用法。
+anchors: ["supported-languages","patterns","variables","conditions","matching-biome-syntax-nodes","json-patterns","language-documentation","integration-status"]
+toc: [{"level":2,"text":"支持的语言","id":"supported-languages"},{"level":2,"text":"模式","id":"patterns"},{"level":2,"text":"变量","id":"variables"},{"level":2,"text":"条件","id":"conditions"},{"level":2,"text":"匹配 Biome 语法节点","id":"matching-biome-syntax-nodes"},{"level":2,"text":"JSON 模式","id":"json-patterns"},{"level":2,"text":"语言文档","id":"language-documentation"},{"level":2,"text":"集成状态","id":"integration-status"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+
+GritQL 是一种查询语言，用于对源代码进行结构化搜索。这意味着在你的搜索查询中，
+空白字符甚至字符串使用的引号类型等无关文本都会被忽略。此外，它还提供许多查询
+语法结构的能力，例如代码片段、匹配、嵌套和变量。
+
+GritQL 是[开源项目](https://github.com/getgrit/gritql/)，由 [Grit.io](https://grit.io/) 创建。
+
+## 支持的语言
+
+Biome 中的 GritQL 目前支持以下目标语言：
+
+- **JavaScript/TypeScript**：`language js`（可选变体：`typescript`、`jsx`）
+- **CSS**：`language css`
+- **JSON**：`language json`
+
+Biome 将 GritQL 用于两个目的：
+
+- [Analyzer 插件](/linter/plugins)。
+- [`biome search`](/reference/cli/#biome-search) 命令，我们也希望将它扩展到 IDE 扩展中。
+
+在 Analyzer 插件中使用 GritQL 时，模式还可以包含重写（`=>`），以提供可修复的
+诊断信息。关于安全修复与不安全修复以及 `fix_kind` 的详情，参见 [Linter 插件](/linter/plugins)。
+
+## 模式
+
+GritQL 查询通过_模式_工作。你最常看到的模式是代码片段，它看起来就像用反引号包裹的普通源代码：
+
+```grit
+`console.log('Hello, world!')`
+```
+
+该模式会匹配以字符串 `'Hello, world!'` 作为参数的任意 `console.log()` 调用。
+但由于 GritQL 做的是_结构化_匹配，它不关心格式化细节。以下写法也能匹配：
+
+```js
+console.log (
+    'Hello, world!'
+)
+```
+
+下面这个也可以（注意引号变了）：
+
+```js
+console.log("Hello, world!")
+```
+
+```shell
+biome search '`console.log($message)`' # 查找所有 `console.log` 调用
+```
+<Aside type="note">
+
+大多数 shell 会把反引号解释为命令调用，这与 GritQL 的代码片段冲突。因此在使用
+`biome search` 命令时，最好为 Grit 查询加上_单引号_：
+
+</Aside>
+
+## 变量
+
+GritQL 查询还可以包含_变量_。下面这个会匹配任意对 `console.log()` 的调用，无论传入什么消息：
+
+```grit
+`console.log($message)`
+```
+
+这个也能匹配 `console` 对象上的任意方法：
+
+```grit
+`console.$method($message)`
+```
+
+同一个变量名可以在单个片段中出现多次：
+
+```grit
+`$fn && $fn()`
+```
+
+它会匹配 `foo && foo()`，甚至 `foo.bar && foo.bar()`，但不会匹配 `foo && bar()`。
+
+## 条件
+
+你可以使用 `where` 操作符为模式添加条件。它通常与_匹配操作符_ `<:` 搭配使用：
+
+```grit
+`console.$method($message)` where {
+    $method <: `log`
+}
+```
+
+该查询与我们之前看到的 `console.log($message)` 模式等价，但加入其他操作符后它会迅速变得更有趣：
+
+```grit
+`console.$method($message)` where {
+    $method <: or { `log`, `info`, `warn`, `error` }
+}
+```
+
+## 匹配 Biome 语法节点
+
+若需要更精确的查询，你可以直接匹配 Biome 的内部语法节点。每个节点由一个唯一的 `PascalCase` 名称标识。
+
+例如，要查找所有 JavaScript `if` 语句，可以匹配 `JsIfStatement` 节点：
+
+```grit
+engine biome(1.0)
+language js(typescript,jsx)
+
+JsIfStatement() as $stmt where {
+  register_diagnostic(
+    span=$stmt,
+    message="Found an if statement"
+  )
+}
+```
+
+你也可以按名称匹配节点的特定部分。例如，这个模式使用 Biome 的节点字段名捕获三元表达式的第一个分支：
+
+```grit
+JsConditionalExpression(consequent = $cons) where {
+  register_diagnostic(
+    span=$cons,
+    message="Found the consequent branch of a conditional expression"
+  )
+}
+```
+
+你可以通过浏览 [Biome Playground](https://biomejs.dev/playground/) 中的语法树，找到代码对应的节点名和字段名。所有可用节点及其字段的完整列表也可以在 Biome 仓库 [`xtask/codegen`](https://github.com/biomejs/biome/tree/main/xtask/codegen) 目录下的 `.ungram` 文件中找到。
+
+<Aside type="caution">
+
+Biome 的语法可能随版本变化，新语言尤其如此。这可能导致节点名改变，进而破坏你的模式。如果你的模式使用了节点名/字段名，升级 Biome 时要准备好更新查询。
+
+</Aside>
+
+## JSON 模式
+
+GritQL 可以匹配 JSON 文件中的模式，适合用于搜索和转换配置文件：
+
+```grit
+language json
+
+`"foo": $value`
+```
+
+该模式匹配键为 `"foo"` 的任意 JSON 成员。
+
+若要更精确地匹配，你可以直接使用 Biome 的 JSON 语法节点：
+
+```grit
+language json
+
+JsonMember(name = JsonMemberName(value = `"version"`))
+```
+
+JSON 的 GritQL 还支持与 TreeSitter 兼容的节点别名，以便兼容已有的 Grit 模式：
+
+| Biome AST | TreeSitter 别名 |
+|-----------|------------------|
+| `JsonMember` | `pair` |
+| `JsonObjectValue` | `object` |
+| `JsonArrayValue` | `array` |
+
+## 语言文档
+
+关于 GritQL 及其语法的更多信息，参见官方 [GritQL 语言文档](https://docs.grit.io/language/overview)。
+
+请注意，Biome 尚未支持 Grit 的全部功能。
+
+## 集成状态
+
+Biome 对 GritQL 的支持正在积极开发中。许多功能已经可用，但仍可能出现缺陷，也有些功能完全缺失。
+
+关于哪些 GritQL 功能已获支持、哪些仍在开发中的详细概览，参见 GitHub issue：
+https://github.com/biomejs/biome/issues/2582。
+
+我们还有一份详细的 RFC，为插件工作指明方向：
+https://github.com/biomejs/biome/discussions/1762
+
+**tl;dr**：我们正在开发对插件的支持，插件可以是纯 GritQL 插件，也可以是使用
+GritQL 选取要操作代码的 JS/TS 插件。敬请期待！

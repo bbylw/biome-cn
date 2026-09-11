@@ -1,0 +1,1159 @@
+---
+title: CLI
+description: Biome CLI 中可用的命令、参数和选项。
+anchors: ["commands","biome-version","biome-upgrade","biome-rage","--daemon-logs","--formatter","--linter","biome-start","biome-stop","biome-check","--write---fix","--unsafe","--formatter-enabledtruefalse","--linter-enabledtruefalse","--assist-enabledtruefalse","--enforce-assisttruefalse","--profile-rules","--stdin-file-pathpath","--staged","--changed","--sinceref","--onlygroupruledomainactionplugin","--skipgroupruledomainactionplugin","--watch","biome-lint","--write---fix","--unsafe","--suppress","--reasonstring","--onlygroupruledomainplugin","--skipgroupruledomainplugin","--stdin-file-pathpath","--staged","--changed","--sinceref","--profile-rules","--watch","biome-format","--stdin-file-pathpath","--write---fix","--staged","--changed","--sinceref","--watch","biome-ci","--formatter-enabledtruefalse","--linter-enabledtruefalse","--assist-enabledtruefalse","--enforce-assisttruefalse","--changed","--sinceref","--threadsnumber","--onlygroupruledomainactionplugin","--skipgroupruledomainactionplugin","biome-init","--jsonc","biome-lsp-proxy","biome-migrate","--write---fix","biome-migrate-prettier","biome-migrate-eslint","biome-search","-l---languagecssjavascriptjson","biome-explain","biome-clean","global-flags","-h---help","-v---version","--colorsoffforce","--use-server","--verbose","--config-pathpath","--max-diagnosticsnonenumber","--skip-parse-errors","--no-errors-on-unmatched","--error-on-warnings","--diagnostic-levelinfowarnerror","--reporterformat","--reporter-filepath","shared-flags","daemon-server-flags","--watcher-kindpollingrecommendednone","--watcher-polling-intervalnumber","json-parser-flags","--json-parse-allow-commentstruefalse","--json-parse-allow-trailing-commastruefalse","configuration-flags","--vcs-enabledtruefalse","--vcs-client-kindgit","--vcs-use-ignore-filetruefalse","--vcs-rootpath","--vcs-default-branchbranch","--files-max-sizenumber","--files-ignore-unknowntruefalse","--format-with-errorstruefalse","--indent-styletabspace","--indent-widthnumber","--line-endinglfcrlfcrauto","--line-widthnumber","--attribute-positionmultilineauto","--bracket-same-linetruefalse","--bracket-spacingtruefalse","--delimiter-spacingtruefalse","--expandautoalwaysnever","--trailing-newlinetruefalse","--use-editorconfigtruefalse","--jsx-everywheretruefalse","--javascript-formatter-enabledtruefalse","--jsx-quote-styledoublesingle","--quote-propertiespreserveas-needed","--trailing-commasalles5none","--semicolonsalwaysas-needed","--arrow-parenthesesalwaysas-needed","--javascript-formatter-indent-styletabspace","--javascript-formatter-indent-widthnumber","--javascript-formatter-line-endinglfcrlfcrauto","--javascript-formatter-line-widthnumber","--javascript-formatter-quote-styledoublesingle","--javascript-formatter-attribute-positionmultilineauto","--javascript-formatter-bracket-spacingtruefalse","--javascript-formatter-delimiter-spacingtruefalse","--javascript-formatter-expandautoalwaysnever","--javascript-formatter-operator-linebreakbeforeafter","--javascript-formatter-trailing-newlinetruefalse","--javascript-linter-enabledtruefalse","--javascript-assist-enabledtruefalse","--json-formatter-enabledtruefalse","--json-formatter-indent-styletabspace","--json-formatter-indent-widthnumber","--json-formatter-line-endinglfcrlfcrauto","--json-formatter-line-widthnumber","--json-formatter-trailing-commasnoneall","--json-formatter-expandautoalwaysnever","--json-formatter-bracket-spacingtruefalse","--json-formatter-delimiter-spacingtruefalse","--json-formatter-trailing-newlinetruefalse","--json-linter-enabledtruefalse","--json-assist-enabledtruefalse","--css-parse-css-modulestruefalse","--css-parse-tailwind-directivestruefalse","--css-formatter-enabledtruefalse","--css-formatter-indent-styletabspace","--css-formatter-indent-widthnumber","--css-formatter-line-endinglfcrlfcrauto","--css-formatter-line-widthnumber","--css-formatter-quote-styledoublesingle","--css-formatter-delimiter-spacingtruefalse","--css-formatter-trailing-newlinetruefalse","--css-linter-enabledtruefalse","--css-assist-enabledtruefalse","--graphql-formatter-enabledtruefalse","--graphql-formatter-indent-styletabspace","--graphql-formatter-indent-widthnumber","--graphql-formatter-line-endinglfcrlfcrauto","--graphql-formatter-line-widthnumber","--graphql-formatter-quote-styledoublesingle","--graphql-formatter-trailing-newlinetruefalse","--graphql-linter-enabledtruefalse","--graphql-assist-enabledtruefalse","--grit-formatter-enabledtruefalse","--grit-formatter-indent-styletabspace","--grit-formatter-indent-widthnumber","--grit-formatter-line-endinglfcrlfcrauto","--grit-formatter-line-widthnumber","--grit-formatter-trailing-newlinetruefalse","--grit-linter-enabledtruefalse","--grit-assist-enabledtruefalse","--html-formatter-enabledtruefalse","--html-formatter-indent-styletabspace","--html-formatter-indent-widthnumber","--html-formatter-line-endinglfcrlfcrauto","--html-formatter-line-widthnumber","--html-formatter-attribute-positionmultilineauto","--html-formatter-bracket-same-linetruefalse","--html-formatter-whitespace-sensitivitycssstrictignore","--html-formatter-indent-script-and-styletruefalse","--html-formatter-self-close-void-elementsalwaysnever","--html-formatter-trailing-newlinetruefalse","--html-linter-enabledtruefalse","--html-assist-enabledtruefalse","logging-flags","--log-filepath","--log-prefix-namestring","--log-pathpath","--log-levelnonetracingdebuginfowarnerror","--log-kindprettycompactjson"]
+toc: [{"level":2,"text":"命令","id":"commands"},{"level":2,"text":"biome version","id":"biome-version"},{"level":2,"text":"biome upgrade","id":"biome-upgrade"},{"level":2,"text":"biome rage","id":"biome-rage"},{"level":2,"text":"biome start","id":"biome-start"},{"level":2,"text":"biome stop","id":"biome-stop"},{"level":2,"text":"biome check","id":"biome-check"},{"level":2,"text":"biome lint","id":"biome-lint"},{"level":2,"text":"biome format","id":"biome-format"},{"level":2,"text":"biome ci","id":"biome-ci"},{"level":2,"text":"biome init","id":"biome-init"},{"level":2,"text":"biome lsp-proxy","id":"biome-lsp-proxy"},{"level":2,"text":"biome migrate","id":"biome-migrate"},{"level":2,"text":"biome search","id":"biome-search"},{"level":2,"text":"biome explain","id":"biome-explain"},{"level":2,"text":"biome clean","id":"biome-clean"},{"level":2,"text":"全局选项","id":"global-flags"},{"level":2,"text":"共享选项","id":"shared-flags"},{"level":3,"text":"守护进程服务器选项","id":"daemon-server-flags"},{"level":3,"text":"JSON 解析器选项","id":"json-parser-flags"},{"level":3,"text":"配置选项","id":"configuration-flags"},{"level":3,"text":"日志选项","id":"logging-flags"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import TabItem from "@/components/mdx/TabItem.astro";
+import Tabs from "@/components/mdx/Tabs.astro";
+
+通过命令行接口（CLI），你可以在终端或持续集成（CI）环境中检查、格式化、Lint 和管理 Biome。
+
+Biome CLI 既可以通过项目的包管理器运行，也可以作为不依赖 Node.js 的[独立原生可执行文件](/guides/manual-installation)运行。
+
+<Tabs syncKey="cli-command">
+	<TabItem label="npm" icon="seti:npm">
+		```shell
+		npx @biomejs/biome check .
+		```
+	</TabItem>
+	<TabItem label="pnpm" icon="pnpm">
+		```shell
+		pnpx @biomejs/biome check .
+		```
+	</TabItem>
+	<TabItem label="yarn" icon="seti:yarn">
+		```shell
+		yarn exec biome check .
+		```
+	</TabItem>
+	<TabItem label="Native binary">
+		```shell
+		biome check .
+		```
+	</TabItem>
+</Tabs>
+
+<Aside type="tip" title="需要快速回顾？">
+
+运行 `biome --help` 可列出所有可用命令，也可以在命令后添加 `--help` 查看其用法、参数和选项（例如 `biome check --help`）。
+
+</Aside>
+
+[//]: # (Start-codegen)
+## 命令
+
+  * [`biome version`](#biome-version)
+  * [`biome upgrade`](#biome-upgrade)
+  * [`biome rage`](#biome-rage)
+  * [`biome start`](#biome-start)
+  * [`biome stop`](#biome-stop)
+  * [`biome check`](#biome-check)
+  * [`biome lint`](#biome-lint)
+  * [`biome format`](#biome-format)
+  * [`biome ci`](#biome-ci)
+  * [`biome init`](#biome-init)
+  * [`biome lsp-proxy`](#biome-lsp-proxy)
+  * [`biome migrate`](#biome-migrate)
+  * [`biome migrate prettier`](#biome-migrate-prettier)
+  * [`biome migrate eslint`](#biome-migrate-eslint)
+  * [`biome search`](#biome-search)
+  * [`biome explain`](#biome-explain)
+  * [`biome clean`](#biome-clean)
+
+[//]: # (End-codegen)
+
+## `biome version`
+
+打印 Biome CLI 的版本号以及所连接的守护进程服务器信息（若有），然后退出。
+
+该命令还接受[全局选项](#global-flags)。
+
+## `biome upgrade`
+
+将 Biome 升级到最新稳定版本。
+
+该命令会根据当前的安装方式升级 Biome 二进制文件：
+
+- **Standalone**：就地升级独立二进制文件到最新稳定版本。
+- **Homebrew**：如果 Biome 是通过 Homebrew 安装的，该命令会运行 `brew upgrade biome`。
+
+将 `BIOME_DISTRIBUTION` 设置为 `npm`、`homebrew` 或 `standalone` 可以覆盖自动检测。
+
+<Aside type="note">
+
+该命令无法更新通过 npm 安装的 Biome 二进制文件。请改用你的包管理器更新 `@biomejs/biome`。
+
+</Aside>
+
+## `biome rage`
+
+打印故障排查报告，包含 CLI、平台、环境、配置、工作区以及守护进程服务器的信息。
+
+该命令还接受[全局选项](#global-flags)、相关的[共享选项](#shared-flags)，以及以下附加选项：
+
+<h3>选项</h3>
+
+#### `--daemon-logs`
+
+在报告中包含最新的守护进程日志。如果 CLI 未连接到守护进程服务器，该选项还会探测正在运行的 Biome 守护进程实例。
+
+#### `--formatter`
+
+包含从 Biome 配置加载的格式化器设置。
+
+#### `--linter`
+
+包含从 Biome 配置加载的 Linter 设置和已启用的 Lint 规则。
+
+## `biome start`
+
+启动 Biome 守护进程服务器，用于与第三方客户端（如编辑器扩展）集成。
+
+该命令还接受相关的[共享选项](#shared-flags)。
+
+## `biome stop`
+
+如果 Biome 守护进程服务器正在运行，则将其停止。
+
+## `biome check`
+
+对指定文件执行格式化、Lint 和 Assist 辅助操作检查。
+
+可选的 `PATH` 参数接受一个或多个文件或目录路径。若省略，Biome 会检查当前工作目录中的文件。
+
+```shell
+biome check ./src
+```
+
+该命令还接受[全局选项](#global-flags)、相关的[共享选项](#shared-flags)，以及以下附加选项：
+
+<h3>选项</h3>
+
+#### `--write`, `--fix`
+
+应用格式化更改、安全 Lint 修复和安全 Assist 辅助操作。
+
+#### `--unsafe`
+
+允许 `--write` 或 `--fix` 应用不安全修复及 Assist 辅助操作。
+
+#### `--formatter-enabled=<true|false>`
+
+为当前命令启用或禁用格式化检查。
+
+```shell
+biome check --formatter-enabled=false
+```
+
+#### `--linter-enabled=<true|false>`
+
+为当前命令启用或禁用 Lint 检查。
+
+```shell
+biome check --linter-enabled=true
+```
+
+#### `--assist-enabled=<true|false>`
+
+为当前命令启用或禁用 Assist 辅助操作。
+
+```shell
+biome check --assist-enabled=true
+```
+
+#### `--enforce-assist=<true|false>`
+
+强制执行 Assist 辅助操作，若必需的操作未被应用，命令将失败。默认为 `true`。
+
+```shell
+biome check --enforce-assist=false
+```
+
+#### `--profile-rules`
+
+报告每条规则的运行耗时。不包括准备分析所花费的时间，例如构建语义模型的时间。
+
+#### `--stdin-file-path=PATH`
+
+从标准输入读取代码，并将处理后的代码写入标准输出。
+
+Biome 使用 `PATH` 选择设置，并根据其扩展名确定输入类型。虚拟路径无需实际存在，也无需属于该项目。它们会绕过 `files.includes` 和 VCS 忽略检查。
+
+```shell
+echo 'let a;' | biome check --stdin-file-path=file.js --write
+```
+
+#### `--staged`
+
+仅检查已暂存的文件。该选项适用于本地使用。
+
+#### `--changed`
+
+仅检查相对于配置的 `vcs.defaultBranch` 或 `--since` 指定的基础引用存在已提交更改的文件。不包含已暂存和未暂存的更改。该选项适用于 CI。
+
+#### `--since=REF`
+
+设置 `--changed` 使用的基础引用，覆盖 `vcs.defaultBranch`。需要配合 `--changed` 使用。
+
+```shell
+biome check --changed --since=main
+```
+
+#### `--only=<GROUP|RULE|DOMAIN|ACTION|PLUGIN>`
+
+仅运行指定的 Lint 规则、Assist 辅助操作、规则与操作分组或规则域（domain）。若所选规则的严重性等级为 `off`，Biome 会将推荐规则设置为 `error`，其他规则设置为 `warn`。`plugin` 分组仅运行分析器插件。
+
+```shell
+biome check --only=correctness/noUnusedVariables --only=suspicious --only=test --only=plugin
+```
+
+#### `--skip=<GROUP|RULE|DOMAIN|ACTION|PLUGIN>`
+
+跳过指定的 Lint 规则、Assist 辅助操作、规则与操作分组或规则域（domain）。匹配的 Lint 规则会被设置为 `off`。该选项优先于 `--only`。`plugin` 分组会跳过分析器插件。
+
+```shell
+biome check --skip=correctness/noUnusedVariables --skip=suspicious --skip=project --skip=plugin
+```
+
+#### `--watch`
+
+初次运行后，监视所选路径，并重新处理之后修改的文件。
+
+## `biome lint`
+
+对指定文件运行 Linter。
+
+可选的 `PATH` 参数接受一个或多个文件或目录路径。若省略，Biome 会 Lint 当前工作目录中的文件。
+
+```shell
+biome lint ./src
+```
+
+该命令还接受[全局选项](#global-flags)、相关的[共享选项](#shared-flags)，以及以下附加选项：
+
+<h3>选项</h3>
+
+#### `--write`, `--fix`
+
+应用安全 Lint 修复。
+
+#### `--unsafe`
+
+允许 `--write` 或 `--fix` 应用不安全 Lint 修复。
+
+#### `--suppress`
+
+针对违反 Lint 规则的问题写入抑制注释，而不是应用规则修复。
+
+#### `--reason=STRING`
+
+为 `--suppress` 创建的抑制添加说明。该选项要求同时使用 `--suppress`。
+
+```shell
+biome lint --suppress --reason="explanation"
+```
+
+#### `--only=<GROUP|RULE|DOMAIN|PLUGIN>`
+
+仅运行指定的 Lint 规则、规则分组或规则域（domain）。若规则的严重性等级为 `off`，Biome 会将推荐规则设置为 `error`，其他规则设置为 `warn`。`plugin` 分组仅运行分析器插件。
+
+```shell
+biome lint --only=correctness/noUnusedVariables --only=suspicious --only=test --only=plugin
+```
+
+#### `--skip=<GROUP|RULE|DOMAIN|PLUGIN>`
+
+跳过指定的 Lint 规则、规则分组或规则域（domain），将受影响的规则设置为 `off`。该选项优先于 `--only`。`plugin` 分组会跳过分析器插件。
+
+```shell
+biome lint --skip=correctness/noUnusedVariables --skip=suspicious --skip=project --skip=plugin
+```
+
+#### `--stdin-file-path=PATH`
+
+从标准输入读取代码，并将处理后的代码写入标准输出。
+
+Biome 使用 `PATH` 选择设置，并根据其扩展名确定输入类型。虚拟路径无需实际存在，也无需属于该项目。它们会绕过 `files.includes` 和 VCS 忽略检查。
+
+```shell
+echo 'let a;' | biome lint --stdin-file-path=file.js --write
+```
+
+#### `--staged`
+
+仅 Lint 已暂存的文件。该选项适用于本地使用。
+
+#### `--changed`
+
+仅 Lint 相对于配置的 `vcs.defaultBranch` 或 `--since` 指定的基础引用存在已提交更改的文件。不包含已暂存和未暂存的更改。该选项适用于 CI。
+
+#### `--since=REF`
+
+设置 `--changed` 使用的基础引用，覆盖 `vcs.defaultBranch`。需要配合 `--changed` 使用。
+
+```shell
+biome lint --changed --since=main
+```
+
+#### `--profile-rules`
+
+报告每条规则的运行耗时。不包括准备分析所花费的时间，例如构建语义模型的时间。
+
+#### `--watch`
+
+初次运行后，监视所选路径，并重新处理之后修改的文件。
+
+## `biome format`
+
+格式化指定文件。
+
+可选的 `PATH` 参数接受一个或多个文件或目录路径。若省略，Biome 会格式化当前工作目录中的文件。
+
+```shell
+biome format ./src
+```
+
+该命令还接受[全局选项](#global-flags)、相关的[共享选项](#shared-flags)，以及以下附加选项：
+
+<h3>选项</h3>
+
+#### `--stdin-file-path=PATH`
+
+从标准输入读取代码，并将处理后的代码写入标准输出。
+
+Biome 使用 `PATH` 选择设置，并根据其扩展名确定输入类型。虚拟路径无需实际存在，也无需属于该项目。它们会绕过 `files.includes` 和 VCS 忽略检查。
+
+```shell
+echo 'let a;' | biome format --stdin-file-path=file.js
+```
+
+#### `--write`, `--fix`
+
+应用格式化更改。
+
+#### `--staged`
+
+仅格式化已暂存的文件。该选项适用于本地使用。
+
+#### `--changed`
+
+仅格式化相对于配置的 `vcs.defaultBranch` 或 `--since` 指定的基础引用存在已提交更改的文件。不包含已暂存和未暂存的更改。该选项适用于 CI。
+
+#### `--since=REF`
+
+设置 `--changed` 使用的基础引用，覆盖 `vcs.defaultBranch`。需要配合 `--changed` 使用。
+
+```shell
+biome format --changed --since=main
+```
+
+#### `--watch`
+
+初次运行后，监视所选路径，并重新处理之后修改的文件。
+
+## `biome ci`
+
+在 CI 中运行格式化检查、Lint 检查和 Assist 辅助操作，但不修改文件。
+
+可选的 `PATH` 参数接受一个或多个文件或目录路径。若省略，Biome 会检查当前工作目录中的文件。
+
+```shell
+biome ci ./src
+```
+
+该命令还接受[全局选项](#global-flags)、相关的[共享选项](#shared-flags)，以及以下附加选项：
+
+<h3>选项</h3>
+
+#### `--formatter-enabled=<true|false>`
+
+为当前命令启用或禁用格式化检查。
+
+```shell
+biome ci --formatter-enabled=false
+```
+
+#### `--linter-enabled=<true|false>`
+
+为当前命令启用或禁用 Lint 检查。
+
+```shell
+biome ci --linter-enabled=true
+```
+
+#### `--assist-enabled=<true|false>`
+
+为当前命令启用或禁用 Assist 辅助操作。
+
+```shell
+biome ci --assist-enabled=true
+```
+
+#### `--enforce-assist=<true|false>`
+
+强制执行 Assist 辅助操作，若必需的操作未被应用，命令将失败。默认为 `true`。
+
+```shell
+biome ci --enforce-assist=false
+```
+
+#### `--changed`
+
+仅检查相对于配置的 `vcs.defaultBranch` 或 `--since` 指定的基础引用存在已提交更改的文件。不包含已暂存和未暂存的更改。该选项适用于 CI。
+
+#### `--since=REF`
+
+设置 `--changed` 使用的基础引用，覆盖 `vcs.defaultBranch`。需要配合 `--changed` 使用。
+
+```shell
+biome ci --changed --since=main
+```
+
+#### `--threads=NUMBER`
+
+设置使用的线程数。这在资源有限的环境（如 CI）中很有用。
+
+```shell
+biome ci --threads=4
+```
+
+使用 **`BIOME_THREADS`** 环境变量。
+
+#### `--only=<GROUP|RULE|DOMAIN|ACTION|PLUGIN>`
+
+仅运行指定的 Lint 规则、Assist 辅助操作、规则与操作分组或规则域（domain）。若所选规则的严重性等级为 `off`，Biome 会将推荐规则设置为 `error`，其他规则设置为 `warn`。`plugin` 分组仅运行分析器插件。
+
+```shell
+biome ci --only=correctness/noUnusedVariables --only=suspicious --only=test --only=plugin
+```
+
+#### `--skip=<GROUP|RULE|DOMAIN|ACTION|PLUGIN>`
+
+跳过指定的 Lint 规则、Assist 辅助操作、规则与操作分组或规则域（domain）。匹配的 Lint 规则会被设置为 `off`。该选项优先于 `--only`。`plugin` 分组会跳过分析器插件。
+
+```shell
+biome ci --skip=correctness/noUnusedVariables --skip=suspicious --skip=project --skip=plugin
+```
+
+## `biome init`
+
+在当前工作目录中创建默认的 Biome 配置文件。
+
+<h3>选项</h3>
+
+#### `--jsonc`
+
+创建 `biome.jsonc` 而不是 `biome.json`。
+
+## `biome lsp-proxy`
+
+确保 Biome 守护进程服务器正在运行，然后在守护进程服务器与标准输入输出之间转发语言服务器协议消息。
+
+该命令还接受相关的[共享选项](#shared-flags)。
+
+## `biome migrate`
+
+预览破坏性变更所要求的配置更新。`prettier` 和 `eslint` 子命令则用于从这些工具导入设置。
+
+默认情况下，该命令会显示建议的更改而不修改文件。使用 `--write` 可应用这些更改。
+
+该命令还接受[全局选项](#global-flags)、相关的[共享选项](#shared-flags)，以及以下附加选项：
+
+<h3>选项</h3>
+
+#### `--write`, `--fix`
+
+应用建议的迁移或导入的设置。
+
+<h3>子命令</h3>
+
+#### `biome migrate prettier`
+
+将 Prettier 配置和忽略设置导入 Biome 配置。
+
+#### `biome migrate eslint`
+
+从当前工作目录导入 ESLint 配置和忽略设置到 Biome 配置。
+
+`eslint` 子命令接受这些附加选项：
+
+##### 选项
+
+###### `--include-inspired`
+
+在迁移中包含受 ESLint 规则启发的 Biome 规则。
+
+###### `--include-nursery`
+
+在迁移中包含 nursery（实验分组）规则。
+
+## `biome search`
+
+实验性功能：查找匹配 [GritQL 模式](https://docs.grit.io/language/patterns) 的代码，可选择限制为特定文件或目录。
+
+必需的 `PATTERN` 参数是要查找的 GritQL 查询。不支持重写查询，因为 `biome search` 是只读的。
+
+<Aside type="tip">
+
+当 shell 支持时，将查询放在单引号内。这样可以防止 shell 将 GritQL 的反引号解释为命令。
+
+</Aside>
+
+可选的 `PATH` 参数将搜索限制为一个或多个文件或目录。未提供路径时，Biome 会搜索当前工作目录中的文件。
+
+以下命令在 `./src` 中查找 `console.log` 调用：
+
+```shell
+biome search '`console.log($message)`' ./src
+```
+
+该命令还接受[全局选项](#global-flags)、相关的[共享选项](#shared-flags)，以及以下附加选项：
+
+<h3>选项</h3>
+
+#### `-l`, `--language=<css|javascript|json>`
+
+选择用于该模式和被搜索代码的语言语法：CSS、JavaScript 或 JSON。
+
+GritQL 模式针对其目标语法编写，因此一次搜索不能同时针对多种语言。
+
+默认为 `javascript`。
+
+```shell
+biome search --language=javascript '`console.log($message)`'
+```
+
+## `biome explain`
+
+打印某条 Lint 规则的文档，或守护进程服务器日志目录的路径。
+
+`NAME` 是一条 Lint 规则的名称，或 `daemon-logs`。
+
+```shell
+biome explain noDebugger
+biome explain daemon-logs
+```
+
+## `biome clean`
+
+删除 Biome 守护进程服务器日志文件。
+
+## 全局选项
+
+这些选项可用于许多命令，控制整体的 CLI 行为、诊断信息和输出。
+
+<h3 id="general-flags">通用选项</h3>
+
+#### `-h`, `--help`
+
+打印帮助信息。
+
+#### `-V`, `--version`
+
+打印版本信息。
+
+#### `--colors=<off|force>`
+
+控制 ANSI 样式：`off` 禁用它，`force` 即使输出看似不支持 ANSI 转义也强制启用。
+
+#### `--use-server`
+
+连接到正在运行的 Biome 守护进程服务器实例。
+
+#### `--verbose`
+
+显示额外的诊断详情，并列出已处理或已修改的文件。
+
+#### `--config-path=PATH`
+
+设置配置文件的路径，或 Biome 应在其中查找 `biome.json` 或 `biome.jsonc` 的目录。此选项会禁用默认配置文件解析。
+
+使用 **`BIOME_CONFIG_PATH`** 环境变量。
+
+#### `--max-diagnostics=<none|NUMBER>`
+
+限制显示的诊断信息数量。使用 `none` 可取消限制。
+
+默认为 `20`。
+
+#### `--skip-parse-errors`
+
+跳过包含语法错误的文件，而不是发出错误诊断信息。
+
+#### `--no-errors-on-unmatched`
+
+当没有文件被处理时不发出错误。
+
+#### `--error-on-warnings`
+
+如果发出任何警告级诊断信息，则以错误状态退出。
+
+#### `--diagnostic-level=<info|warn|error>`
+
+设置要显示的最低诊断严重性等级：`info`、`warn` 或 `error`。例如，`--diagnostic-level=error` 只显示错误级诊断信息。
+
+默认为 `info`。
+
+<h3 id="reporter-flags">报告器选项</h3>
+
+#### `--reporter=FORMAT`
+
+更改诊断信息和运行摘要的写入方式。
+
+默认为 `default`。
+
+```shell
+biome ci --reporter=github
+```
+
+| 值 | 输出 |
+| --- | --- |
+| `default` | 完整的诊断信息和用于终端的摘要。 |
+| `concise` | 每条诊断信息一行，格式化器诊断信息归为一组。 |
+| `summary` | 按类别和规则分组的诊断信息，以及按文件分组的格式化器诊断信息。 |
+| `json` | 机器可读的 JSON。 |
+| `json-pretty` | 使用 Biome 默认 JSON 格式化设置美化输出的 JSON。 |
+| `github` | 用于创建批注的 [GitHub 工作流命令](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands)。 |
+| `gitlab` | 一份 [GitLab 代码质量报告](https://docs.gitlab.com/ci/testing/code_quality/#implement-a-custom-tool)。 |
+| `junit` | 用于测试和持续集成（CI）集成的 JUnit XML。 |
+| `checkstyle` | [Checkstyle XML](https://checkstyle.org/)。 |
+| `rdjson` | [Reviewdog 诊断 JSON](https://deepwiki.com/reviewdog/reviewdog/3.2-reviewdog-diagnostic-format)。 |
+| `sarif` | 用于静态分析集成的 [SARIF](https://sarifweb.azurewebsites.net/)。 |
+
+<Aside type="caution">
+
+`json` 和 `json-pretty` 报告器属于实验性功能，可能在补丁版本中发生变更。
+
+</Aside>
+
+#### `--reporter-file=PATH`
+
+将关联报告器的输出写入 `PATH`。未指定 `--reporter` 时，写入默认报告器的输出。
+
+```shell
+biome ci --reporter=junit --reporter-file=report.xml
+```
+
+重复使用 `--reporter` 可生成多个输出。此示例将默认输出打印到终端，并把 RDJSON 报告写入文件：
+
+```shell
+biome ci --reporter=default --reporter=rdjson --reporter-file=report.json
+```
+
+## 共享选项
+
+这些选项可被多个命令接受。配置选项会覆盖 `biome.json` 或 `biome.jsonc` 中的等效设置。
+
+### 守护进程服务器选项
+
+#### `--watcher-kind=<polling|recommended|none>`
+
+选择守护进程服务器检测文件变更的方式。`recommended` 使用操作系统推荐的监视器，`polling` 定期检查变更，`none` 禁用监视。
+
+使用 **`BIOME_WATCHER_KIND`** 环境变量。
+
+默认为 `recommended`。
+
+#### `--watcher-polling-interval=NUMBER`
+
+以毫秒为单位，设置轮询监视器检查文件变更的频率。该设置仅在 `--watcher-kind=polling` 时生效。
+
+使用 **`BIOME_WATCHER_POLLING_INTERVAL`** 环境变量。
+
+默认为 `2000`。
+
+### JSON 解析器选项
+
+#### `--json-parse-allow-comments=<true|false>`
+
+允许在 `.json` 文件中解析注释。
+
+#### `--json-parse-allow-trailing-commas=<true|false>`
+
+允许在 `.json` 文件中解析尾随逗号。
+
+### 配置选项
+
+#### `--vcs-enabled=<true|false>`
+
+Biome 是否与版本控制客户端集成。
+
+#### `--vcs-client-kind=<git>`
+
+版本控制客户端。
+
+#### `--vcs-use-ignore-file=<true|false>`
+
+设为 `true` 时，Biome 会忽略 `.gitignore`、`.ignore` 以及 Git 本地排除文件中列出的文件。
+
+#### `--vcs-root=PATH`
+
+设置 Biome 查找版本控制文件的目录。
+
+默认为包含 `biome.json` 或 `biome.jsonc` 的目录。如果未找到配置，Biome 使用当前工作目录。
+
+如果两者都不可用，Biome 会禁用版本控制集成并发出一条诊断信息。
+
+#### `--vcs-default-branch=BRANCH`
+
+项目的默认分支。
+
+#### `--files-max-size=NUMBER`
+
+源文件的最大大小（以字节为单位）。Biome 会忽略更大的文件。默认为 `1 MiB`。
+
+#### `--files-ignore-unknown=<true|false>`
+
+阻止 Biome 为无法识别的文件类型发出诊断信息。
+
+#### `--format-with-errors=<true|false>`
+
+设为 `true` 时，允许格式化包含语法错误的文件。默认为 `false`。
+
+#### `--indent-style=<tab|space>`
+
+使用制表符或空格进行缩进。默认为 `tab`。
+
+#### `--indent-width=NUMBER`
+
+缩进宽度。默认为 `2`。
+
+#### `--line-ending=<lf|crlf|cr|auto>`
+
+选择换行符。`auto` 使用平台约定。默认为 `lf`。
+
+#### `--line-width=NUMBER`
+
+最大行宽。默认为 `80`。
+
+#### `--attribute-position=<multiline|auto>`
+
+类 HTML 语言中的属性位置风格。默认为 `auto`。
+
+#### `--bracket-same-line=<true|false>`
+
+将多行 HTML 或 JSX 元素的 `>` 放在最后一行的末尾，而不是另起一行。自闭合元素不受影响。默认为 `false`。
+
+#### `--bracket-spacing=<true|false>`
+
+是否在对象字面量的大括号内部插入空格。默认为 `true`。
+
+#### `--delimiter-spacing=<true|false>`
+
+当受支持的分隔符的内容能放入一行时，控制在分隔符内侧紧邻位置插入空格。不会在起始分隔符之前或空分隔符内部添加空格。
+
+受影响的分隔符因语言而异。默认为 `false`。
+
+#### `--expand=<auto|always|never>`
+
+控制数组和对象是格式化为一行还是多行。
+
+- `auto`：如果第一个属性包含换行，则将对象格式化为多行；如果数组能放入一行，则保持单行。
+- `always`：将数组和对象格式化为多行。
+- `never`：如果数组和对象能放入一行，则格式化为单行。
+
+默认为 `auto`。
+
+格式化 `package.json` 时，除非另有配置，Biome 使用 `always`。
+
+#### `--trailing-newline=<true|false>`
+
+是否在文件末尾添加换行符。默认为 `true`。
+
+<Aside type="caution" title="保持启用末尾换行">
+
+强烈不建议将该选项设为 `false`。缺少末尾换行符的文件可能引发 [兼容性问题](https://thoughtbot.com/blog/no-newline-at-end-of-file)，影响与 [文本处理工具](https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files) 的配合，并产生 [令人困惑的版本控制输出](https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804)。
+
+</Aside>
+
+#### `--use-editorconfig=<true|false>`
+
+使用 `.editorconfig` 文件配置格式化器。`biome.json` 或 `biome.jsonc` 中的设置会覆盖 `.editorconfig` 设置。默认为 `false`。
+
+#### `--jsx-everywhere=<true|false>`
+
+启用后，`.js`、`.mjs` 和 `.cjs` 等文件可以包含 JSX 语法。默认为 `true`。
+
+#### `--javascript-formatter-enabled=<true|false>`
+
+控制 JavaScript 及其扩展语言的格式化器。
+
+#### `--jsx-quote-style=<double|single>`
+
+JSX 中使用的引号类型。默认为 `double`。
+
+#### `--quote-properties=<preserve|as-needed>`
+
+控制何时为对象属性加引号。默认为 `as-needed`。
+
+#### `--trailing-commas=<all|es5|none>`
+
+在多行逗号分隔结构中，尽可能输出尾随逗号。默认为 `all`。
+
+#### `--semicolons=<always|as-needed>`
+
+在每个语句后输出分号，或仅在避免自动分号插入风险时需要时才输出。默认为 `always`。
+
+#### `--arrow-parentheses=<always|as-needed>`
+
+是否为箭头函数参数添加圆括号。默认为 `always`。
+
+#### `--javascript-formatter-indent-style=<tab|space>`
+
+应用于 JavaScript 及其扩展语言的缩进风格。未设置时继承全局缩进风格。
+
+#### `--javascript-formatter-indent-width=NUMBER`
+
+应用于 JavaScript 及其扩展语言的缩进宽度。未设置时继承全局缩进宽度。
+
+#### `--javascript-formatter-line-ending=<lf|crlf|cr|auto>`
+
+应用于 JavaScript 及其扩展语言的换行符。未设置时继承全局换行符。
+
+#### `--javascript-formatter-line-width=NUMBER`
+
+应用于 JavaScript 及其扩展语言的最大行宽。未设置时继承全局行宽。
+
+#### `--javascript-formatter-quote-style=<double|single>`
+
+JavaScript 代码中使用的引号类型。默认为 `double`。
+
+#### `--javascript-formatter-attribute-position=<multiline|auto>`
+
+JSX 元素中的属性位置风格。未设置时继承全局属性位置设置。
+
+#### `--javascript-formatter-bracket-spacing=<true|false>`
+
+是否在对象字面量的大括号内部插入空格。未设置时继承全局大括号空格设置。
+
+#### `--javascript-formatter-delimiter-spacing=<true|false>`
+
+当 JavaScript 和 TypeScript 受支持的分隔符的内容能放入一行时，控制在分隔符内侧紧邻位置插入空格。不会在起始分隔符之前或空分隔符内部添加空格。
+
+它影响圆括号、方括号、模板插值、TypeScript 尖括号、JSX 表达式大括号以及逻辑非。在运算符链中，只有最后一个运算符会在其后添加空格。
+
+未设置时继承全局分隔符空格设置。
+
+#### `--javascript-formatter-expand=<auto|always|never>`
+
+与全局展开设置使用相同的 `auto`、`always` 和 `never` 行为。
+
+未设置时继承全局展开设置。
+
+#### `--javascript-formatter-operator-linebreak=<before|after>`
+
+将二元表达式拆分为多行时，控制在二元运算符之前还是之后换行。默认为 `after`。
+
+#### `--javascript-formatter-trailing-newline=<true|false>`
+
+是否在文件末尾添加换行符。未设置时继承全局末尾换行设置。
+
+<Aside type="caution" title="保持启用末尾换行">
+
+强烈不建议将该选项设为 `false`。缺少末尾换行符的文件可能引发 [兼容性问题](https://thoughtbot.com/blog/no-newline-at-end-of-file)，影响与 [文本处理工具](https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files) 的配合，并产生 [令人困惑的版本控制输出](https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804)。
+
+</Aside>
+
+#### `--javascript-linter-enabled=<true|false>`
+
+控制 JavaScript 及其扩展语言的 Linter。
+
+#### `--javascript-assist-enabled=<true|false>`
+
+控制 JavaScript 及其扩展语言的 Assist 辅助操作。
+
+#### `--json-formatter-enabled=<true|false>`
+
+控制 JSON 及其扩展语言的格式化器。
+
+#### `--json-formatter-indent-style=<tab|space>`
+
+应用于 JSON 及其扩展语言的缩进风格。未设置时继承全局缩进风格。
+
+#### `--json-formatter-indent-width=NUMBER`
+
+应用于 JSON 及其扩展语言的缩进宽度。未设置时继承全局缩进宽度。
+
+#### `--json-formatter-line-ending=<lf|crlf|cr|auto>`
+
+应用于 JSON 及其扩展语言的换行符。未设置时继承全局换行符。
+
+#### `--json-formatter-line-width=NUMBER`
+
+应用于 JSON 及其扩展语言的最大行宽。未设置时继承全局行宽。
+
+#### `--json-formatter-trailing-commas=<none|all>`
+
+在多行逗号分隔结构中，尽可能输出尾随逗号。默认为 `none`。
+
+#### `--json-formatter-expand=<auto|always|never>`
+
+与全局展开设置使用相同的 `auto`、`always` 和 `never` 行为。
+
+未设置时继承全局展开设置。
+
+格式化 `package.json` 时，除非另有配置，Biome 使用 `always`。
+
+#### `--json-formatter-bracket-spacing=<true|false>`
+
+是否在对象字面量的大括号内部插入空格。未设置时继承全局大括号空格设置。
+
+#### `--json-formatter-delimiter-spacing=<true|false>`
+
+当 JSON 方括号的内容能放入一行时，控制方括号内部的空格。启用后，`[1, 2, 3]` 会变为 `[ 1, 2, 3 ]`。空方括号保持不变。
+
+未设置时继承全局分隔符空格设置。
+
+#### `--json-formatter-trailing-newline=<true|false>`
+
+是否在文件末尾添加换行符。未设置时继承全局末尾换行设置。
+
+<Aside type="caution" title="保持启用末尾换行">
+
+强烈不建议将该选项设为 `false`。缺少末尾换行符的文件可能引发 [兼容性问题](https://thoughtbot.com/blog/no-newline-at-end-of-file)，影响与 [文本处理工具](https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files) 的配合，并产生 [令人困惑的版本控制输出](https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804)。
+
+</Aside>
+
+#### `--json-linter-enabled=<true|false>`
+
+控制 JSON 及其扩展语言的 Linter。
+
+#### `--json-assist-enabled=<true|false>`
+
+控制 JSON 及其扩展语言的 Assist 辅助操作。
+
+#### `--css-parse-css-modules=<true|false>`
+
+启用对 CSS Modules 特有特性的解析。仅当文件不以 `.module.css` 结尾时才启用此功能。
+
+#### `--css-parse-tailwind-directives=<true|false>`
+
+启用对 Tailwind CSS 4.0 指令和函数的解析。
+
+#### `--css-formatter-enabled=<true|false>`
+
+控制 CSS 及其扩展语言的格式化器。
+
+#### `--css-formatter-indent-style=<tab|space>`
+
+应用于 CSS 及其扩展语言的缩进风格。未设置时继承全局缩进风格。
+
+#### `--css-formatter-indent-width=NUMBER`
+
+应用于 CSS 及其扩展语言的缩进宽度。未设置时继承全局缩进宽度。
+
+#### `--css-formatter-line-ending=<lf|crlf|cr|auto>`
+
+应用于 CSS 及其扩展语言的换行符。未设置时继承全局换行符。
+
+#### `--css-formatter-line-width=NUMBER`
+
+CSS 及其扩展语言的最大行宽。未设置时继承全局行宽。
+
+#### `--css-formatter-quote-style=<double|single>`
+
+CSS 代码中使用的引号类型。默认为 `double`。
+
+#### `--css-formatter-delimiter-spacing=<true|false>`
+
+当内容能放入一行时，控制 CSS 圆括号和方括号内部的空格。启用后，`rgb(0, 0, 0)` 会变为 `rgb( 0, 0, 0 )`，`[data-attr]` 会变为 `[ data-attr ]`。空分隔符保持不变。
+
+未设置时继承全局分隔符空格设置。
+
+#### `--css-formatter-trailing-newline=<true|false>`
+
+是否在文件末尾添加换行符。未设置时继承全局末尾换行设置。
+
+<Aside type="caution" title="保持启用末尾换行">
+
+强烈不建议将该选项设为 `false`。缺少末尾换行符的文件可能引发 [兼容性问题](https://thoughtbot.com/blog/no-newline-at-end-of-file)，影响与 [文本处理工具](https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files) 的配合，并产生 [令人困惑的版本控制输出](https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804)。
+
+</Aside>
+
+#### `--css-linter-enabled=<true|false>`
+
+控制 CSS 文件的 Linter。
+
+#### `--css-assist-enabled=<true|false>`
+
+控制 CSS 文件的 Assist 辅助操作。
+
+#### `--graphql-formatter-enabled=<true|false>`
+
+控制 GraphQL 文件的格式化器。
+
+#### `--graphql-formatter-indent-style=<tab|space>`
+
+应用于 GraphQL 文件的缩进风格。未设置时继承全局缩进风格。
+
+#### `--graphql-formatter-indent-width=NUMBER`
+
+应用于 GraphQL 文件的缩进宽度。未设置时继承全局缩进宽度。
+
+#### `--graphql-formatter-line-ending=<lf|crlf|cr|auto>`
+
+应用于 GraphQL 文件的换行符。未设置时继承全局换行符。
+
+#### `--graphql-formatter-line-width=NUMBER`
+
+GraphQL 文件的最大行宽。未设置时继承全局行宽。
+
+#### `--graphql-formatter-quote-style=<double|single>`
+
+GraphQL 代码中使用的引号类型。默认为 `double`。
+
+#### `--graphql-formatter-trailing-newline=<true|false>`
+
+是否在文件末尾添加换行符。未设置时继承全局末尾换行设置。
+
+<Aside type="caution" title="保持启用末尾换行">
+
+强烈不建议将该选项设为 `false`。缺少末尾换行符的文件可能引发 [兼容性问题](https://thoughtbot.com/blog/no-newline-at-end-of-file)，影响与 [文本处理工具](https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files) 的配合，并产生 [令人困惑的版本控制输出](https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804)。
+
+</Aside>
+
+#### `--graphql-linter-enabled=<true|false>`
+
+控制 GraphQL 文件的 Linter。
+
+#### `--graphql-assist-enabled=<true|false>`
+
+控制 GraphQL 文件的 Assist 辅助操作。
+
+#### `--grit-formatter-enabled=<true|false>`
+
+控制 GritQL 文件的格式化器。
+
+#### `--grit-formatter-indent-style=<tab|space>`
+
+应用于 GritQL 文件的缩进风格。未设置时继承全局缩进风格。
+
+#### `--grit-formatter-indent-width=NUMBER`
+
+应用于 GritQL 文件的缩进宽度。未设置时继承全局缩进宽度。
+
+#### `--grit-formatter-line-ending=<lf|crlf|cr|auto>`
+
+应用于 GritQL 文件的换行符。未设置时继承全局换行符。
+
+#### `--grit-formatter-line-width=NUMBER`
+
+GritQL 文件的最大行宽。未设置时继承全局行宽。
+
+#### `--grit-formatter-trailing-newline=<true|false>`
+
+是否在文件末尾添加换行符。未设置时继承全局末尾换行设置。
+
+<Aside type="caution" title="保持启用末尾换行">
+
+强烈不建议将该选项设为 `false`。缺少末尾换行符的文件可能引发 [兼容性问题](https://thoughtbot.com/blog/no-newline-at-end-of-file)，影响与 [文本处理工具](https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files) 的配合，并产生 [令人困惑的版本控制输出](https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804)。
+
+</Aside>
+
+#### `--grit-linter-enabled=<true|false>`
+
+控制 GritQL 文件的 Linter。
+
+#### `--grit-assist-enabled=<true|false>`
+
+控制 GritQL 文件的 Assist 辅助操作。
+
+#### `--html-formatter-enabled=<true|false>`
+
+控制 HTML 及其扩展语言的格式化器。
+
+#### `--html-formatter-indent-style=<tab|space>`
+
+应用于 HTML 及其扩展语言的缩进风格。未设置时继承全局缩进风格。
+
+#### `--html-formatter-indent-width=NUMBER`
+
+应用于 HTML 及其扩展语言的缩进宽度。未设置时继承全局缩进宽度。
+
+#### `--html-formatter-line-ending=<lf|crlf|cr|auto>`
+
+应用于 HTML 及其扩展语言的换行符。未设置时继承全局换行符。
+
+#### `--html-formatter-line-width=NUMBER`
+
+HTML 及其扩展语言的最大行宽。未设置时继承全局行宽。
+
+#### `--html-formatter-attribute-position=<multiline|auto>`
+
+HTML 元素中的属性位置风格。未设置时继承全局属性位置设置。
+
+#### `--html-formatter-bracket-same-line=<true|false>`
+
+是否将多行 HTML 标签的闭合括号放在最后一行的末尾，而不是单独占一行。未设置时继承全局 `bracketSameLine` 设置。
+
+#### `--html-formatter-whitespace-sensitivity=<css|strict|ignore>`
+
+在格式化 HTML 及其扩展语言时，是否考虑空白敏感性。默认为 `css`。
+
+#### `--html-formatter-indent-script-and-style=<true|false>`
+
+是否缩进 HTML 及其扩展语言中的 `<script>` 和 `<style>` 标签。默认为 `false`。
+
+#### `--html-formatter-self-close-void-elements=<always|never>`
+
+控制空元素是否自闭合。默认为 `never`。
+
+#### `--html-formatter-trailing-newline=<true|false>`
+
+是否在文件末尾添加换行符。与其他语言专用的末尾换行设置不同，此选项默认为 `true`，而不是继承全局设置。
+
+<Aside type="caution" title="保持启用末尾换行">
+
+强烈不建议将该选项设为 `false`。缺少末尾换行符的文件可能引发 [兼容性问题](https://thoughtbot.com/blog/no-newline-at-end-of-file)，影响与 [文本处理工具](https://unix.stackexchange.com/questions/345548/how-to-cat-files-together-adding-missing-newlines-at-end-of-some-files) 的配合，并产生 [令人困惑的版本控制输出](https://callmeryan.medium.com/no-newline-at-end-of-file-navigating-gits-warning-for-android-developers-af14e73dd804)。
+
+</Aside>
+
+#### `--html-linter-enabled=<true|false>`
+
+控制 HTML 及其扩展语言的 Linter。
+
+#### `--html-assist-enabled=<true|false>`
+
+控制 HTML 及其扩展语言的 Assist 辅助操作。
+
+### 日志选项
+
+#### `--log-file=PATH`
+
+对于文件处理命令，将 CLI 内部日志写入此文件，而不是标准输出。
+
+使用 **`BIOME_LOG_FILE`** 环境变量。
+
+#### `--log-prefix-name=STRING`
+
+启动守护进程服务器时，设置轮转日志文件使用的文件名前缀。
+
+使用 **`BIOME_LOG_PREFIX_NAME`** 环境变量。
+
+默认为 `server.log`。
+
+#### `--log-path=PATH`
+
+启动守护进程服务器时，设置存储日志文件的目录。
+
+使用 **`BIOME_LOG_PATH`** 环境变量。
+
+默认为 Biome 平台专用缓存目录内的 `biome-logs` 目录。
+
+#### `--log-level=<none|tracing|debug|info|warn|error>`
+
+对于文件处理命令，将 CLI 内部日志级别设置为 `tracing`、`debug`、`info`、`warn`、`error` 或 `none`。
+
+使用 **`BIOME_LOG_LEVEL`** 环境变量。
+
+默认为 `none`。
+
+#### `--log-kind=<pretty|compact|json>`
+
+对于文件处理命令，选择 CLI 内部日志格式：`pretty`、`compact` 或 `json`。
+
+使用 **`BIOME_LOG_KIND`** 环境变量。
+
+默认为 `pretty`。

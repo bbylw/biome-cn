@@ -1,0 +1,192 @@
+---
+title: Biome 语言服务器
+description: 通过语言服务器协议（LSP）支持、扩展设置与编辑器工作流集成 Biome。
+anchors: ["supported-methods","extension-settings","require_configuration","configuration_path","inline_config","go_to_definition","integrate-biome-in-an-editor-extension","use-the-lsp-proxy","use-stdin","use-the-daemon-with-the-binary","language-server-logs"]
+toc: [{"level":2,"text":"支持的方法","id":"supported-methods"},{"level":2,"text":"扩展设置","id":"extension-settings"},{"level":3,"text":"requireconfiguration","id":"require_configuration"},{"level":3,"text":"configurationpath","id":"configuration_path"},{"level":3,"text":"inlineconfig","id":"inline_config"},{"level":3,"text":"gotodefinition","id":"go_to_definition"},{"level":2,"text":"在编辑器扩展中集成 Biome","id":"integrate-biome-in-an-editor-extension"},{"level":3,"text":"使用 LSP 代理","id":"use-the-lsp-proxy"},{"level":3,"text":"使用 stdin","id":"use-stdin"},{"level":3,"text":"通过二进制文件使用守护进程","id":"use-the-daemon-with-the-binary"},{"level":2,"text":"语言服务器日志","id":"language-server-logs"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import Code from "@/components/mdx/Code.astro";
+
+Biome 为 [语言服务器协议（LSP）](https://microsoft.github.io/language-server-protocol/) 提供一等支持。
+
+## 支持的方法
+
+Biome 语言服务器目前支持以下方法：
+- [`initialize`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#initialize)
+- [`initialized`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#initialized)
+- [`workspace/didChangeConfiguration`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_didChangeConfiguration)
+- [`workspace/didChangeWatchedFiles`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_didChangeWatchedFiles)
+- [`workspace/didChangeWorkspaceFolders`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_didChangeWorkspaceFolders)
+- [`textDocument/didOpen`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_didOpen)
+- [`textDocument/didChange`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_didChange)
+- [`textDocument/didSave`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_didSave)
+- [`textDocument/didClose`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_didClose)
+- [`textDocument/publishDiagnostics`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_publishDiagnostics)
+- [`textDocument/codeAction`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_codeAction)
+- [`codeAction/resolve`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeAction_resolve)
+- [`textDocument/formatting`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_formatting)
+- [`textDocument/rangeFormatting`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_rangeFormatting)
+- [`textDocument/onTypeFormatting`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_onTypeFormatting)
+- [`textDocument/definition`](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_definition)
+
+## 扩展设置
+
+Biome 语言服务器暴露以下设置，扩展可以将其呈现给用户。
+
+<Aside type="note">
+
+以下设置面向的是**扩展开发者**，而非普通用户。
+扩展可以决定用不同的名称或不同的格式把这些设置呈现给用户。
+
+例如，Zed 扩展会把 [`require_configuration`](#require-configuration) 设置映射为 `require_config_file`，后者定义在 JSONC 文件中。
+
+</Aside>
+
+### `require_configuration`
+
+**类型**：`boolean` <br />
+**默认值**：`false`
+
+Biome 语言服务器是否需要配置文件。设为 `true` 时，在项目根目录出现 `biome.json` 文件之前，它不会分析任何文件（解析除外）。
+
+```json
+{
+  "require_configuration": true
+}
+```
+
+### `configuration_path`
+
+**类型**：`string` <br />
+**默认值**：`null`
+
+自定义配置文件的路径。该路径可以指向 `biome.json` 或 `biome.jsonc` 文件，也可以指向包含它的文件夹。
+
+路径可以是相对路径或绝对路径。Biome 语言服务器仅在提供了该选项时才会读取它。当配置文件*位于项目的子文件夹中*时，请使用此选项。
+
+```json
+{
+  "configuration_path": "./frontend/biome.json"
+}
+```
+
+### `inline_config`
+
+**类型**：`object`<br />
+**默认值**：`null`
+
+Biome 配置的内联版本。此配置中的选项会覆盖从磁盘读取的任何 `biome.json` 文件中的选项（或默认值）。
+
+例如，假设你的项目以 `error` 严重性等级启用了 `noConsole` 规则：
+
+<Code lang="json" title="biome.json" code={"{\n  \"linter\": {\n    \"rules\": {\n      \"suspicious\": {\n        \"noConsole\": \"error\"\n      }\n    }\n  }\n}"} />
+
+但在本地开发期间，你想停用这条规则，因为它很有用，而你又不想看到红色波浪线。在 `inline_config` 中，你可以写成类似下面的形式：
+
+```json
+{
+  "inline_config": {
+    "linter": {
+      "rules": {
+        "suspicious": {
+          "noConsole": "off"
+        }
+      }
+    }
+  }
+}
+```
+
+### `go_to_definition`
+
+**类型**：`boolean`<br />
+**默认值**：`false`
+
+使用 Biome 模块图启用 LSP 的 `textDocument/definition` 能力。
+
+支持的内容：
+- 为 JavaScript、TypeScript、JSX、TSX 以及类 HTML 文件解析在同一文件或另一文件中声明的变量定义。
+- 解析 JSX/TSX 文件和类 HTML 文件中使用的 CSS 类定义。
+- 解析 JSX/TSX 组件的定义。
+- 解析类 HTML 组件的定义。
+
+不在范围内的内容：
+- 解析依赖中定义的变量。
+- 解析依赖中定义、但未被项目导入的变量。
+
+## 在编辑器扩展中集成 Biome
+
+你可以通过多种方式在编辑器扩展中集成 Biome。
+
+### 使用 LSP 代理
+
+Biome 有一个名为 `lsp-proxy` 的命令。执行该命令时，Biome 会派生两个进程：
+- 一个执行所请求操作的[守护进程](/internals/architecture#daemon)；
+- 一个作为代理的服务器，在客户端（编辑器）的请求与服务器（守护进程）之间转发；
+
+如果你的编辑器能够与服务器交互并发送 [JSON-RPC](https://www.jsonrpc.org/) 请求，你只需配置编辑器运行该命令。
+
+你可以查看 [Neovim Biome 扩展](https://github.com/neovim/nvim-lspconfig/blob/master/lua/lspconfig/configs/biome.lua) 是如何实现的。
+
+### 使用 `stdin`
+
+如果你的编辑器不支持 LSP，你可以直接使用 `biome` 二进制文件，并通过[标准输入](https://en.wikipedia.org/wiki/Standard_streams#Standard_input_(stdin))调用它。
+
+以下命令可以通过标准输入调用：
+- [`format`](/reference/cli/#biome-format)
+- [`lint`](/reference/cli/#biome-lint)
+- [`check`](/reference/cli/#biome-check)
+
+Biome 会把新的输出（若未发生变更，则返回原始输出）写到[标准输出](https://en.wikipedia.org/wiki/Standard_streams#Standard_output_(stdout))，并把诊断信息写到[标准错误](https://en.wikipedia.org/wiki/Standard_streams#Standard_error_(stderr))。
+
+使用 `stdin` 时，你必须传入 `--stdin-file-path` 选项。文件 `path` **无需在你的文件系统中存在**，它可以是任意名称。**关键在于**提供正确的文件扩展名，这样 Biome 才知道**如何处理**你的文件。
+
+由编辑器负责定位并解析二进制文件的路径，并在需要时调用它。这些二进制文件依据我们支持的架构和操作系统发布到 npm：
+
+- `@biomejs/cli-darwin-arm64`
+- `@biomejs/cli-darwin-x64`
+- `@biomejs/cli-linux-arm64`
+- `@biomejs/cli-linux-x64`
+- `@biomejs/cli-win32-arm64`
+- `@biomejs/cli-win32-x64`
+
+二进制文件名为 `biome` 或 `biome.exe`，可以在该库的根目录中找到，例如：`@biomejs/cli-darwin-arm64/biome`、`@biomejs/cli-win32-x64/biome.exe`。
+
+语言服务器暴露了[一些选项](/editors/introduction#extension-settings)，编辑器扩展可以将其呈现给用户。
+
+### 通过二进制文件使用守护进程
+
+通过 CLI 使用二进制文件非常高效，但你无法向用户提供[日志](#language-server-logs)。CLI 允许你先启动一个守护进程，再通过该守护进程本身使用 CLI 命令。
+
+为此，你需要先用 [`start`](/reference/cli#biome-start) 命令启动一个守护进程：
+
+```shell
+biome start
+```
+然后，每条命令都需要加上 `--use-server` 选项，例如：
+
+```shell
+echo "console.log('')" | biome format --use-server --stdin-file-path=dummy.js
+```
+
+<Aside type="note">
+
+如果你决定使用守护进程，你还需要负责用 [`stop`](/reference/cli#biome-stop) 命令重启/终止该进程，以避免产生幽灵进程。
+
+</Aside>
+
+## 语言服务器日志
+
+Biome 守护进程会将日志保存在你的文件系统中。日志存放在一个名为 `biome-logs` 的文件夹中。该文件夹的路径会随你的操作系统而变化：
+-  Linux：`~/.cache/biome`；
+-  Windows：`C:\Users\<UserName>\AppData\Local\biomejs\biome\cache`
+-  macOS：`/Users/<UserName>/Library/Caches/dev.biomejs.biome`
+
+对于其他操作系统，你可以在系统的临时目录中找到该文件夹。
+
+若要获取准确路径，请执行以下命令：
+```shell
+biome explain daemon-logs
+```
+
+日志文件按小时轮换。

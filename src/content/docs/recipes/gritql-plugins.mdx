@@ -1,0 +1,404 @@
+---
+title: GritQL 插件配方
+description: Biome 常见 Lint 场景下可直接使用的 GritQL 插件示例
+anchors: ["javascript-typescript","enforce-strict-equality-except-against-null","ban-foreach-prefer-forof","no-restricted-imports","ban-new-date-use-a-date-library","ban-eval-and-function-constructor","no-nested-ternaries","limit-function-parameters","no-empty-catch-blocks","disallow-any-type-annotation","enforce-const-over-let","ban-dangerouslysetinnerhtml","no-inline-style-props","css","disallow-important","ban-hardcoded-colors-use-css-custom-properties","disallow-specific-css-properties","json","enforce-json-key-naming-conventions","advanced-patterns","combine-multiple-related-rules-in-one-file","discovering-cst-node-names","using-the-biome-playground","common-node-names","header-directives-for-cst-patterns"]
+toc: [{"level":2,"text":"JavaScript / TypeScript","id":"javascript-typescript"},{"level":3,"text":"强制使用严格相等，与 null 比较除外","id":"enforce-strict-equality-except-against-null"},{"level":3,"text":"禁用 forEach：改用 for...of","id":"ban-foreach-prefer-forof"},{"level":3,"text":"禁用受限导入","id":"no-restricted-imports"},{"level":3,"text":"禁用 new Date()：改用日期库","id":"ban-new-date-use-a-date-library"},{"level":3,"text":"禁用 eval() 和 Function() 构造器","id":"ban-eval-and-function-constructor"},{"level":3,"text":"禁止嵌套三元表达式","id":"no-nested-ternaries"},{"level":3,"text":"限制函数参数数量","id":"limit-function-parameters"},{"level":3,"text":"禁止空的 catch 块","id":"no-empty-catch-blocks"},{"level":3,"text":"不允许 any 类型注解","id":"disallow-any-type-annotation"},{"level":3,"text":"优先使用 const 而非 let","id":"enforce-const-over-let"},{"level":3,"text":"禁用 dangerouslySetInnerHTML","id":"ban-dangerouslysetinnerhtml"},{"level":3,"text":"禁止内联 style prop","id":"no-inline-style-props"},{"level":2,"text":"CSS","id":"css"},{"level":3,"text":"不允许 !important","id":"disallow-important"},{"level":3,"text":"禁用硬编码颜色：改用 CSS 自定义属性","id":"ban-hardcoded-colors-use-css-custom-properties"},{"level":3,"text":"不允许特定的 CSS 属性","id":"disallow-specific-css-properties"},{"level":2,"text":"JSON","id":"json"},{"level":3,"text":"强制 JSON 键命名规范","id":"enforce-json-key-naming-conventions"},{"level":2,"text":"进阶模式","id":"advanced-patterns"},{"level":3,"text":"在单个文件中组合多条相关规则","id":"combine-multiple-related-rules-in-one-file"},{"level":2,"text":"查找 CST 节点名称","id":"discovering-cst-node-names"},{"level":3,"text":"使用 Biome Playground","id":"using-the-biome-playground"},{"level":3,"text":"常用节点名称","id":"common-node-names"},{"level":3,"text":"CST 模式的头部指令","id":"header-directives-for-cst-patterns"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import Code from "@/components/mdx/Code.astro";
+
+本页提供一系列实用的 [GritQL](/reference/gritql/) 插件示例，你可以直接在项目中使用。每个示例都旨在演示一项特定的 GritQL 特性，同时解决一个实际的 Lint 问题。
+
+若要入门 GritQL 语法与插件系统，请先阅读 [Linter 插件](/linter/plugins) 和 [GritQL 参考](/reference/gritql/) 页面。
+
+要使用下面的任意示例，请将 GritQL 片段保存为项目中的 `.grit` 文件，并在配置中注册：
+
+```json name="biome.json"
+{
+  "plugins": ["./plugins/your-rule.grit"]
+}
+```
+
+或者，你也可以直接打开每个示例附带的 Playground 链接。
+
+---
+
+## JavaScript / TypeScript
+
+以下是针对 JavaScript/TypeScript 语言的一组示例。
+
+### 强制使用严格相等，与 `null` 比较除外
+
+GritQL 模式可以通过 `where` 子句附加**条件**。在 `where` 块内，**匹配操作符** `<:` 用于测试变量是否匹配给定模式，**`not`** 关键字则对该测试取反。以逗号分隔的多个条件必须全部成立，模式才会匹配。
+
+这里我们匹配任意 `==` 比较，再使用两个带 `not` 的条件跳过任一操作数为字面量 `null` 的情况，因为 `== null` 是宽松相等唯一的惯用写法：
+
+<Code lang="grit" code={"`$left == $right` where {\n    $right <: not `null`,\n    $left <: not `null`,\n    register_diagnostic(\n        span = $left,\n        message = \"Use `===` instead of `==`. Loose equality is only acceptable when comparing against `null`.\",\n        severity = \"warn\"\n    )\n}"} />
+
+匹配：两侧都不是 `null`：
+
+```js mark="x == 1" mark='x == "hello"'
+if (x == 1) {
+}
+if (x == "hello") {
+}
+```
+
+不匹配：一侧是 `null`，此时宽松相等可以接受：
+
+```js
+if (x == null) {
+}
+if (null == x) {
+}
+```
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=aQBmACAAKAB4ACAAPQA9ACAAMQApACAAewB9AAoAaQBmACAAKAB4ACAAPQA9ACAAbgB1AGwAbAApACAAewB9AAoAaQBmACAAKABuAHUAbABsACAAPQA9ACAAeAApACAAewB9AAoAaQBmACAAKAB4ACAAPQA9ACAAIgBoAGUAbABsAG8AIgApACAAewB9AA%3D%3D&gritQuery=%60%24left%20%3D%3D%20%24right%60%20where%20%7B%0A%20%20%20%20%24right%20%3C%3A%20not%20%60null%60%2C%0A%20%20%20%20%24left%20%3C%3A%20not%20%60null%60%0A%7D)
+
+### 禁用 `forEach`：改用 `for...of`
+
+**展开元变量** `$...` 匹配零个或多个参数（或列表元素），但不绑定它们。**`as`** 关键字将整个匹配到的节点绑定到一个变量，方便你稍后引用，通常用于设置诊断信息的 `span`。
+
+我们用 `$...` 匹配 `.forEach()`，无论传入多少参数；再用 `as $call` 捕获完整表达式，作为诊断信息的 span：
+
+<Code lang="grit" code={"`$collection.forEach($...)` as $call where {\n    register_diagnostic(\n        span = $call,\n        message = \"Prefer `for...of` over `.forEach()`. It supports `break`, `continue`, and `await`.\"\n    )\n}"} />
+
+<Code lang="js" ins={2} code={"const items = [1, 2, 3];\nitems.forEach((item) => console.log(item));\nitems.forEach((item, index) => {\n  console.log(index, item);\n});\nfor (const item of items) {\n  console.log(item);\n}"} />
+
+两个 `.forEach()` 调用都被匹配（第 2 行和第 3 行）。第 6 行的 `for...of` 循环不受影响。
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=YwBvAG4AcwB0ACAAaQB0AGUAbQBzACAAPQAgAFsAMQAsACAAMgAsACAAMwBdADsACgBpAHQAZQBtAHMALgBmAG8AcgBFAGEAYwBoACgAaQB0AGUAbQAgAD0APgAgAGMAbwBuAHMAbwBsAGUALgBsAG8AZwAoAGkAdABlAG0AKQApADsACgBpAHQAZQBtAHMALgBmAG8AcgBFAGEAYwBoACgAKABpAHQAZQBtACwAIABpAG4AZABlAHgAKQAgAD0APgAgAHsACgAgACAAIAAgAGMAbwBuAHMAbwBsAGUALgBsAG8AZwAoAGkAbgBkAGUAeAAsACAAaQB0AGUAbQApADsACgB9ACkAOwAKAGYAbwByACAAKABjAG8AbgBzAHQAIABpAHQAZQBtACAAbwBmACAAaQB0AGUAbQBzACkAIAB7AAoAIAAgACAAIABjAG8AbgBzAG8AbABlAC4AbABvAGcAKABpAHQAZQBtACkAOwAKAH0A&gritQuery=%60%24collection.forEach%28%24...%29%60)
+
+### 禁用受限导入
+
+**`or`** 操作符在其任意子模式匹配时即匹配成功。这里我们用它列出多个被禁的包名。**匿名元变量** `$_` 匹配任意节点而不创建具名绑定，适合不关心取值的场景。
+
+我们匹配任意 `import` 语句，用 `$_` 忽略导入绑定，并检查来源字符串是否匹配任一被禁的包：
+
+<Code lang="grit" code={"`import $_ from $source` where {\n    $source <: or { `'lodash'`, `'underscore'`, `'moment'` },\n    register_diagnostic(\n        span = $source,\n        message = \"This package is not allowed. Use the approved alternative instead.\"\n    )\n}"} />
+
+<Code lang="js" ins={1} code={""} />
+
+第 1、3、4 行被匹配。第 2 行（`dayjs`）不在禁用列表中。
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=aQBtAHAAbwByAHQAIABfACAAZgByAG8AbQAgACIAbABvAGQAYQBzAGgAIgA7AAoAaQBtAHAAbwByAHQAIABkAGEAeQBqAHMAIABmAHIAbwBtACAAIgBkAGEAeQBqAHMAIgA7AAoAaQBtAHAAbwByAHQAIABtAG8AbQBlAG4AdAAgAGYAcgBvAG0AIAAiAG0AbwBtAGUAbgB0ACIAOwAKAGkAbQBwAG8AcgB0ACAAewAgAG0AZQByAGcAZQAgAH0AIABmAHIAbwBtACAAIgB1AG4AZABlAHIAcwBjAG8AcgBlACIAOwA%3D&gritQuery=%60import+%24_+from+%24source%60+where+%7B%0A++++%24source+%3C%3A+or+%7B+%60%22lodash%22%60%2C+%60%22underscore%22%60%2C+%60%22moment%22%60+%7D%0A%7D)
+
+你也可以在同一个文件中捕获 `require()` 调用，方法是用**顶层 `or`** 同时匹配两种导入写法：
+
+<Code lang="grit" ins={1} code={"or {\n    `import $_ from $source`,\n    `require($source)`\n} where {\n    $source <: or { `'lodash'`, `'underscore'`, `'moment'` },\n    register_diagnostic(\n        span = $source,\n        message = \"This package is not allowed. Use the approved alternative instead.\"\n    )\n}"} />
+
+<Code lang="js" ins={1} code={"\nconst moment = require(\"moment\");\nconst utils = require(\"lodash\");"} />
+
+对于被禁的包，`import` 和 `require()` 两种形式都会被匹配。第 2 行的 `dayjs` 不在列表中。
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=aQBtAHAAbwByAHQAIABfACAAZgByAG8AbQAgACIAbABvAGQAYQBzAGgAIgA7AAoAaQBtAHAAbwByAHQAIABkAGEAeQBqAHMAIABmAHIAbwBtACAAIgBkAGEAeQBqAHMAIgA7AAoAYwBvAG4AcwB0ACAAbQBvAG0AZQBuAHQAIAA9ACAAcgBlAHEAdQBpAHIAZQAoACIAbQBvAG0AZQBuAHQAIgApADsACgBjAG8AbgBzAHQAIAB1AHQAaQBsAHMAIAA9ACAAcgBlAHEAdQBpAHIAZQAoACIAbABvAGQAYQBzAGgAIgApADsA&gritQuery=or%20%7B%0A%20%20%20%20%60import%20%24_%20from%20%24source%60%2C%0A%20%20%20%20%60require%28%24source%29%60%0A%7D%20where%20%7B%0A%20%20%20%20%24source%20%3C%3A%20or%20%7B%20%60%22lodash%22%60%2C%20%60%22underscore%22%60%2C%20%60%22moment%22%60%20%7D%0A%7D)
+
+### 禁用 `new Date()`：改用日期库
+
+当代码片段中 `$...` 是唯一参数时，它匹配**零个或多个参数**。当你在它前面加上具名元变量，如 `$first, $...`，模式就要求**至少一个参数**：`$first` 必须绑定到某个内容。
+
+这里 `$first` 要求至少一个参数，因此 `new Date()`（获取当前时间）被允许，而 `new Date("2024-01-15")` 及类似的解析调用会被标记：
+
+<Code lang="grit" code={"`new Date($first, $...)` as $expr where {\n    register_diagnostic(\n        span = $expr,\n        message = \"Avoid the `Date` constructor for parsing. Use the project's date utility instead.\"\n    )\n}"} />
+
+<Code lang="js" ins={2} code={"const now = new Date();\nconst parsed = new Date(\"2024-01-15\");\nconst custom = new Date(2024, 0, 15);\nconst fromTs = new Date(1705276800000);"} />
+
+第 1 行（无参数的 `new Date()`）不被匹配。第 2 至 4 行都至少有一个参数，因此触发诊断信息。
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=YwBvAG4AcwB0ACAAbgBvAHcAIAA9ACAAbgBlAHcAIABEAGEAdABlACgAKQA7AAoAYwBvAG4AcwB0ACAAcABhAHIAcwBlAGQAIAA9ACAAbgBlAHcAIABEAGEAdABlACgAIgAyADAAMgA0AC0AMAAxAC0AMQA1ACIAKQA7AAoAYwBvAG4AcwB0ACAAYwB1AHMAdABvAG0AIAA9ACAAbgBlAHcAIABEAGEAdABlACgAMgAwADIANAAsACAAMAAsACAAMQA1ACkAOwAKAGMAbwBuAHMAdAAgAGYAcgBvAG0AVABzACAAPQAgAG4AZQB3ACAARABhAHQAZQAoADEANwAwADUAMgA3ADYAOAAwADAAMAAwADAAKQA7AA%3D%3D&gritQuery=%60new+Date%28%24first%2C+%24...%29%60)
+
+### 禁用 `eval()` 和 `Function()` 构造器
+
+**顶层 `or`** 让你把互不相关的语法模式组合进单条插件规则。每个分支都可以用 `as $match` **统一变量名**，使共享的 `where` 子句能一致地引用它，即使各分支匹配的语法形态完全不同。
+
+这里我们把 `eval()` 调用和 `new Function()` 构造器合并为一条规则：
+
+<Code lang="grit" ins={1} code={"or {\n    `eval($code)` as $match,\n    `new Function($...)` as $match\n} where {\n    register_diagnostic(\n        span = $match,\n        message = \"Dynamic code evaluation is not allowed. Avoid `eval()` and `new Function()`.\"\n    )\n}"} />
+
+<Code lang="js" ins={1} code={"eval(\"alert(1)\");\nconst fn = new Function(\"a\", \"b\", \"return a + b\");\nconst safe = JSON.parse(data);"} />
+
+第 1、2 行被匹配。第 3 行不会：`JSON.parse` 完全是另一种模式。
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=ZQB2AGEAbAAoACIAYQBsAGUAcgB0ACgAMQApACIAKQA7AAoAYwBvAG4AcwB0ACAAZgBuACAAPQAgAG4AZQB3ACAARgB1AG4AYwB0AGkAbwBuACgAIgBhACIALAAgACIAYgAiACwAIAAiAHIAZQB0AHUAcgBuACAAYQAgACsAIABiACIAKQA7AAoAYwBvAG4AcwB0ACAAcwBhAGYAZQAgAD0AIABKAFMATwBOAC4AcABhAHIAcwBlACgAZABhAHQAYQApADsA&gritQuery=or+%7B%0A++++%60eval%28%24code%29%60%2C%0A++++%60new+Function%28%24...%29%60%0A%7D)
+
+### 禁止嵌套三元表达式
+
+除了匹配源代码片段，你还可以直接匹配 **Biome 的具体语法树（CST）节点**。每种节点类型都有一个唯一的 `PascalCase` 名称，如 `JsConditionalExpression`。**`contains`** 修饰符会搜索匹配节点的整个子树，捕获任意深度的嵌套结构。
+
+这里我们找出内部嵌套了另一个三元表达式的任意三元表达式：
+
+<Code lang="grit" code={"engine biome(1.0)\nlanguage js(typescript, jsx)\n\nJsConditionalExpression() as $outer where {\n    $outer <: contains JsConditionalExpression() as $inner,\n    register_diagnostic(\n        span = $inner,\n        message = \"Nested ternary expressions are not allowed. Use `if`/`else` instead.\"\n    )\n}"} />
+
+<Code lang="js" ins={2} code={"const a = x ? 1 : 0;\nconst b = x ? (y ? 1 : 2) : 0;\nconst c = x ? 1 : y ? 2 : 3;"} />
+
+第 1 行只有一个（未嵌套的）三元表达式，不被匹配。第 2、3 行都包含嵌套在另一个三元表达式内的三元表达式。
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=YwBvAG4AcwB0ACAAYQAgAD0AIAB4ACAAPwAgADEAIAA6ACAAMAA7AAoAYwBvAG4AcwB0ACAAYgAgAD0AIAB4ACAAPwAgACgAeQAgAD8AIAAxACAAOgAgADIAKQAgADoAIAAwADsACgBjAG8AbgBzAHQAIABjACAAPQAgAHgAIAA%2FACAAMQAgADoAIAB5ACAAPwAgADIAIAA6ACAAMwA7AA%3D%3D&gritQuery=engine+biome%281.0%29%0Alanguage+js%28typescript%2C+jsx%29%0A%0AJsConditionalExpression%28%29+as+%24outer+where+%7B%0A++++%24outer+%3C%3A+contains+JsConditionalExpression%28%29%0A%7D)
+
+<Aside type="note">
+
+像 `JsConditionalExpression` 这样的 CST 节点名称专属于 Biome 的解析器。请参见下文的[查找 CST 节点名称](#discovering-cst-node-names)一节，了解如何找到这些名称。
+
+</Aside>
+
+### 限制函数参数数量
+
+我们匹配 **`JsParameters()`**，并用**正则表达式**检查参数列表是否包含 3 个及以上逗号，即 4 个及以上参数：
+
+<Code lang="grit" ins={4} code={"engine biome(1.0)\nlanguage js(typescript, jsx)\n\nJsParameters() as $params where {\n    $params <: r\".*,.*,.*,.*\",\n    register_diagnostic(\n        span = $params,\n        message = \"Functions should not have more than 3 parameters. Use an options object instead.\",\n        severity = \"warn\"\n    )\n}"} />
+
+<Code lang="js" ins={2} code={"function ok(a, b, c) {}\nfunction tooMany(a, b, c, d) {}\nconst arrow = (a, b, c, d, e) => {};"} />
+
+`ok` 有 3 个参数，没有问题。`tooMany` 和 `arrow` 都有 4 个以上参数，被匹配。
+
+[在 Playground 中试用此示例](</playground?tab=syntax&pane=GritQL&code=ZgB1AG4AYwB0AGkAbwBuACAAbwBrACgAYQAsACAAYgAsACAAYwApACAAewB9AAoAZgB1AG4AYwB0AGkAbwBuACAAdABvAG8ATQBhAG4AeQAoAGEALAAgAGIALAAgAGMALAAgAGQAKQAgAHsAfQAKAGMAbwBuAHMAdAAgAGEAcgByAG8AdwAgAD0AIAAoAGEALAAgAGIALAAgAGMALAAgAGQALAAgAGUAKQAgAD0APgAgAHsAfQA7AA==&gritQuery=engine%20biome(1.0)%0Alanguage%20js(typescript%2C%20jsx)%0A%0AJsParameters()%20as%20%24params%20where%20%7B%0A%20%20%20%20%24params%20%3C%3A%20r%22.*%2C.*%2C.*%2C.*%22%0A%7D>)
+
+### 禁止空的 catch 块
+
+CST 节点可以在模式中**嵌套**，以表达结构性约束。这里我们匹配一个 `JsCatchClause`，其 `body` 字段是一个 `statements` 列表为空（`[]`）的 `JsBlockStatement`。这读起来几乎像类型断言："包含不含任何语句的块的 catch 子句"。
+
+<Code lang="grit" code={"engine biome(1.0)\nlanguage js(typescript, jsx)\n\nJsCatchClause(body = JsBlockStatement(statements = [])) as $catch where {\n    register_diagnostic(\n        span = $catch,\n        message = \"Empty catch blocks are not allowed. Handle the error or add a comment explaining why it is ignored.\"\n    )\n}"} />
+
+<Code lang="js" ins={3} code={"try {\n  riskyOperation();\n} catch (e) {}\n\ntry {\n  anotherOp();\n} catch (e) {\n  console.error(e);\n}"} />
+
+第一个 `catch` 块（第 3 行）为空，被匹配。第二个内部有语句，不被匹配。
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=dAByAHkAIAB7AAoAIAAgACAAIAByAGkAcwBrAHkATwBwAGUAcgBhAHQAaQBvAG4AKAApADsACgB9ACAAYwBhAHQAYwBoACAAKABlACkAIAB7AH0ACgAKAHQAcgB5ACAAewAKACAAIAAgACAAYQBuAG8AdABoAGUAcgBPAHAAKAApADsACgB9ACAAYwBhAHQAYwBoACAAKABlACkAIAB7AAoAIAAgACAAIABjAG8AbgBzAG8AbABlAC4AZQByAHIAbwByACgAZQApADsACgB9AA%3D%3D&gritQuery=%60try+%7B+%24_+%7D+catch+%28%24_%29+%7B%7D%60)
+
+### 不允许 `any` 类型注解
+
+某些 CST 节点专属于 **TypeScript**。`TsAnyType` 节点表示作为类型注解出现的 `any` 关键字，无论它出现在何处。直接匹配该节点，就能捕获所有出现位置：变量声明、函数参数、返回类型和泛型参数。
+
+<Code lang="grit" code={"engine biome(1.0)\nlanguage js(typescript)\n\nTsAnyType() as $any where {\n    register_diagnostic(\n        span = $any,\n        message = \"Don't use `any`. Use `unknown`, a specific type, or a generic instead.\",\n        severity = \"warn\"\n    )\n}"} />
+
+<Code lang="ts" ins={1} code={"let x: any = 1;\nfunction foo(x: any): any {\n  return x;\n}\nconst arr: Array<any> = [];\nlet safe: unknown = 1;"} />
+
+第 1 至 3 行的每个 `any` 注解都会被匹配。第 4 行的 `unknown` 是不同类型，不受影响。
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=bABlAHQAIAB4ADoAIABhAG4AeQAgAD0AIAAxADsACgBmAHUAbgBjAHQAaQBvAG4AIABmAG8AbwAoAHgAOgAgAGEAbgB5ACkAOgAgAGEAbgB5ACAAewAgAHIAZQB0AHUAcgBuACAAeAA7ACAAfQAKAGMAbwBuAHMAdAAgAGEAcgByADoAIABBAHIAcgBhAHkAPABhAG4AeQA%2BACAAPQAgAFsAXQA7AAoAbABlAHQAIABzAGEAZgBlADoAIAB1AG4AawBuAG8AdwBuACAAPQAgADEAOwA%3D&gritQuery=engine+biome%281.0%29%0Alanguage+js%28typescript%29%0A%0ATsAnyType%28%29)
+
+### 优先使用 `const` 而非 `let`
+
+由于 `let` 是关键字而非语法节点，我们匹配 **`JsVariableStatement()`**，并用**正则表达式**筛选，只保留文本以 `let` 开头的语句：
+
+<Code lang="grit" ins={4} code={"engine biome(1.0)\nlanguage js(typescript, jsx)\n\nJsVariableStatement() as $stmt where {\n    $stmt <: r\"let.*\",\n    register_diagnostic(\n        span = $stmt,\n        message = \"Prefer `const` unless the variable is reassigned.\",\n        severity = \"hint\"\n    )\n}"} />
+
+<Code lang="js" ins={1} code={"let x = 1;\nlet y = \"hello\";\nconst z = true;"} />
+
+两条 `let` 语句（第 1、2 行）都被匹配。第 3 行的 `const` 不会：其文本以 `const` 开头，因此正则 `let.*` 不匹配。
+
+[在 Playground 中试用此示例](</playground?tab=syntax&pane=GritQL&code=bABlAHQAIAB4ACAAPQAgADEAOwAKAGwAZQB0ACAAeQAgAD0AIAAiAGgAZQBsAGwAbwAiADsACgBjAG8AbgBzAHQAIAB6ACAAPQAgAHQAcgB1AGUAOwA=&gritQuery=engine%20biome(1.0)%0Alanguage%20js(typescript%2C%20jsx)%0A%0AJsVariableStatement()%20as%20%24stmt%20where%20%7B%0A%20%20%20%20%24stmt%20%3C%3A%20r%22let.*%22%0A%7D>)
+
+### 禁用 `dangerouslySetInnerHTML`
+
+GritQL 片段模式在 JSX 内同样有效。这里我们匹配 `dangerouslySetInnerHTML` prop，无论它位于哪个元素、传入什么值：
+
+<Code lang="grit" code={"`dangerouslySetInnerHTML=$value` as $attr where {\n    register_diagnostic(\n        span = $attr,\n        message = \"Do not use `dangerouslySetInnerHTML`. Sanitize content and render it safely instead.\"\n    )\n}"} />
+
+匹配：任何使用该 prop 的元素：
+
+```jsx mark="dangerouslySetInnerHTML={{ __html: content }}" mark="dangerouslySetInnerHTML={{ __html: text }}"
+<div dangerouslySetInnerHTML={{ __html: content }} />
+<p dangerouslySetInnerHTML={{ __html: text }}></p>
+```
+
+不匹配：没有 `dangerouslySetInnerHTML`：
+
+```jsx
+<div className="safe">{content}</div>
+```
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=PABkAGkAdgAgAGQAYQBuAGcAZQByAG8AdQBzAGwAeQBTAGUAdABJAG4AbgBlAHIASABUAE0ATAA9AHsAewAgAF8AXwBoAHQAbQBsADoAIABjAG8AbgB0AGUAbgB0ACAAfQB9ACAALwA%2BAAoAPABwACAAZABhAG4AZwBlAHIAbwB1AHMAbAB5AFMAZQB0AEkAbgBuAGUAcgBIAFQATQBMAD0AewB7ACAAXwBfAGgAdABtAGwAOgAgAHQAZQB4AHQAIAB9AH0APgA8AC8AcAA%2BAAoAPABkAGkAdgAgAGMAbABhAHMAcwBOAGEAbQBlAD0AIgBzAGEAZgBlACIAPgB7AGMAbwBuAHQAZQBuAHQAfQA8AC8AZABpAHYAPgA%3D&gritQuery=%60dangerouslySetInnerHTML%3D%24value%60)
+
+### 禁止内联 `style` prop
+
+同样的方法可用于禁用内联 `style` prop。这能促使开发者改用 CSS 类或 CSS-in-JS 方案，而非内联样式：
+
+<Code lang="grit" code={"`style=$value` as $attr where {\n    register_diagnostic(\n        span = $attr,\n        message = \"Avoid inline `style` props. Use a CSS class or a styled component instead.\",\n        severity = \"warn\"\n    )\n}"} />
+
+匹配：内联 `style` prop：
+
+```jsx mark='style={{ color: "red" }}' mark="style={{ margin: 0, padding: 10 }}"
+<button style={{ color: "red" }}>Click</button>
+<div style={{ margin: 0, padding: 10 }}>Content</div>
+```
+
+不匹配：改用 `className`：
+
+```jsx
+<span className="highlight">OK</span>
+```
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=PABiAHUAdAB0AG8AbgAgAHMAdAB5AGwAZQA9AHsAewAgAGMAbwBsAG8AcgA6ACAAIgByAGUAZAAiACAAfQB9AD4AQwBsAGkAYwBrADwALwBiAHUAdAB0AG8AbgA%2BAAoAPABkAGkAdgAgAHMAdAB5AGwAZQA9AHsAewAgAG0AYQByAGcAaQBuADoAIAAwACwAIABwAGEAZABkAGkAbgBnADoAIAAxADAAIAB9AH0APgBDAG8AbgB0AGUAbgB0ADwALwBkAGkAdgA%2BAAoAPABzAHAAYQBuACAAYwBsAGEAcwBzAE4AYQBtAGUAPQAiAGgAaQBnAGgAbABpAGcAaAB0ACIAPgBPAEsAPAAvAHMAcABhAG4APgA%3D&gritQuery=%60style%3D%24value%60)
+
+---
+
+## CSS
+
+### 不允许 `!important`
+
+默认情况下，GritQL 模式针对 JavaScript。`.grit` 文件顶部的 **`engine biome(1.0)`** 和 **`language css`** 指令可切换到 Biome 的 CSS 语法树。`!important` 修饰符表现为一个 **`CssDeclarationImportant()`** 节点，因此我们用 **`contains`** 查找包含它的任意声明：
+
+<Code lang="grit" ins={2} code={"engine biome(1.0)\nlanguage css\n\nCssDeclarationWithSemicolon() as $decl where {\n    $decl <: contains CssDeclarationImportant(),\n    register_diagnostic(\n        span = $decl,\n        message = \"Avoid `!important`. Increase selector specificity or restructure your styles instead.\"\n    )\n}"} />
+
+<Code lang="css" ins={2} code={".button {\n  color: red !important;\n  display: flex;\n}\n.override {\n  margin: 0 !important;\n}"} />
+
+第 2、6 行包含 `!important` 声明，被匹配。
+
+[在 Playground 中试用此示例](</playground?tab=syntax&pane=GritQL&code=LgBiAHUAdAB0AG8AbgAgAHsACgAgACAAYwBvAGwAbwByADoAIAByAGUAZAAgACEAaQBtAHAAbwByAHQAYQBuAHQAOwAKACAAIABkAGkAcwBwAGwAYQB5ADoAIABmAGwAZQB4ADsACgB9AAoALgBvAHYAZQByAHIAaQBkAGUAIAB7AAoAIAAgAG0AYQByAGcAaQBuADoAIAAwACAAIQBpAG0AcABvAHIAdABhAG4AdAA7AAoAfQA=&gritQuery=engine%20biome(1.0)%0Alanguage%20css%0A%0ACssDeclarationWithSemicolon()%20as%20%24decl%20where%20%7B%0A%20%20%20%20%24decl%20%3C%3A%20contains%20CssDeclarationImportant()%0A%7D&language=css&gritTargetLanguage=CSS>)
+
+### 禁用硬编码颜色：改用 CSS 自定义属性
+
+**正则模式**使用 `r"..."` 语法，匹配节点的文本内容而非语法结构。这对于匹配十六进制颜色码这类没有专用语法节点的值很有用。
+
+这里我们用正则匹配 `color` 声明中的任意十六进制颜色值：
+
+<Code lang="grit" ins={4} code={"language css;\n\n`color: $value` as $decl where {\n    $value <: r\"#[0-9a-fA-F]+\",\n    register_diagnostic(\n        span = $value,\n        message = \"Don't use hardcoded hex colors. Use a CSS custom property (e.g. `var(--color-primary)`) instead.\",\n        severity = \"warn\"\n    )\n}"} />
+
+<Code lang="css" ins={2} code={".header {\n  color: #ff0000;\n  background: var(--bg-primary);\n}\n.text {\n  color: #1a2b3c;\n}"} />
+
+第 2、6 行使用了硬编码的十六进制颜色，被匹配。第 3 行的 `var()` 引用不是十六进制值，通过检查。
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=LgBoAGUAYQBkAGUAcgAgAHsACgAgACAAIAAgAGMAbwBsAG8AcgA6ACAAIwBmAGYAMAAwADAAMAA7AAoAIAAgACAAIABiAGEAYwBrAGcAcgBvAHUAbgBkADoAIAB2AGEAcgAoAC0ALQBiAGcALQBwAHIAaQBtAGEAcgB5ACkAOwAKAH0ACgAuAHQAZQB4AHQAIAB7AAoAIAAgACAAIABjAG8AbABvAHIAOgAgACMAMQBhADIAYgAzAGMAOwAKAH0A&gritQuery=language+css%3B%0A%0A%60color%3A+%24value%60+where+%7B%0A++++%24value+%3C%3A+r%22%23%5B0-9a-fA-F%5D%2B%22%0A%7D&language=css&gritTargetLanguage=CSS)
+
+若要同时捕获 `rgb()` 和 `hsl()` 函数，可用 `or` 组合多个正则模式：
+
+```grit
+language css;
+
+`color: $value` as $decl where {
+    $value <: or {
+        r"#[0-9a-fA-F]+",
+        r"rgba?\(.*\)",
+        r"hsla?\(.*\)"
+    },
+    register_diagnostic(
+        span = $value,
+        message = "Don't use hardcoded colors. Use a CSS custom property instead.",
+        severity = "warn"
+    )
+}
+```
+
+匹配：十六进制、`rgb()` 和 `hsl()` 值：
+
+<Code lang="css" ins={2} code={".header {\n  color: #ff0000;\n  background: var(--bg-primary);\n}\n.alert {\n  color: rgb(255, 0, 0);\n}\n.text {\n  color: hsl(200, 50%, 50%);\n}\n.safe {\n  color: var(--text-primary);\n}"} />
+
+第 3 和第 12 行的 `var()` 引用不匹配任何正则模式，通过检查。
+
+[在 Playground 中试用此示例](</playground?tab=syntax&pane=GritQL&code=LgBoAGUAYQBkAGUAcgAgAHsACgAgACAAYwBvAGwAbwByADoAIAAjAGYAZgAwADAAMAAwADsACgAgACAAYgBhAGMAawBnAHIAbwB1AG4AZAA6ACAAdgBhAHIAKAAtAC0AYgBnAC0AcAByAGkAbQBhAHIAeQApADsACgB9AAoALgBhAGwAZQByAHQAIAB7AAoAIAAgAGMAbwBsAG8AcgA6ACAAcgBnAGIAKAAyADUANQAsACAAMAAsACAAMAApADsACgB9AAoALgB0AGUAeAB0ACAAewAKACAAIABjAG8AbABvAHIAOgAgAGgAcwBsACgAMgAwADAALAAgADUAMAAlACwAIAA1ADAAJQApADsACgB9AAoALgBzAGEAZgBlACAAewAKACAAIABjAG8AbABvAHIAOgAgAHYAYQByACgALQAtAHQAZQB4AHQALQBwAHIAaQBtAGEAcgB5ACkAOwAKAH0A&gritQuery=language%20css%3B%0A%0A%60color%3A%20%24value%60%20where%20%7B%0A%20%20%20%20%24value%20%3C%3A%20or%20%7B%0A%20%20%20%20%20%20%20%20r%22%23%5B0-9a-fA-F%5D%2B%22%2C%0A%20%20%20%20%20%20%20%20r%22rgba%3F%5C(.*%5C)%22%2C%0A%20%20%20%20%20%20%20%20r%22hsla%3F%5C(.*%5C)%22%0A%20%20%20%20%7D%0A%7D&language=css&gritTargetLanguage=CSS>)
+
+### 不允许特定的 CSS 属性
+
+顶层 **`or`** 列出多个备选片段模式。每个分支独立匹配，因此你只需显式列出，就能禁用多个 CSS 属性：
+
+<Code lang="grit" ins={3} code={"language css;\n\nor {\n    `float: $value`,\n    `clear: $value`\n} as $decl where {\n    register_diagnostic(\n        span = $decl,\n        message = \"The `float` and `clear` properties are not allowed. Use Flexbox or Grid for layout.\"\n    )\n}"} />
+
+<Code lang="css" ins={2} code={".sidebar {\n  float: left;\n  width: 200px;\n}\n.clearfix {\n  clear: both;\n}\n.modern {\n  display: grid;\n}"} />
+
+第 2 行的 `float` 和第 6 行的 `clear` 被匹配。`.modern` 规则使用了 `display: grid`，不在禁用列表中。
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=LgBzAGkAZABlAGIAYQByACAAewAKACAAIABmAGwAbwBhAHQAOgAgAGwAZQBmAHQAOwAKACAAIAB3AGkAZAB0AGgAOgAgADIAMAAwAHAAeAA7AAoAfQAKAC4AYwBsAGUAYQByAGYAaQB4ACAAewAKACAAIABjAGwAZQBhAHIAOgAgAGIAbwB0AGgAOwAKAH0ACgAuAG0AbwBkAGUAcgBuACAAewAKACAAIABkAGkAcwBwAGwAYQB5ADoAIABnAHIAaQBkADsACgB9AA==&gritQuery=language%20css%3B%0A%0Aor%20%7B%0A%20%20%20%20%60float%3A%20%24value%60%2C%0A%20%20%20%20%60clear%3A%20%24value%60%0A%7D&language=css&gritTargetLanguage=CSS)
+
+---
+
+## JSON
+
+### 强制 JSON 键命名规范
+
+**`language json`** 指令（与 `engine biome(1.0)` 搭配使用）针对 JSON 文件。由于不支持带元变量的 JSON 片段，请使用 CST 节点 **`JsonMemberName()`** 匹配任意键。再结合**正则**与 **`or`**，即可强制执行命名规范。
+
+这里我们标记包含下划线或以大写字母开头的任意键，两者都违反 camelCase：
+
+<Code lang="grit" ins={2} code={"engine biome(1.0)\nlanguage json\n\nJsonMemberName() as $name where {\n    $name <: or { r\".*_.*\", r\".[A-Z].*\" },\n    register_diagnostic(\n        span = $name,\n        message = \"JSON keys must use camelCase.\",\n        severity = \"warn\"\n    )\n}"} />
+
+<Code lang="json" ins={3} code={"{\n  \"userName\": \"alice\",\n  \"user_name\": \"bob\",\n  \"UserAge\": 30,\n  \"email\": \"a@b.com\"\n}"} />
+
+`user_name`（snake_case）和 `UserAge`（PascalCase）被正则的备选分支匹配。`userName` 和 `email` 是合法的 camelCase，不被匹配。
+
+<Aside type="note">
+
+正则匹配的是完整的节点文本，其中包含两侧的引号（例如 `"user_name"`）。模式 `r".*_.*"` 之所以有效，是因为 `.*` 覆盖了两侧的引号。
+
+</Aside>
+
+[在 Playground 中试用此示例](</playground?tab=syntax&pane=GritQL&code=ewAKACAAIAAiAHUAcwBlAHIATgBhAG0AZQAiADoAIAAiAGEAbABpAGMAZQAiACwACgAgACAAIgB1AHMAZQByAF8AbgBhAG0AZQAiADoAIAAiAGIAbwBiACIALAAKACAAIAAiAFUAcwBlAHIAQQBnAGUAIgA6ACAAMwAwACwACgAgACAAIgBlAG0AYQBpAGwAIgA6ACAAIgBhAEAAYgAuAGMAbwBtACIACgB9AA==&gritQuery=engine%20biome(1.0)%0Alanguage%20json%0A%0AJsonMemberName()%20as%20%24name%20where%20%7B%0A%20%20%20%20%24name%20%3C%3A%20or%20%7B%20r%22.*_.*%22%2C%20r%22.%5BA-Z%5D.*%22%20%7D%0A%7D&language=json&gritTargetLanguage=JSON>)
+
+---
+
+## 进阶模式
+
+### 在单个文件中组合多条相关规则
+
+你可以用顶层 `or` 把**多条独立规则**归入单个 `.grit` 文件。每个分支都有自己的模式、条件和诊断信息。`where` 子句可以独立地放在每个分支内，让每条规则拥有各自的严重性等级和消息。
+
+这里我们把三项与调试相关的检查组合为一个插件：
+
+<Code lang="grit" ins={1} code={"or {\n    `debugger` as $match where {\n        register_diagnostic(\n            span = $match,\n            message = \"Remove `debugger` statements before committing.\"\n        )\n    },\n    `alert($...)` as $match where {\n        register_diagnostic(\n            span = $match,\n            message = \"Remove `alert()` calls before committing.\"\n        )\n    },\n    `console.$method($...)` as $match where {\n        $method <: or { `log`, `debug`, `trace` },\n        register_diagnostic(\n            span = $match,\n            message = \"Remove debug logging before committing.\",\n            severity = \"warn\"\n        )\n    }\n}"} />
+
+<Code lang="js" ins={1} code={"debugger;\nalert(\"test\");\nconsole.log(\"debug info\");\nconsole.error(\"real error\");\nconsole.debug(\"trace\");"} />
+
+第 1、2、3、5 行分别被 `or` 的不同分支匹配。第 4 行（`console.error`）不在 `log`、`debug`、`trace` 列表中，通过检查。
+
+[在 Playground 中试用此示例](/playground?tab=syntax&pane=GritQL&code=ZABlAGIAdQBnAGcAZQByADsACgBhAGwAZQByAHQAKAAiAHQAZQBzAHQAIgApADsACgBjAG8AbgBzAG8AbABlAC4AbABvAGcAKAAiAGQAZQBiAHUAZwAgAGkAbgBmAG8AIgApADsACgBjAG8AbgBzAG8AbABlAC4AZQByAHIAbwByACgAIgByAGUAYQBsACAAZQByAHIAbwByACIAKQA7AAoAYwBvAG4AcwBvAGwAZQAuAGQAZQBiAHUAZwAoACIAdAByAGEAYwBlACIAKQA7AA%3D%3D&gritQuery=or+%7B%0A++++%60debugger%60%2C%0A++++%60alert%28%24...%29%60%2C%0A++++%60console.%24method%28%24...%29%60+where+%7B%0A++++++++%24method+%3C%3A+or+%7B+%60log%60%2C+%60debug%60%2C+%60trace%60+%7D%0A++++%7D%0A%7D)
+
+---
+
+## 查找 CST 节点名称
+
+上面的多个示例使用了 Biome 的 CST 节点名称，如 `JsConditionalExpression` 或 `TsAnyType`。以下介绍如何为你要匹配的代码找到正确的节点名称。
+
+### 使用 Biome Playground
+
+1. 打开 [Biome Playground](/playground/)。
+2. 粘贴或输入你想匹配的代码片段。
+3. 在右侧的输出面板中切换到 **Syntax** 标签页。
+4. 语法树会展示每个节点及其类型名称标签。展开节点可查看其子节点和字段。
+5. 将找到的节点名称用于你的 GritQL 模式：用 `NodeName()` 匹配任意实例，或用 `NodeName(field = ...)` 匹配特定子节点。
+
+### 常用节点名称
+
+以下是 JavaScript/TypeScript 常用的一部分 Biome CST 节点名称：
+
+| 节点名称                    | 匹配内容                          |
+| --------------------------- | ------------------------------- |
+| `JsIfStatement`             | `if (...) { ... }`              |
+| `JsConditionalExpression`   | `a ? b : c`                     |
+| `JsForStatement`            | `for (...; ...; ...) { ... }`   |
+| `JsForOfStatement`          | `for (... of ...) { ... }`      |
+| `JsCallExpression`          | `fn()`, `obj.method()`          |
+| `JsNewExpression`           | `new Foo()`                     |
+| `JsArrowFunctionExpression` | `() => { ... }`                 |
+| `JsFunctionDeclaration`     | `function foo() { ... }`        |
+| `JsCatchClause`             | `catch (e) { ... }`             |
+| `JsBlockStatement`          | `{ ... }`（语句块） |
+| `JsFormalParameter`         | 单个函数参数 |
+| `JsParameters`              | 参数列表 `(a, b, c)`  |
+| `JsVariableDeclaration`     | `const x = 1`, `let y = 2`      |
+| `TsAnyType`                 | `: any` 类型注解         |
+| `TsTypeAlias`               | `type Foo = ...`                |
+| `TsInterfaceDeclaration`    | `interface Foo { ... }`         |
+| `JsxElement`                | `<div>...</div>`                |
+| `JsxSelfClosingElement`     | `<img />`                       |
+| `JsxAttribute`              | `className="test"`, `disabled`  |
+
+对于 CSS：
+
+| 节点名称                      | 匹配内容           |
+| ----------------------------- | ------------------ |
+| `CssDeclarationWithSemicolon` | `property: value;` |
+| `CssComplexSelector`          | `div > .class`     |
+
+<Aside type="note">
+
+这些节点名称专属于 Biome 的解析器，可能随版本变化。请始终用你所用版本的 Playground 进行验证。完整列表可在 Biome 仓库的 [`.ungram` 文件](https://github.com/biomejs/biome/tree/main/xtask/codegen)中找到。
+
+</Aside>
+
+### CST 模式的头部指令
+
+使用 CST 节点名称时，你的 `.grit` 文件应包含 engine 和 language 指令：
+
+<Code lang="grit" ins={1} code={"engine biome(1.0)\nlanguage js(typescript, jsx)"} />
+
+`engine biome(1.0)` 指令告诉 GritQL 使用 Biome 的语法树（而非 Tree-sitter 的）。`language` 指令指定要匹配的语言语法；不加该指令时，默认按 JavaScript 处理。

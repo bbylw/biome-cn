@@ -1,0 +1,162 @@
+---
+title: 环境变量
+description: 用于配置 Biome 行为的环境变量列表。
+anchors: ["biome_distribution","biome_log_file","biome_log_path","biome_log_prefix_name","biome_log_level","biome_log_kind","biome_config_path","biome_threads","biome_watcher_kind","biome_watcher_polling_interval","biome_binary","rust_backtrace"]
+toc: [{"level":2,"text":"BIOMEDISTRIBUTION","id":"biome_distribution"},{"level":2,"text":"BIOMELOGFILE","id":"biome_log_file"},{"level":2,"text":"BIOMELOGPATH","id":"biome_log_path"},{"level":2,"text":"BIOMELOGPREFIXNAME","id":"biome_log_prefix_name"},{"level":2,"text":"BIOMELOGLEVEL","id":"biome_log_level"},{"level":2,"text":"BIOMELOGKIND","id":"biome_log_kind"},{"level":2,"text":"BIOMECONFIGPATH","id":"biome_config_path"},{"level":2,"text":"BIOMETHREADS","id":"biome_threads"},{"level":2,"text":"BIOMEWATCHERKIND","id":"biome_watcher_kind"},{"level":2,"text":"BIOMEWATCHERPOLLINGINTERVAL","id":"biome_watcher_polling_interval"},{"level":2,"text":"BIOMEBINARY","id":"biome_binary"},{"level":2,"text":"RUSTBACKTRACE","id":"rust_backtrace"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+
+以下环境变量用于配置 Biome 及其 npm 包。
+
+## `BIOME_DISTRIBUTION`
+
+覆盖 `biome upgrade` 检测到的安装来源。
+
+支持以下安装来源：
+
+- `npm`：通过运行兼容 npm 的包管理器命令来更新 Biome。
+- `homebrew`：通过运行 `brew upgrade biome` 来更新 Biome。
+- `standalone`：直接更新独立的 Biome 二进制文件。
+
+当 `biome upgrade` 无法正确检测 Biome 的安装方式时（例如自定义前缀下的 Homebrew 安装），使用此项。
+
+```shell
+BIOME_DISTRIBUTION=homebrew biome upgrade
+```
+
+## `BIOME_LOG_FILE`
+
+将 `check`、`lint`、`format` 和 `ci` 等命令的内部 CLI 日志写入指定文件。
+
+在排查未预期行为时，用它来保存详细的 CLI 日志。
+
+```shell
+BIOME_LOG_FILE=biome-debug.log BIOME_LOG_LEVEL=debug biome check .
+```
+
+## `BIOME_LOG_PATH`
+
+Biome 守护进程存储其日志文件的目录。
+
+在排查编辑器集成问题时，用它把守护进程日志保存在项目专属目录中。
+
+```shell
+BIOME_LOG_PATH="$PWD/.biome-logs" biome start
+```
+
+## `BIOME_LOG_PREFIX_NAME`
+
+添加到守护进程日志文件名前的前缀。默认为 `server.log`。
+
+用它来区分共用同一日志目录的不同项目的日志。
+
+```shell
+BIOME_LOG_PREFIX_NAME=my-project.log biome start
+```
+
+## `BIOME_LOG_LEVEL`
+
+控制 `check`、`lint`、`format` 和 `ci` 等命令的内部日志。默认为 `none`。
+
+支持以下日志级别：
+
+- `none`：禁用内部日志。
+- `info`：显示关于 Biome 运行的一般信息。
+- `warn`：显示警告和错误。
+- `error`：只显示错误。
+- `debug`：显示有助于调试的详细信息。
+- `tracing`：显示最详细的日志，包括 span 计时。
+
+在检查一个项目时，用它来查看 Biome 内部的 CLI 活动。
+
+```shell
+BIOME_LOG_LEVEL=debug biome check .
+```
+
+## `BIOME_LOG_KIND`
+
+控制 `check`、`lint`、`format` 和 `ci` 等命令的内部日志格式。默认为 `pretty`。
+
+支持以下日志格式：
+
+- `pretty`：以带终端样式、人类可读的多行形式显示日志。
+- `compact`：以精简、人类可读的格式显示日志。
+- `json`：以机器可读的 JSON 形式显示日志。
+
+在持续集成（CI）中用它来收集机器可读的内部日志。设置 `BIOME_LOG_LEVEL` 以启用日志。
+
+```shell
+BIOME_LOG_LEVEL=info BIOME_LOG_KIND=json biome ci .
+```
+
+## `BIOME_CONFIG_PATH`
+
+Biome 配置文件或目录的路径。
+
+用它来应用存储在当前目录之外的共享配置。
+
+```shell
+BIOME_CONFIG_PATH="$HOME/.config/biome/biome.json" biome check .
+```
+
+## `BIOME_THREADS`
+
+`biome ci` 使用的工作线程数量。默认为自动选择。
+
+用它来在资源受限的 CI runner 中限制 CPU 占用。
+
+```shell
+BIOME_THREADS=2 biome ci .
+```
+
+## `BIOME_WATCHER_KIND`
+
+选择 Biome 守护进程使用的文件监视器。默认为 `recommended`。
+
+支持以下文件监视策略：
+
+- `recommended`：使用操作系统推荐的策略。
+- `polling`：定期检查变更。这可能更慢，但在挂载或网络文件系统上可能效果更好。
+- `none`：禁用文件监视。守护进程和编辑器集成将不会检测到文件变更。
+
+当原生的文件通知不可靠时（例如在网络驱动器或挂载的文件系统上），使用 polling。
+
+```shell
+BIOME_WATCHER_KIND=polling biome start
+```
+
+## `BIOME_WATCHER_POLLING_INTERVAL`
+
+当 `BIOME_WATCHER_KIND` 设为 `polling` 时，Biome 守护进程使用的轮询间隔（以毫秒为单位）。默认为 `2000` 毫秒（两秒）。
+
+用它来调整轮询监视器检测到变更的快慢。
+
+```shell
+BIOME_WATCHER_KIND=polling BIOME_WATCHER_POLLING_INTERVAL=1000 biome start
+```
+
+## `BIOME_BINARY`
+
+覆盖 `@biomejs/biome` npm 包所使用的 Biome 二进制文件。如果不设置此变量，该包会自动为你的平台选择正确的二进制文件。
+
+用它来通过 `@biomejs/biome` 包运行系统安装的或本地构建的二进制文件。
+
+```shell
+BIOME_BINARY=/usr/local/bin/biome npx @biomejs/biome check
+```
+
+## `RUST_BACKTRACE`
+
+当 Biome 发生 panic 时捕获回溯（backtrace），这有助于确定 panic 发生的位置。
+
+在报告 Biome 的 panic 时，用它来附上有助于定位问题的堆栈跟踪。
+
+```shell
+RUST_BACKTRACE=1 biome check .
+```
+
+<Aside type="note">
+
+`RUST_BACKTRACE` 是一个 Rust 环境变量，而不是 Biome 专属选项。Biome 支持它，是因为它是用 Rust 构建的，并且在报告 panic 时使用了 Rust 的回溯支持。
+
+</Aside>

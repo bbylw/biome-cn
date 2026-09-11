@@ -1,0 +1,129 @@
+---
+title: 手动安装
+description: 手动安装 Biome
+anchors: ["supported-platforms","homebrew","winget","arch-linux-x86_64","docker","using-a-published-binary","next-steps"]
+toc: [{"level":2,"text":"支持的平台","id":"supported-platforms"},{"level":2,"text":"Homebrew","id":"homebrew"},{"level":2,"text":"Winget","id":"winget"},{"level":2,"text":"Arch Linux (x8664)","id":"arch-linux-x86_64"},{"level":2,"text":"Docker","id":"docker"},{"level":2,"text":"使用已发布的二进制文件","id":"using-a-published-binary"},{"level":2,"text":"下一步","id":"next-steps"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+
+如果你还没有使用 Node.js 或 `npm`（或任何其他包管理器），那么使用 Biome 的独立 CLI 二进制文件会是个不错的选择。
+换句话说，Biome 不应该是你保留一个 `package.json` 的唯一理由。
+
+<Aside type="note">
+
+如果你已经在使用 `npm` 或其他包管理器，那么用包管理器安装 Biome 才是[首选方式](/guides/getting-started#installation)。
+你已经熟悉这些工具，安装和更新也更简单。
+
+</Aside>
+
+## 支持的平台
+
+你需要为你的平台选择正确的二进制文件，Biome 才能正常工作。下表可以帮助你完成选择。
+
+| 平台     | `arm64`                      | `x64`              |
+| ------------ | ---------------------------- | ------------------ |
+| Windows      | `win32-arm64`                | `win32-x64`        |
+| macOS        | `darwin-arm64`（M1 或更新） | `darwin-x64`       |
+| Linux        | `linux-arm64`                | `linux-x64`        |
+| Linux（musl） | `linux-arm64-musl`           | `linux-x64-musl`   |
+
+<Aside type="note">
+
+在 Windows Subsystem for Linux（WSL）下请使用 Linux 版本。
+
+</Aside>
+
+## Homebrew
+
+对于 macOS 和 Linux 用户，Biome 可作为 [Homebrew 软件包](https://formulae.brew.sh/formula/biome)来安装。
+
+```shell showLineNumbers=false
+brew install biome
+```
+
+## Winget
+
+对于 Windows 用户，Biome 可作为 [Winget 软件库](https://github.com/microsoft/winget-pkgs/tree/master/manifests/b/biomejs/biome)中由社区维护的包来获取。
+
+```shell showLineNumbers=false
+winget install biomejs.biome
+```
+
+## Arch Linux (x86_64)
+
+Biome 可作为 [Arch Linux Extra 软件库](https://archlinux.org/packages/extra/x86_64/biome)中由社区维护的二进制文件获取。
+
+<Aside type="note">
+
+[extra] 软件库通常在 /etc/pacman.conf 中默认启用。如果它被禁用了，请取消注释以下各行：
+
+</Aside>
+
+```ini showLineNumbers=false
+[extra]
+Include = /etc/pacman.d/mirrorlist
+```
+
+要安装 Biome，请运行：
+
+```shell showLineNumbers=false
+pacman -S biome
+```
+
+## Docker
+
+Biome 发布了[官方 Docker 镜像](https://github.com/biomejs/docker/pkgs/container/biome)，
+从 `v1.7.0` 起的所有 Biome 版本都支持 **amd64** 和 **arm64** 架构。
+
+```text showLineNumbers=false
+ghcr.io/biomejs/biome:{major}
+ghcr.io/biomejs/biome:{major}.{minor}
+ghcr.io/biomejs/biome:{major}.{minor}.{patch}
+```
+
+下面是几个使用 Docker 镜像的示例：
+
+<Aside type="note">
+
+在 Docker 镜像中，默认工作目录是 `/code`。
+
+</Aside>
+
+```shell showLineNumbers=false
+# 对文件执行 Lint
+docker run -v $(pwd):/code ghcr.io/biomejs/biome lint
+docker run -v $(pwd):/code ghcr.io/biomejs/biome lint --write
+
+# 格式化文件
+docker run -v $(pwd):/code ghcr.io/biomejs/biome format
+docker run -v $(pwd):/code ghcr.io/biomejs/biome format --write
+```
+
+## 使用已发布的二进制文件
+
+要安装 Biome，请从 GitHub 上的[最新 CLI 版本](https://github.com/biomejs/biome/releases)下载对应你平台的可执行文件，并赋予它执行权限。
+
+```shell
+# macOS arm（M1 或更新）
+curl -L https://github.com/biomejs/biome/releases/download/@biomejs/biome@2.5.13/biome-darwin-arm64 -o biome
+chmod +x biome
+
+# Linux（x86_64）
+curl -L https://github.com/biomejs/biome/releases/download/@biomejs/biome@2.5.13/biome-linux-x64 -o biome
+chmod +x biome
+
+# Windows（x86_64，Powershell）
+Invoke-WebRequest -Uri "https://github.com/biomejs/biome/releases/download/@biomejs/biome@2.5.13/biome-win32-x64.exe" -OutFile "biome.exe"
+```
+
+现在，只要运行 `./biome` 就能使用 Biome。
+
+<Aside type="tip">
+
+要把 Biome **升级**到最新版本，请运行 `biome upgrade`
+
+</Aside>
+
+## 下一步
+
+请阅读我们的[快速开始指南](/guides/getting-started/)。

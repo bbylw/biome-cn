@@ -1,0 +1,300 @@
+---
+title: VS Code 扩展
+description: 关于 Biome 的 VS Code 扩展的说明
+anchors: ["installing-the-extension","common-use-cases","single-root-workspaces","multi-root-workspaces","features","formatting","formatting-on-save","code-fixing","fix-on-save","manual-quick-fixes","import-sorting","settings-reference","biomeenabled","biomeconfigurationpath","biomerequireconfiguration","biomeinlineconfig","biomegotodefinition","biomelspbin","biomerunfromtemporarylocation","biomesuggestinstallingglobally","biomelsptraceserver","biomelspwatcherkind","biomelspwatcherpollinginterval","troubleshooting","accessing-the-lsp-trace","migrating-from-the-2x-extension","changes"]
+toc: [{"level":2,"text":"安装扩展","id":"installing-the-extension"},{"level":2,"text":"常见用例","id":"common-use-cases"},{"level":3,"text":"单根工作区","id":"single-root-workspaces"},{"level":3,"text":"多根工作区","id":"multi-root-workspaces"},{"level":2,"text":"功能","id":"features"},{"level":3,"text":"格式化","id":"formatting"},{"level":3,"text":"代码修复","id":"code-fixing"},{"level":3,"text":"导入排序","id":"import-sorting"},{"level":2,"text":"设置参考","id":"settings-reference"},{"level":3,"text":"biome.enabled","id":"biomeenabled"},{"level":3,"text":"biome.configurationPath","id":"biomeconfigurationpath"},{"level":3,"text":"biome.requireConfiguration","id":"biomerequireconfiguration"},{"level":3,"text":"biome.inlineConfig","id":"biomeinlineconfig"},{"level":3,"text":"biome.gotoDefinition","id":"biomegotodefinition"},{"level":3,"text":"biome.lsp.bin","id":"biomelspbin"},{"level":3,"text":"biome.runFromTemporaryLocation","id":"biomerunfromtemporarylocation"},{"level":3,"text":"biome.suggestInstallingGlobally","id":"biomesuggestinstallingglobally"},{"level":3,"text":"biome.lsp.trace.server","id":"biomelsptraceserver"},{"level":3,"text":"biome.lsp.watcher.kind","id":"biomelspwatcherkind"},{"level":3,"text":"biome.lsp.watcher.pollingInterval","id":"biomelspwatcherpollinginterval"},{"level":2,"text":"故障排查","id":"troubleshooting"},{"level":3,"text":"访问 LSP 跟踪","id":"accessing-the-lsp-trace"},{"level":2,"text":"从 2.x 扩展迁移","id":"migrating-from-the-2x-extension"},{"level":3,"text":"变更","id":"changes"}]
+---
+import Aside from "@/components/mdx/Aside.astro";
+import Code from "@/components/mdx/Code.astro";
+import FileTree from "@/components/mdx/FileTree.astro";
+import TabItem from "@/components/mdx/TabItem.astro";
+import Tabs from "@/components/mdx/Tabs.astro";
+
+Biome 附带一个官方的 [VS Code 扩展]，与你的代码编辑器深度集成，为你的开发工作流提供格式化、Lint 和代码重构功能。
+
+[VS Code 扩展]: https://marketplace.visualstudio.com/items?itemName=biomejs.biome
+
+本参考文档概述了该扩展的功能、如何安装它，以及如何为你的项目进行配置。
+
+<Aside type="tip">
+
+如果你是从 `2.x` 版本升级而来，请查看本文末尾的[迁移说明](#migrating-from-the-2x-extension)。
+
+</Aside>
+
+## 安装扩展
+
+推荐的安装方式：VS Code 用户可通过 [Visual Studio Code Marketplace] 安装，VSCodium 及 Cursor 等其他衍生版用户可通过 [Open VSX registry] 安装。
+
+[Visual Studio Code Marketplace]: https://marketplace.visualstudio.com/items?itemName=biomejs.biome
+[Open VSX registry]: https://open-vsx.org/extension/biomejs/biome
+
+- [![](https://img.shields.io/badge/Install%20Biome-in%20VS%20Code-007ACC?style=flat&logo=biome)](vscode:extension/biomejs.biome)
+- [![](https://img.shields.io/badge/Install%20Biome-in%20VSCodium-007ACC?style=flat&logo=biome)](vscodium:extension/biomejs.biome)
+
+## 常见用例
+
+### 单根工作区
+
+单根工作区是你常见的 VS Code 工作区，其中只有一个工作区文件夹。
+
+<FileTree>
+
+- src/
+  - main.ts
+- biome.json
+- package.json
+
+</FileTree>
+
+### 多根工作区
+
+多根工作区是包含多个工作区文件夹的工作区。在这种情况下，该扩展会为每个工作区文件夹自动创建一个 Biome 实例。
+
+<FileTree>
+
+- api/ (workspace folder)
+	- biome.json
+	- src/
+		- main.ts
+- app/ (workspace folder)
+	- biome.json
+	- src/
+		- main.ts
+- my.code-workspace
+
+</FileTree>
+
+## 功能
+
+### 格式化
+
+Biome 扩展为[受支持的文件类型](/internals/language-support)将自己注册为格式化器，并支持格式化整个文件或选中的代码。
+
+在[命令面板](https://code.visualstudio.com/docs/getstarted/userinterface#_command-palette)中运行以下任一命令：
+
+- 若要格式化整个文件，请运行 `Format Document` 命令。
+- 若要格式化选中的代码，请选中代码并运行 `Format Selection` 命令。
+
+#### 保存时格式化
+
+要启用保存时格式化，请将 VS Code 的 [`editor.formatOnSave`](vscode://settings/editor.formatOnSave) 设置为 `true`。
+
+### 代码修复
+
+Biome 扩展为[受支持的文件类型](/internals/language-support)将自己注册为代码操作提供方，并为具有安全修复的诊断信息提供代码修复。
+
+#### 保存时修复
+
+要启用**保存时修复**，请更新 VS Code 的 [`editor.codeActionsOnSave`](vscode://settings/editor.codeActionsOnSave) 设置以包含以下内容。它将仅应用[安全修复](/linter/#safe-fixes)：
+
+```diff
+{
+  "editor.codeActionsOnSave": {
++    "source.fixAll.biome": "explicit"
+  }
+}
+```
+
+如果你想在保存时应用[不安全修复](/linter/#unsafe-fixes)，你必须将[规则的代码修复设为安全](/linter/#configure-the-code-fix)。
+
+#### 手动快速修复
+
+要手动应用快速修复，请选中该诊断信息并点击 `Quick Fix` 按钮。
+
+### 导入排序
+
+对于[受支持的文件类型](/internals/language-support)，该扩展能够在保存时整理导入。要启用此功能，请将 VS Code 的 [`editor.codeActionsOnSave`](vscode://settings/editor.codeActionsOnSave) 设置更新为包含以下内容：
+
+<Code lang="diff" title="settings.json" code={"{\n  \"editor.codeActionsOnSave\": {\n+    \"source.organizeImports.biome\": \"explicit\"\n  }\n}"} />
+
+## 设置参考
+
+该扩展提供以下设置。
+
+<Aside type="note" title="设置优先级">
+
+所有设置都按照 VS Code 的[设置优先级](https://code.visualstudio.com/docs/getstarted/settings#_settings-precedence)规则进行解析。
+也就是说，会采用最具体层级上的设置值。这让你可以设置一个全局设置，并在特定的工作区文件夹中覆盖它。
+
+</Aside>
+
+### `biome.enabled`
+
+**默认值：** `true` | **作用范围：** `global`、`workspace`、`workspace folder`
+
+此设置控制该扩展是否为某个工作区文件夹创建 LSP 会话。全局设置时，它适用于所有工作区文件夹，除非它们各自覆盖了该设置。
+
+### `biome.configurationPath`
+
+<Aside type="caution" title="仅适用于 Biome v2">
+
+此设置仅在使用 Biome `v2` 时生效。如果你使用的是 Biome `v1`，此设置将被忽略。
+
+</Aside>
+
+**默认值：** `null` | **作用范围：** `global`、`workspace`、`workspace folder`
+
+此设置允许你指定自定义配置文件的路径。若未指定，则使用默认配置文件。
+
+### `biome.requireConfiguration`
+
+**默认值：** `false` | **作用范围：** `global`、`workspace`、`workspace folder`
+
+此设置控制 Biome 是否将自己注册为格式化器和诊断信息提供方。
+
+设为 `true` 时，仅当工作区文件夹中存在 `biome.json` 文件，该扩展才会把自己注册为格式化器和诊断信息提供方。
+
+<Aside type="caution">
+
+若要使此设置生效，必须在相同作用范围内将 `biome.enabled` 设置为 `true`（默认值）。
+
+</Aside>
+
+### `biome.inlineConfig`
+
+Biome 配置的内联版本。此配置中的选项会覆盖从磁盘读取的任何 `biome.json` 文件中的选项（或默认值）。
+
+例如，假设你的项目以 `error` 严重性等级启用了 `noConsole` 规则：
+
+<Code lang="json" title="biome.json" code={"{\n  \"linter\": {\n    \"rules\": {\n      \"suspicious\": {\n        \"noConsole\": \"error\"\n      }\n    }\n  }\n}"} />
+
+但在本地开发期间，你想停用这条规则，因为它很有用，而你又不想看到红色波浪线。在 `inlineConfig` 中，你可以写成类似下面的形式：
+
+<Code lang="json" title=".vscode/settings.json" code={"{\n  \"biome.inlineConfig\": {\n    \"linter\": {\n      \"rules\": {\n        \"suspicious\": {\n          \"noConsole\": \"off\"\n        }\n      }\n    }\n  }\n}"} />
+
+### `biome.gotoDefinition`
+
+在编辑器中启用[转到定义](/editors/introduction#go_to_definition)功能。
+
+> 默认值：`false`
+
+<Code lang="json" title=".vscode/settings.json" code={"{\n  \"biome.gotoDefinition\": false\n}"} />
+
+### `biome.lsp.bin`
+
+**默认值：** `undefined` | **作用范围：** `global`、`workspace`、`workspace folder`
+
+此设置允许你覆盖 `biome` 二进制文件的路径。如果你想使用不同版本的 Biome，或想使用不在 `PATH` 中的二进制文件，这会很有用。它可以是二进制文件的路径，也可以是把平台映射到路径的对象。
+
+<Tabs>
+	<TabItem label="string">
+		```json
+		{
+			"biome.lsp.bin": "/path/to/biome"
+		}
+		```
+	</TabItem>
+	<TabItem label="object">
+
+		使用对象时，键是由 `<process.os>-<process.arch>` 值构成的平台标识符，值则是二进制文件的路径。
+		```json
+		{
+			"biome.lsp.bin": {
+				"darwin-arm64": "/path/to/biome",
+				"win32-x64": "/path/to/biome.exe"
+			}
+		}
+		```
+	</TabItem>
+</Tabs>
+
+你需要了解，`@biomejs/biome` 并不附带任何二进制文件。`@biomejs/biome/bin` 只是一个将操作委托给真正二进制文件的轻量包装器。你机器上安装的二进制文件取决于你操作系统的架构。
+
+这些二进制文件是以 `@biomejs/cli-*` 开头的包，可以在[此列表](https://www.npmjs.com/search?q=%40biomejs%2Fcli-*)中找到。因此，如果你指向的是通过 `npm` 安装的二进制文件，配置将类似下面这样：
+
+<Tabs>
+	<TabItem label="string">
+		```json
+		{
+			"biome.lsp.bin": "./node_modules/@biomejs/cli-linux-x64/biome"
+		}
+		```
+	</TabItem>
+	<TabItem label="object">
+
+		使用对象时，键是由 `<process.os>-<process.arch>` 值构成的平台标识符，值则是二进制文件的路径。
+		```json
+		{
+			"biome.lsp.bin": {
+				"darwin-arm64": "./node_modules/@biomejs/cli-darwin-arm64/biome",
+				"win32-x64": "./node_modules/@biomejs/cli-win32-x64/biome.exe"
+			}
+		}
+		```
+	</TabItem>
+</Tabs>
+
+### `biome.runFromTemporaryLocation`
+
+**默认值：** `true (windows), false (others)` | **作用范围：** `global`、`workspace`、`workspace folder`
+
+是否复制 Biome 二进制文件并从临时位置运行它。
+
+在 Windows 上，若有活动 LSP 会话正在运行时禁用此设置，你将无法更新 node modules 中的 Biome，因为操作系统会在二进制文件运行时锁定它。你需要先关闭 VS Code 再更新 Biome。
+
+### `biome.suggestInstallingGlobally`
+
+**默认值：** `true` | **作用范围：** `global`、`workspace`、`workspace folder`
+
+当需要全局安装 Biome 但在 `PATH` 中找不到时，该扩展会建议你安装它。
+
+此设置控制是否显示该建议弹窗。
+
+### `biome.lsp.trace.server`
+
+**默认值：** `off` | **作用范围：** `global`
+
+此设置用于设定 Biome LSP 跟踪的日志级别。可选值为 `off`、`messages`、`verbose`。当你遇到扩展方面的问题并希望与我们分享日志时，可以将此设置设为 `verbose`。
+
+### `biome.lsp.watcher.kind`
+
+<Aside type="caution" title="需要 Biome `2.4.0+`">
+
+此设置仅在使用 Biome `2.4.0` 或更高版本时生效；否则将被忽略。
+
+</Aside>
+
+**默认值：** `null` | **作用范围：** `global`、`workspace`、`workspace folder`
+
+控制 Biome 文件监视器的行为。默认情况下，Biome 会为当前操作系统选择最佳的监视器策略，但有时这可能引发一些问题，例如文件夹被锁定。
+
+该选项接受以下值：
+- `recommended`：默认选项，为当前平台选择最佳的监视器。
+- `polling`：使用轮询策略。
+- `none`：不启用监视器。监视器停用后，Biome 将不再记录文件的变更。这可能会影响某些依赖更新后类型或更新后路径的 Lint 规则。
+
+### `biome.lsp.watcher.pollingInterval`
+
+<Aside type="caution" title="需要 Biome `2.4.0+`">
+
+此设置仅在使用 Biome `2.4.0` 或更高版本时生效；否则将被忽略。
+
+</Aside>
+
+**默认值：** `null` | **作用范围：** `global`、`workspace`、`workspace folder`
+
+以毫秒为单位的轮询间隔。仅在使用 `polling` 监视器时适用。默认值为 `2000` 毫秒。
+
+## 故障排查
+
+有时你可能会遇到扩展的意外问题。这里有一些技巧，帮助你排查最常见的问题并重置扩展的状态。
+
+### 访问 LSP 跟踪
+
+如果你遇到扩展问题，我们可能会请你与我们分享 LSP 跟踪。你可以通过将 [`biome.lsp.trace.server`](#biomelsptrace_server) 设置为 `verbose`，然后重新触发导致问题的操作来实现。跟踪信息会显示在[输出](vscode://workbrench/panel)面板中，位于 `Biome LSP trace (xxx)` 下拉选项下。
+
+## 从 `2.x` 扩展迁移
+
+如果你正在从 `2.x` 扩展迁移，我们建议按以下确切顺序操作：
+1. 更新扩展
+2. 完全关闭编辑器。
+3. 打开任务管理器，确保终止所有名为 `biome` 的进程。
+4. 打开编辑器。
+
+这会清除可能仍连接到编辑器的旧守护进程连接，而这些连接无法被扩展正常关闭，从而在保存文件时导致一些错误的格式化。
+
+### 变更
+
+- `biome.lspBin` 设置已被弃用，改由 `biome.lsp.bin` 取代。它目前仍可工作，但我们建议你更新设置以使用新名称。
+- `biome.requireConfigFile` 已重命名为 `biome.requireConfiguration`。你应当现在就迁移该设置，因为**旧设置不再受支持**。

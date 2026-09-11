@@ -1,0 +1,82 @@
+---
+title: Linter 插件
+description: Biome Linter 插件的使用概览。
+anchors: ["restricting-plugins-to-specific-files","target-languages","plugin-api","register_diagnostic"]
+toc: [{"level":2,"text":"将插件限制到特定文件","id":"restricting-plugins-to-specific-files"},{"level":2,"text":"目标语言","id":"target-languages"},{"level":2,"text":"插件 API","id":"plugin-api"},{"level":3,"text":"registerdiagnostic()","id":"register_diagnostic"}]
+---
+import Code from "@/components/mdx/Code.astro";
+
+Biome Linter 支持 [GritQL](/reference/gritql/) 插件。插件可以匹配特定的代码模式、报告自定义的诊断信息，并建议可修复的重写。
+
+下面是一个插件示例，它会报告所有对 `Object.assign()` 的使用：
+
+<Code lang="grit" title="plugin.grit" code={"`$fn($args)` where {\n    $fn <: `Object.assign`,\n    register_diagnostic(\n        span = $fn,\n        message = \"Prefer object spread instead of `Object.assign()`\"\n    )\n}"} />
+
+你可以把 GritQL 片段放进项目里任意位置的文件中，但要注意使用 `.grit` 扩展名。然后，你只需通过以下配置将其作为插件启用：
+
+<Code lang="json" title="biome.json" code={"{\n    \"plugins\": [\"./path-to-plugin.grit\"]\n}"} />
+
+现在，该插件会在 Linter 运行的所有受支持文件上启用。你可以在运行 `biome lint` 或 `biome check` 时看到它的结果。例如：
+
+```text
+$ biome lint
+
+/packages/tailwindcss-config-analyzer/src/introspect.ts:12:17 plugin ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ Prefer object spread instead of `Object.assign()`
+
+    10 │ function createContextFromConfig(config: Partial<Config>) {
+    11 │        return createContext(
+  > 12 │                resolveConfig(Object.assign({}, DEFAULT_CONFIG, config)),
+       │                              ^^^^^^^^^^^^^
+    13 │        );
+    14 │ }
+```
+
+你可以用 `lint/plugin` 抑制注释来抑制插件的诊断信息。详情见[插件抑制](/analyzer/suppressions#plugin-suppressions)。
+
+插件也可以使用 `=>` 运算符建议代码重写：
+
+<Code lang="grit" title="no-console.grit" code={"`console.log($msg)` as $call where {\n    register_diagnostic(\n        span = $call,\n        message = \"Use console.info instead of console.log.\",\n        severity = \"warn\",\n        fix_kind = \"safe\"\n    ),\n    $call => `console.info($msg)`\n}"} />
+
+重写行为：
+
+- 不使用 `--write` 时，重写会作为建议显示，但不会应用。
+- 使用 `--write` 时，Biome 会应用标记为 `fix_kind = "safe"` 的插件重写。
+- 使用 `--write --unsafe` 时，Biome 也会应用不安全的插件重写。
+- 如果省略 `fix_kind`，该重写默认会被视为不安全。
+
+## 将插件限制到特定文件
+
+默认情况下，插件会在 Biome 处理的每个文件上运行。不过，你可以使用 `includes` 选项来限制插件可以或不可以运行的文件和目录。
+
+在以下示例中，第一个插件只在 `src/components/` 内的文件上运行。第二个插件在 `src/` 目录下所有扩展名为 `.ts` 的文件上运行，但排除了 `src/` 目录下以 `.test.ts` 结尾的文件：
+
+<Code lang="json" title="biome.json" code={"{\n    \"plugins\": [\n        {\n            \"path\": \"./react-plugin.grit\",\n            \"includes\": [\"src/components/**\"]\n        },\n        {\n            \"path\": \"./ts-only-plugin.grit\",\n            \"includes\": [\"src/**/*.ts\", \"!src/**/*.test.ts\"]\n        }\n    ]\n}"} />
+
+设置了 `includes` 时，插件只会在至少匹配一个正向模式、且没有被取反模式排除的文件上运行。模式遵循[glob 语法参考](/reference/configuration/#glob-syntax-reference)。
+
+## 目标语言
+
+GritQL 片段始终尝试与给定的_目标语言_进行匹配。如果没有指定目标语言，则默认为 JavaScript 或其某种上层语言。
+
+如果你想使用其他目标语言，必须显式指定。例如，下面是一个 CSS 插件，它会报告在允许的 `.color-*` 类之外设置颜色的任何选择器：
+
+<Code lang="grit" title="plugin.grit" code={"language css;\n\n`$selector { $props }` where {\n    $props <: contains `color: $color` as $rule,\n    not $selector <: r\"\\.color-.*\",\n    register_diagnostic(\n        span = $rule,\n        message = \"Don't set explicit colors. Use `.color-*` classes instead.\"\n    )\n}"} />
+
+Biome 目前支持 JavaScript、CSS 和 JSON 目标语言。
+
+## 插件 API
+
+除了 Grit 的[内置函数](https://docs.grit.io/language/functions#built-in-functions)之外，Biome 目前还支持一个额外的函数：
+
+### `register_diagnostic()`
+
+注册一条诊断信息，在模式匹配时报告。
+
+支持四个参数：
+
+- `span`（必填）：要附加诊断信息的语法节点。这通常是你在代码片段中匹配到的一个变量。
+- `message`（必填）：随诊断信息一起显示的消息。
+- `severity`：诊断信息的严重性等级。允许的值为：`hint`、`info`、`warn` 和 `error`。默认使用 `error`。
+- `fix_kind`：相关重写修复的安全性（`safe` 或 `unsafe`）。仅当模式也使用重写运算符（`=>`）时才相关。默认情况下，修复被视为不安全。

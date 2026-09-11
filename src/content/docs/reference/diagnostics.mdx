@@ -1,0 +1,273 @@
+---
+title: 诊断信息
+description: 了解 Biome 诊断信息的结构与内容。
+anchors: ["diagnostic-severity","fatal","error","warning","information","diagnostic-tags","verbose","internal","fixable","deprecated","diagnostic-category","diagnostic-location","diagnostic-advice"]
+toc: [{"level":2,"text":"诊断严重性等级","id":"diagnostic-severity"},{"level":3,"text":"致命","id":"fatal"},{"level":3,"text":"错误","id":"error"},{"level":3,"text":"警告","id":"warning"},{"level":3,"text":"信息","id":"information"},{"level":2,"text":"诊断标签","id":"diagnostic-tags"},{"level":3,"text":"详细","id":"verbose"},{"level":3,"text":"内部","id":"internal"},{"level":3,"text":"可修复","id":"fixable"},{"level":3,"text":"已弃用","id":"deprecated"},{"level":2,"text":"诊断类别","id":"diagnostic-category"},{"level":2,"text":"诊断位置","id":"diagnostic-location"},{"level":2,"text":"诊断建议","id":"diagnostic-advice"}]
+---
+import Diag from "@/components/mdx/Diag.astro";
+
+Biome 诊断信息以结构化格式解释错误、警告和其他事件。它们通常会提供你理解和解决问题所需的上下文。
+
+本页解释诊断信息的每个部分，以及如何解读它。
+
+## 诊断严重性等级
+
+一条诊断信息的严重性等级决定了 Biome 如何报告它，并可能影响 CLI。例如，一个错误会导致 CLI 以非零状态码退出。
+
+### 致命
+
+致命诊断信息使用红色文本，表示 Biome 内部发生了未预期的错误。与错误诊断信息不同，它们会包含 [fatal 标签](#diagnostic-tags)。
+
+<Diag label="FATAL">
+
+```text
+ FATAL  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This diagnostic message is displayed in a color that reflects its severity.
+  
+  ⚠ Biome exited as this error could not be handled and resulted in a fatal error. Please report it if necessary.
+```
+
+</Diag>
+
+### 错误
+
+错误诊断信息使用红色文本，通常都应处理。出现时，CLI 会失败并退出。
+
+<Diag label="ERROR">
+
+```text
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This diagnostic message is displayed in a color that reflects its severity.
+```
+
+</Diag>
+
+### 警告
+
+警告诊断信息使用黄色文本，通常都应处理。默认情况下，它们不会导致 CLI 失败。
+
+<Diag label="WARNING">
+
+```text
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⚠ This diagnostic message is displayed in a color that reflects its severity.
+```
+
+</Diag>
+
+### 信息
+
+信息类诊断使用绿色文本。它们提供有用的上下文，且不会导致 CLI 失败。
+
+<Diag label="INFORMATION">
+
+```text
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ℹ This diagnostic message is displayed in a color that reflects its severity.
+```
+
+</Diag>
+
+## 诊断标签
+
+标签是附加在诊断信息上的元数据。它们可以改变客户端显示或处理诊断信息的方式。
+
+### 详细
+
+{/* TODO: Add link to verbose flag after CLI page rework is merged */}
+详细诊断信息默认隐藏。要在 CLI 中显示它们，请传入 `--verbose` 选项。
+
+<Diag label="VERBOSE">
+
+```text
+ VERBOSE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This diagnostic message is displayed in a color that reflects its severity.
+```
+
+</Diag>
+
+### 内部
+
+内部诊断信息表示 Biome 内部发生了未预期的错误。如果你遇到一个，请 [在 GitHub 上提交错误报告](https://github.com/biomejs/biome/issues/new?template=03_bug.yml)。
+
+<Diag label="INTERNAL">
+
+```text
+ INTERNAL  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This diagnostic message is displayed in a color that reflects its severity.
+  
+  ⚠ This diagnostic was derived from an internal Biome error. Potential bug, please report it if necessary.
+```
+
+</Diag>
+
+### 可修复
+
+可修复诊断信息表示有一个可用的修复方案。它们常用于 lint 诊断信息，这类诊断会提供一个可供用户审阅并应用的代码操作。
+
+<Diag label="FIXABLE">
+
+```text
+ FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This diagnostic message is displayed in a color that reflects its severity.
+```
+
+</Diag>
+
+### 已弃用
+
+已弃用诊断信息用于标识已经过时、不应再使用的代码或配置。
+
+<Diag label="DEPRECATED">
+
+```text
+ DEPRECATED  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This diagnostic message is displayed in a color that reflects its severity.
+```
+
+</Diag>
+
+## 诊断类别
+
+诊断类别是一个用于标识所报告问题类型的标识符。它出现在诊断信息的头部，可以用来标识一个命令、子系统或规则。
+
+<Diag label="CATEGORY SIMPLE">
+
+```text
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This diagnostic message is displayed in a color that reflects its severity.
+```
+
+</Diag>
+
+某些类别还可以包含一个链接。例如，`lint/a11y/noAccessKey` 会链接到该 lint 规则的文档：
+
+<Diag label="CATEGORY LINK">
+
+```text
+lint/a11y/noAccessKey ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This diagnostic message is displayed in a color that reflects its severity.
+```
+
+</Diag>
+
+## 诊断位置
+
+一条诊断信息可以包含文件路径、源代码和一段高亮范围，用来显示问题发生的位置。每个部分都是可选的，因此 Biome 会显示所有可用的上下文。
+
+文件路径用于标识诊断信息所指向的文件，即使没有源代码或确切位置也可以：
+
+<Diag label="LOC FILE">
+
+```text
+path/to/file.js ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This diagnostic message is displayed in a color that reflects its severity.
+```
+
+</Diag>
+
+当有源代码和一段高亮范围时，Biome 会显示一个代码框架来指向相关文本。代码框架可以在没有文件路径的情况下出现，此时头部不包含行号和列号：
+
+<Diag label="LOC FRAME">
+
+```text
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This diagnostic message is displayed in a color that reflects its severity.
+  
+  > 1 │ Some source code
+      │      ^^^^^
+```
+
+</Diag>
+
+当三个部分都具备时，Biome 会在文件路径后加上高亮范围起始处的行号和列号：
+
+<Diag label="LOC ALL">
+
+```text
+path/to/file.txt:1:6 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This diagnostic message is displayed in a color that reflects its severity.
+  
+  > 1 │ Some source code
+      │      ^^^^^^
+```
+
+</Diag>
+
+一段高亮范围可以跨越多个行。在许多 IDE 内置的终端中，你可以点击诸如 `path/to/file.js:2:2` 这样的位置，来打开文件并把光标放到该范围的起始处：
+
+<Diag label="LOC MULTILINE">
+
+```text
+path/to/file.js:2:2 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This diagnostic message is displayed in a color that reflects its severity.
+  
+    1 │ function name() {
+  > 2 │ 	return 'lorem'
+      │ 	^^^^^^^^^^^^^^
+    3 │ }
+```
+
+</Diag>
+
+## 诊断建议
+
+诊断信息可以在主要消息之后包含建议。建议有多种形式，默认会显示。详细的建议只有在你传入 `--verbose` 选项时才会显示。
+
+<Diag label="WITH ADVICE">
+
+```text
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✖ This diagnostic message is displayed in a color that reflects its severity.
+  
+  ✖ An error message.
+  
+  ⚠ A warning message.
+  
+  ℹ An informational message.
+  
+  An unstyled message can introduce a command:
+  
+  $ biome command
+  
+  Messages can be grouped under a heading:
+  
+  Related information
+  
+    ℹ First message of a group.
+    
+    ℹ Second message of a group.
+    
+  Messages can also be displayed as a list:
+  
+  - First item
+  - Second item
+  
+  A diff can show a suggested change:
+  
+  - Old·code
+  + New·code
+  
+  A code frame can highlight a source range:
+  
+  > 1 │ Lorem
+      │ ^^^
+    2 │ Ipsum
+```
+
+</Diag>
