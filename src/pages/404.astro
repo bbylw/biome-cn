@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import Brand from '../components/Brand.astro';
+
+const QUICK = [
+  { href: '/guides/getting-started/', k: '入门指南', p: '安装、生成配置、跑第一条命令' },
+  { href: '/reference/cli/', k: '命令行接口', p: '命令与选项全表' },
+  { href: '/reference/configuration/', k: '配置选项', p: 'biome.json 的每一项' },
+  { href: '/linter/', k: 'Linter', p: '规则分组与修复方式' },
+];
+---
+<Base title="页面不存在 · Biome" path="/404/" noindex>
+  <main id="main" class="nf">
+    <div class="wrap nf__in">
+      <div class="nf__mark" aria-hidden="true"><Brand size={54} tone="ink" /></div>
+      <h1>这个路径下没有文档</h1>
+      <p class="nf__p">链接可能过期，或者你要找的是规则详情页。规则说明目前以上方英文站为准，站内提供规则来源对照表。</p>
+      <div class="nf__cta">
+        <a class="btn btn--primary" href="/guides/getting-started/">从入门指南开始</a>
+        <a class="btn btn--ghost" href="https://biomejs.dev/linter/rules/" rel="noopener">查规则详情页</a>
+      </div>
+      <ul class="nf__list">
+        {QUICK.map(q => <li><a href={q.href}><b>{q.k}</b><span>{q.p}</span></a></li>)}
+      </ul>
+    </div>
+  </main>
+</Base>
+
+<style>
+  .nf { min-height: 62vh; padding-block: clamp(48px, 9vw, 110px); }
+  .nf__in { max-width: 640px; }
+  .nf__mark { color: var(--line-2); margin-bottom: 22px; }
+  .nf h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -.03em; margin: 0 0 12px; }
+  .nf__p { color: var(--ink-2); margin: 0 0 24px; max-width: 46ch; }
+  .nf__cta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 38px; }
+  .nf__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-panel); overflow: hidden; }
+  .nf__list a { display: block; background: var(--surface); padding: 15px 17px; text-decoration: none; }
+  .nf__list b { display: block; font-family: var(--font-display); font-weight: 600; font-size: .95rem; }
+  .nf__list span { font-size: .82rem; color: var(--muted); }
+  @media (max-width: 560px) { .nf__list { grid-template-columns: minmax(0, 1fr); } }
+</style>

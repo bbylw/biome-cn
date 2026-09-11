@@ -1,0 +1,162 @@
+---
+import '@fontsource-variable/space-grotesk';
+import '@fontsource-variable/ibm-plex-sans';
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/500.css';
+import '@fontsource/jetbrains-mono/700.css';
+import '../styles/phosphor.css';
+import '../styles/global.css';
+import Brand from '../components/Brand.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  path?: string;
+  ogType?: string;
+  noindex?: boolean;
+}
+const {
+  title,
+  description = 'Biome 工具链的中文文档与入门指南：一条命令完成格式化、Lint 与整理导入，正文译自官方文档。',
+  path = '/',
+  ogType = 'website',
+  noindex = false,
+} = Astro.props;
+
+const SITE = 'https://biome.ndjp.net';
+const canonical = new URL(path, SITE).href;
+const current = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isHome = current === '/';
+
+const NAV = [
+  { href: '/guides/getting-started/', label: '文档' },
+  { href: '/reference/cli/', label: '命令行' },
+  { href: '/reference/configuration/', label: '配置' },
+  { href: '/internals/philosophy/', label: '项目理念' },
+];
+
+const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='152' viewBox='4.6 5 96.2 122.7'%3E%3Cpath d='M30 44.2L52.6 5H7.3zM4.6 88.5h45.3L27.2 49.4zm51 0l22.6 39.2 22.6-39.2z' fill='%23c160ef'/%3E%3Cpath d='M52.6 5L30 44.2h45.2zM27.2 49.4l22.7 39.1 22.6-39.1zm51 0L55.6 88.5h45.2z' fill='%23a60ee5'/%3E%3C/svg%3E";
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href={FAVICON} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#0a0e14" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f1f4f7" media="(prefers-color-scheme: light)" />
+    <meta property="og:site_name" content="Biome" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:image" content={`${SITE}/og.png`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <link rel="alternate" type="application/rss+xml" title="Biome 中文站更新" href="/rss.xml" />
+    <link rel="search" type="application/opensearchdescription+xml" title="Biome 中文站" href="/opensearch.xml" />
+    <script is:inline>
+      (() => {
+        const k = 'biome-cn:theme';
+        let t = null;
+        try { t = localStorage.getItem(k); } catch {}
+        const dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        const el = document.documentElement;
+        el.dataset.theme = dark ? 'dark' : 'light';
+        el.style.colorScheme = dark ? 'dark' : 'light';
+      })();
+    </script>
+  </head>
+  <body class={isHome ? 'page-home' : 'page-doc'}>
+    <a class="skip-link" href="#main">跳到正文</a>
+    <header class="mast">
+      <div class="wrap mast__in">
+        <a class="brand" href="/" aria-label="Biome 首页">
+          <Brand size={17} />
+          <span class="brand__word">Biome</span>
+        </a>
+        <nav class="mast__nav" aria-label="主导航">
+          {NAV.map(i => <a class="mast__link" href={i.href} aria-current={current.startsWith(i.href.replace(/\/$/, '')) ? 'page' : undefined}>{i.label}</a>)}
+          <button type="button" class="find__btn" data-find-open aria-haspopup="dialog">
+            <span class="ph ph-magnifying-glass" aria-hidden="true"></span>
+            <span>搜索文档</span>
+            <kbd>Ctrl K</kbd>
+          </button>
+          <a class="mast__link mast__link--desk" href="https://github.com/biomejs/biome" rel="noopener">GitHub</a>
+          <button type="button" class="iconbtn" data-theme-toggle aria-label="切换主题">
+            <span class="ph ph-sun i-sun" aria-hidden="true"></span>
+            <span class="ph ph-moon-stars i-moon" aria-hidden="true"></span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <div class="find" >
+      <div class="find__dlg" role="dialog" aria-modal="true" aria-label="站内搜索" hidden>
+        <label class="sr-only" for="find-input">搜索文档</label>
+        <input id="find-input" type="search" placeholder="输入命令、规则名或配置键，如 check、noDoubleEquals、indentStyle" autocomplete="off" />
+        <ul class="find__results"></ul>
+      </div>
+    </div>
+
+    <slot />
+
+    <footer class="footer">
+      <div class="wrap">
+        <div class="footer__grid">
+          <div>
+            <a class="brand" href="/" style="margin-bottom:10px">
+              <Brand size={19} />
+              <span class="brand__word">Biome</span>
+            </a>
+            <p class="footer__note">Web 工具链：格式化、Lint、整理导入、CI 检查，由 Rust 编写，同一套解析器供给三条通道。</p>
+          </div>
+          <div>
+            <h2>文档</h2>
+            <ul>
+              <li><a href="/guides/getting-started/">入门指南</a></li>
+              <li><a href="/guides/migrate-eslint-prettier/">从 ESLint 和 Prettier 迁移</a></li>
+              <li><a href="/formatter/">格式化器</a></li>
+              <li><a href="/linter/">Linter</a></li>
+              <li><a href="/assist/">Assist 辅助操作</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>参考</h2>
+            <ul>
+              <li><a href="/reference/cli/">命令行接口</a></li>
+              <li><a href="/reference/configuration/">配置选项</a></li>
+              <li><a href="/reference/diagnostics/">诊断信息</a></li>
+              <li><a href="/editors/introduction/">编辑器集成</a></li>
+              <li><a href="/recipes/continuous-integration/">持续集成配方</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>上游项目</h2>
+            <ul>
+              <li><a href="https://biomejs.dev/" rel="noopener">官方网站</a></li>
+              <li><a href="https://github.com/biomejs/biome" rel="noopener">GitHub 仓库</a></li>
+              <li><a href="https://biomejs.dev/playground/" rel="noopener">Playground</a></li>
+              <li><a href="https://biomejs.dev/chat/" rel="noopener">Discord 社区</a></li>
+              <li><a href="https://www.npmjs.com/package/@biomejs/biome" rel="noopener">npm 包</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer__bar">
+          <span>本站是社区中文站，与 Biome 团队无隶属关系。</span>
+          <span>正文译自 <a href="https://github.com/biomejs/website" rel="noopener">biomejs/website</a>，按 MIT 与 Apache-2.0 许可使用。</span>
+          <span>译文基于 Biome 2.5.13 的官方文档。</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="../scripts/docs.js"></script>
+  </body>
+</html>

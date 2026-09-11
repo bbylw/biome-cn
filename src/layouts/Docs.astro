@@ -1,0 +1,84 @@
+---
+import Base from './Base.astro';
+import { GROUPS, ORDER, routeOf, groupOf } from '../lib/nav.mjs';
+
+interface TocItem { level: number; text: string; id: string }
+interface Props {
+  title: string;
+  description?: string;
+  id: string;
+  titles: Record<string, string>;
+  toc?: TocItem[];
+  headings?: TocItem[];
+}
+const { title, description = '', id, titles, toc = [] } = Astro.props;
+const path = routeOf(id);
+const idx = ORDER.indexOf(id);
+const prev = idx > 0 ? ORDER[idx - 1] : null;
+const next = idx >= 0 && idx < ORDER.length - 1 ? ORDER[idx + 1] : null;
+const upstream = `https://github.com/biomejs/website/blob/main/src/content/docs/en/${id}.mdx`;
+const showToc = toc.filter(t => t.level <= 3);
+---
+<Base title={`${title} · Biome`} description={description} path={path}>
+  <div class="wrap">
+    <div class="doc">
+      <nav class="rail rail--side" id="doc-rail" aria-label="文档目录">
+        {GROUPS.map(g => (
+          <div class="rail__grp">
+            <h2 class="rail__title">{g.title}</h2>
+            <ul>
+              {g.ids.map(i => (
+                <li>
+                  <a href={routeOf(i)} aria-current={i === id ? 'true' : undefined}>{titles[i] ?? i}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+
+      <article class="doc-main">
+        <div class="docbar">
+          <button type="button" class="iconbtn menu-btn" data-rail-toggle aria-controls="doc-rail" aria-expanded="false" aria-label="打开文档目录">
+            <span class="ph ph-list" aria-hidden="true"></span>
+          </button>
+          <nav class="crumb" aria-label="面包屑">
+            <a href="/">首页</a><span aria-hidden="true">/</span>
+            <a href="/guides/getting-started/">文档</a><span aria-hidden="true">/</span>
+            <span>{groupOf(id)}</span>
+          </nav>
+        </div>
+
+        <div class="prose">
+          <h1>{title}</h1>
+          {description && <p class="lede">{description}</p>}
+          <slot />
+        </div>
+
+        <nav class="pager" aria-label="相邻文档">
+          {prev && <a href={routeOf(prev)}><span class="k">上一篇</span><span class="t">{titles[prev]}</span></a>}
+          {next && <a class="next" href={routeOf(next)}><span class="k">下一篇</span><span class="t">{titles[next]}</span></a>}
+        </nav>
+
+        <div class="docfoot">
+          <a href={upstream} rel="noopener">查看英文原文</a>
+          <a href="https://github.com/biomejs/website" rel="noopener">译文来源：biomejs/website</a>
+          <a href="/guides/getting-started/">回到入门指南</a>
+        </div>
+      </article>
+
+      {showToc.length > 1 && (
+        <nav class="rail rail--toc" aria-label="本页目录">
+          <h2 class="rail__title">本页目录</h2>
+          <ul>
+            {showToc.map(t => (
+              <li class={t.level === 3 ? 'lvl3' : undefined}>
+                <a href={`#${t.id}`}>{t.text}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+    </div>
+  </div>
+</Base>

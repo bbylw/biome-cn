@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+  <ShortName>Biome 中文站文档</ShortName>
+  <Description>搜索 Biome 中文文档：命令、配置项、规则与配方</Description>
+  <Language>zh-CN</Language>
+  <Url type="text/html" template="https://biome.ndjp.net/guides/getting-started/?q={searchTerms}" />
+</OpenSearchDescription>
