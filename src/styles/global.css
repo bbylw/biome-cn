@@ -646,20 +646,28 @@ html:not(.js) .tabs__list { display: none; }
 .hero__say { align-self: start; margin: 0; }
 .hero__art { align-self: start; }
 .hero__lede { font-size: clamp(1rem, 1.25vw, 1.08rem); color: var(--ink-2); max-width: 40ch; margin: 0 0 24px; }
-/* 数据带：把导语里的关键指标抽成一行四格，用发丝线分隔。
-   等宽大数字 + 灰色小标，与右栏断面图同一套工程图刻度语言。 */
+/* 数据带：把导语里的关键指标抽成一行四格。
+   去面板化：不再加第二个框（下方安装条已是唯一的重框），
+   而是一条上缘发丝线作「尺身」，每格压一枚紫色短刻度——
+   与右栏断面图的工程刻度同一套语言。 */
 .hero__stats {
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
-  border: 1px solid var(--line); background: var(--surface);
-  margin: 2px 0 22px; max-width: 32rem;
+  border-top: 1px solid var(--line);
+  margin: 28px 0 26px; max-width: 32rem;
 }
 .stat {
-  display: flex; flex-direction: column; gap: 4px; padding: 12px 14px;
-  border-left: 1px solid var(--line);
+  position: relative;
+  display: flex; flex-direction: column; gap: 5px;
+  padding: 13px 14px 0 0;
 }
-.stat:first-child { border-left: 0; }
+/* 短刻度：top -2px 高 3px，正好骑在尺身上，像在尺子上做的标记 */
+.stat::before {
+  content: ''; position: absolute; top: -2px; left: 0;
+  width: 24px; height: 3px; background: var(--brand);
+}
+.stat + .stat { padding-left: 15px; border-left: 1px solid var(--line); }
 .stat__n {
-  font-family: var(--font-mono); font-size: 1.35rem; font-weight: 500;
+  font-family: var(--font-mono); font-size: 1.5rem; font-weight: 500;
   line-height: 1; letter-spacing: -.02em; color: var(--brand);
   font-variant-numeric: tabular-nums;
 }
@@ -669,15 +677,19 @@ html:not(.js) .tabs__list { display: none; }
 }
 @media (max-width: 640px) {
   .hero__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; }
-  .stat:nth-child(3) { border-left: 0; }
-  .stat { border-top: 1px solid var(--line); }
-  .stat:first-child, .stat:nth-child(2) { border-top: 0; }
+  .stat { padding-bottom: 14px; }
+  .stat:nth-child(2n + 1) { border-left: 0; padding-left: 0; }
+  .stat:nth-child(n + 3) { border-top: 1px solid var(--line); }
 }
-@media (max-width: 380px) { .hero__stats { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 380px) {
+  .hero__stats { grid-template-columns: minmax(0, 1fr); }
+  .stat:nth-child(n + 2) { border-left: 0; padding-left: 0; }
+}
 .hero__cta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 
-/* 一键安装：复用终端配色（恒深底），无输出体时去掉标题栏下边框 */
-.hero__install { margin-top: 20px; max-width: 34rem; }
+/* 一键安装：复用终端配色（恒深底），无输出体时去掉标题栏下边框。
+   宽度与上方数据带同为 32rem，左栏内容共用一条右缘。 */
+.hero__install { margin-top: 24px; max-width: 32rem; }
 .term--bare .term__bar { border-bottom: 0; }
 .term--bare .term__cmd { padding-block: 3px; }
 /* 安装命令必须实色：.term__cmd 默认是 66% 墨色（终端次要信息），
@@ -720,7 +732,8 @@ html:not(.js) .tabs__list { display: none; }
 
 @media (max-width: 1024px) {
   .hero__body { grid-template-columns: minmax(0, 1fr); gap: 34px; align-items: start; }
-  .hero__title { max-width: none; }
+  /* 标题保留 7em 限宽：中屏一行放下时「跑完格式化」会连读产生歧义，
+     断行策略与桌面保持一致（一条命令，跑完 / 格式化与 Lint）。 */
   /* 单栏堆叠时不再需要补偿双栏的基线差 */
   .hero__art { transform: none; }
 }
