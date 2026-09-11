@@ -1,0 +1,13 @@
+---
+/**
+ * 与官方同名同参的 Tabs 容器。
+ * 标签列表由 src/scripts/docs.js 在客户端从 data-label 生成；
+ * 无 JS 时所有面板按顺序展开并各带一行标签名（CSS 负责）。
+ */
+interface Props { syncKey?: string; label?: string }
+const { syncKey, label } = Astro.props;
+---
+<div class:list={['tabs', { 'tabs--inline': !syncKey }]} data-tabs={syncKey ?? ''} aria-label={label ?? '代码示例'}>
+  <ul class="tabs__list" role="tablist"></ul>
+  <div class="tabs__body"><slot /></div>
+</div>

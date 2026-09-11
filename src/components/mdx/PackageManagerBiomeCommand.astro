@@ -1,0 +1,12 @@
+---
+import Tabs from './Tabs.astro';
+import TabItem from './TabItem.astro';
+import Code from './Code.astro';
+import { biomeTabs } from '@/lib/pm.mjs';
+
+interface Props { command: string }
+const tabs = biomeTabs(Astro.props.command);
+---
+<Tabs syncKey="command">
+  {tabs.map(t => <TabItem label={t.pm}><Code code={t.code} lang="bash" frame="none" showLineNumbers={false} /></TabItem>)}
+</Tabs>

@@ -1,0 +1,40 @@
+---
+/**
+ * 真实终端输出：在 Biome 2.5.13 上对一个含问题的 TypeScript 文件跑
+ * `biome check` 得到的结果（节选，省略两处 diff 正文）。
+ * 颜色只是终端配色的近似，文字一字未改。
+ * 模板里有 JS 花括号（import { z }），因此正文放成字符串用 set:html 注入。
+ */
+const TRANSCRIPT = [
+  '<span class="t-rule">src\\app.ts:1:1 assist/source/organizeImports  FIXABLE</span>  <span class="t-dim">━━━━━━━━━</span>',
+  '  <span class="t-x">×</span> Sort these imports.',
+  '',
+  '  &gt; 1 │ import { z } from "zod";',
+  '      │ <span class="t-x">^^^^^^^^^^^^^^^^^^^^^^^^</span>',
+  '  &gt; 2 │ import express from "express";',
+  '      │ <span class="t-x">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>',
+  '  <span class="t-ok">i Safe fix: Organize imports and exports (Biome)</span>',
+  '  <span class="t-dim">… diff 正文省略</span>',
+  '',
+  '<span class="t-rule">src\\app.ts:8:12 lint/suspicious/noDoubleEquals  FIXABLE</span>  <span class="t-dim">━━━━</span>',
+  '  <span class="t-x">×</span> Using == may be unsafe if you are relying on type coercion.',
+  '',
+  '     7 │   var port = opts.port',
+  '   &gt; 8 │   if (port == 3000) {',
+  '       │            <span class="t-x">^^</span>',
+  '  <span class="t-dim">… diff 正文省略</span>',
+  '',
+  '<span class="t-rule">src\\app.ts format</span>  <span class="t-dim">━━━━━━━━━━━━━━</span>',
+  '  <span class="t-x">×</span> Formatter would have printed the following content:',
+  '',
+  'Checked 1 file in 10ms. No fixes applied.',
+  'Found <span class="t-x">3 errors</span>.',
+].join('\n');
+---
+<div class="term" data-term>
+  <div class="term__bar">
+    <span class="term__cmd"><b>$</b> npx @biomejs/biome check ./src</span>
+  </div>
+  <pre><code set:html={TRANSCRIPT} /></pre>
+  <p class="term__cap">同一个文件，一条命令同时给出格式问题、Lint 问题与安全修复建议。</p>
+</div>

@@ -1,0 +1,6 @@
+---
+interface Props { label: string; icon?: string }
+const { label } = Astro.props;
+const id = 'p-' + label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+---
+<div class="tabs__panel" data-label={label} role="tabpanel" id={id} tabindex="0"><slot /></div>

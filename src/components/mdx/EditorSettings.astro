@@ -1,0 +1,27 @@
+---
+import Tabs from './Tabs.astro';
+import TabItem from './TabItem.astro';
+import Code from './Code.astro';
+
+/** 指向非根目录 biome.json 的编辑器设置（官方 EditorSettings 的字符串化 props 版本） */
+interface Props { zedName?: string; zedValue?: string; vsName?: string; vsValue?: string }
+const { zedName = 'configuration_path', zedValue = '"./biome.json"', vsName = 'configurationPath', vsValue = '"./biome.json"' } = Astro.props;
+const zedCode = `{
+  "lsp": {
+    "biome": {
+      "settings": {
+         "${zedName}": ${zedValue}
+      }
+    }
+  }
+}`;
+const vsCode = `{
+  "biome.lsp": {
+    "${vsName}": ${vsValue}
+  }
+}`;
+---
+<Tabs syncKey="action">
+  <TabItem label="Zed"><Code title=".zed/settings.json" code={zedCode} lang="json" /></TabItem>
+  <TabItem label="VS Code"><Code title=".vscode/settings.json" code={vsCode} lang="json" /></TabItem>
+</Tabs>

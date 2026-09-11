@@ -1,0 +1,12 @@
+---
+/** Biome 诊断信息样例（reference/diagnostics 的官方生成块） */
+interface Props { label: string }
+const { label } = Astro.props;
+---
+<div class="diag" data-sev={label}>
+  <div class="diag__head">
+    <span class="diag__sev">{label}</span>
+    <span class="diag__hint">官方生成的诊断输出样例</span>
+  </div>
+  <slot />
+</div>

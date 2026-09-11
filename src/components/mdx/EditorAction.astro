@@ -1,0 +1,26 @@
+---
+import Tabs from './Tabs.astro';
+import TabItem from './TabItem.astro';
+import Code from './Code.astro';
+
+/** 编辑器「保存时执行代码操作」配置，与官方 EditorAction 输出同构 */
+interface Props { action: string; off?: boolean; includeFixAll?: boolean }
+const { action, off = false, includeFixAll = false } = Astro.props;
+const yes = off === true ? 'false' : 'true';
+const fixAllJson = includeFixAll ? `\n    "source.fixAll.biome": true` : '';
+const fixAllVs = includeFixAll ? `\n    "source.fixAll.biome": "explicit"` : '';
+const zedCode = `{
+  "code_actions_on_format": {
+    "${action}": ${yes},${fixAllJson}
+  }
+}`;
+const vscodeCode = `{
+  "editor.codeActionsOnSave": {
+    "${action}": ${off === true ? '"never"' : '"explicit"'},${fixAllVs}
+  }
+}`;
+---
+<Tabs syncKey="action">
+  <TabItem label="VS Code"><Code title=".vscode/settings.json" code={vscodeCode} lang="json" ins={3} /></TabItem>
+  <TabItem label="Zed"><Code title=".zed/settings.json" code={zedCode} lang="json" ins={3} /></TabItem>
+</Tabs>

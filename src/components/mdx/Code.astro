@@ -1,0 +1,21 @@
+---
+import { highlight } from '@/lib/highlight.mjs';
+
+interface Props {
+  code?: string;
+  lang?: string;
+  title?: string;
+  ins?: number | string;
+  mark?: string[];
+  frame?: string;
+  showLineNumbers?: boolean;
+}
+const { code = '', lang = 'text', title, ins } = Astro.props;
+const html = await highlight(code, lang, { title, ins });
+---
+<div class="codeblock">
+  <Fragment set:html={html} />
+  <button type="button" class="code-copy" data-copy aria-label="复制代码" title="复制代码">
+    <span class="ph ph-copy" aria-hidden="true"></span>
+  </button>
+</div>

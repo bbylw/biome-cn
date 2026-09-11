@@ -1,0 +1,5 @@
+---
+interface Props { type?: string; text?: string }
+const { type } = Astro.props;
+---
+<span class:list={['badge', type && `badge--${type}`]}><slot /></span>

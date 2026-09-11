@@ -1,0 +1,15 @@
+---
+/**
+ * Biome 官方标识（双三角咬合，取自 biomejs/resources 的 logo 几何）。
+ * 默认用品牌原色；tone="ink" 时跟随主题色，用于水印等低对比场景。
+ */
+interface Props { size?: string | number; tone?: 'brand' | 'ink'; class?: string }
+const { size = 22, tone = 'brand', class: extra = '' } = Astro.props;
+const w = Number(size);
+const c1 = tone === 'brand' ? '#c160ef' : 'currentColor';
+const c2 = tone === 'brand' ? '#a60ee5' : 'currentColor';
+---
+<svg class={`brand__mark ${extra}`} width={w} height={w * 1.27} viewBox="4.6 5 96.2 122.7" aria-hidden="true" focusable="false">
+  <path d="M30 44.2L52.6 5H7.3zM4.6 88.5h45.3L27.2 49.4zm51 0l22.6 39.2 22.6-39.2z" fill={c1} />
+  <path d="M52.6 5L30 44.2h45.2zM27.2 49.4l22.7 39.1 22.6-39.1zm51 0L55.6 88.5h45.2z" fill={c2} />
+</svg>

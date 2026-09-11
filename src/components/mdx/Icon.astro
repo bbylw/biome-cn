@@ -1,0 +1,46 @@
+---
+/**
+ * 官方 Starlight 图标名 → Phosphor（全站只用一个图标家族）。
+ * label 是官方规则表里的英文说明，这里映射成中文供 tooltip 与 aria 使用。
+ */
+interface Props { name?: string; label?: string; size?: string }
+const { name = '', label, size } = Astro.props;
+
+const GLYPH: Record<string, string> = {
+  'seti:config': 'ph-wrench',
+  'config': 'ph-wrench',
+  'warning': 'ph-warning',
+  'moon': 'ph-moon',
+  'approve-check-circle': 'ph-check-circle',
+  'rocket': 'ph-lightning',
+  'pencil': 'ph-pencil-simple',
+  'random': 'ph-arrows-clockwise',
+  'information': 'ph-info',
+  'magnifier': 'ph-magnifying-glass',
+  'external': 'ph-arrow-right',
+  'left-arrow': 'ph-arrow-left',
+  'right-arrow': 'ph-arrow-right',
+  'seti:npm': 'ph-package',
+  'seti:yarn': 'ph-package',
+  'pnpm': 'ph-package',
+  'bun': 'ph-package',
+  'deno': 'ph-package',
+  'vscode': 'ph-code',
+  'zed': 'ph-code',
+};
+const LABELS: Record<string, string> = {
+  'The rule has a safe fix': '该规则有安全修复',
+  'The rule has an unsafe fix': '该规则有不安全修复',
+  'This rule is not released yet': '该规则尚未发布',
+  'This rule is recommended': '该规则属于推荐预设',
+};
+const glyph = GLYPH[name] ?? 'ph-circle';
+const text = label ? (LABELS[label] ?? label) : '';
+---
+<span
+  class:list={['ph', glyph, { 'icon-only': !text }]}
+  style={size ? `font-size:${size}` : undefined}
+  aria-hidden={text ? undefined : 'true'}
+  aria-label={text || undefined}
+  title={text || undefined}
+></span>

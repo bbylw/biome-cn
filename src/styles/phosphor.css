@@ -1,0 +1,46 @@
+/* 自动生成，勿手改：node scripts/gen-icons.mjs */
+@font-face {
+  font-family: "Phosphor";
+  src: url("/fonts/Phosphor-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+.ph {
+  font-family: "Phosphor" !important;
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}
+.ph-arrow-left:before { content: "\e058"; }
+.ph-arrow-right:before { content: "\e06c"; }
+.ph-brackets-curly:before { content: "\e860"; }
+.ph-check:before { content: "\e182"; }
+.ph-check-circle:before { content: "\e184"; }
+.ph-circle:before { content: "\e18a"; }
+.ph-code:before { content: "\e1bc"; }
+.ph-copy:before { content: "\e1ca"; }
+.ph-file-code:before { content: "\e914"; }
+.ph-gear:before { content: "\e270"; }
+.ph-git-branch:before { content: "\e278"; }
+.ph-info:before { content: "\e2ce"; }
+.ph-keyboard:before { content: "\e2d8"; }
+.ph-lightning:before { content: "\e2de"; }
+.ph-list:before { content: "\e2f0"; }
+.ph-magnifying-glass:before { content: "\e30c"; }
+.ph-moon:before { content: "\e330"; }
+.ph-moon-stars:before { content: "\e58e"; }
+.ph-package:before { content: "\e390"; }
+.ph-pencil-simple:before { content: "\e3b4"; }
+.ph-sun:before { content: "\e472"; }
+.ph-terminal-window:before { content: "\eae8"; }
+.ph-warning:before { content: "\e4e0"; }
+.ph-wrench:before { content: "\e5d4"; }
+.ph-arrows-clockwise:before { content: "\e094"; }

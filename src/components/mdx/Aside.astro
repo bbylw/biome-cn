@@ -1,0 +1,10 @@
+---
+interface Props { type?: string; title?: string }
+const { type = 'note', title } = Astro.props;
+const kind = ['note', 'tip', 'caution', 'danger'].includes(type) ? type : 'note';
+const label = title ?? { note: '备注', tip: '提示', caution: '注意', danger: '警告' }[kind];
+---
+<aside class:list={['aside', `aside--${kind}`]}>
+  <span class="aside__label">{label}</span>
+  <div class="aside__body"><slot /></div>
+</aside>

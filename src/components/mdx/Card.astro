@@ -1,0 +1,30 @@
+---
+interface Props { title?: string; icon?: string; href?: string }
+const { title, icon, href } = Astro.props;
+const inner = <>
+  {icon && <span class={ICON(icon)} aria-hidden="true"></span>}
+  {title && <h4>{title}</h4>}
+  <slot />
+</>;
+function ICON(name: string) {
+  return 'ph ' + (MAP[name] ?? MAP['circle']);
+}
+const MAP: Record<string, string> = {
+  rocket: 'ph-lightning',
+  pencil: 'ph-pencil-simple',
+  random: 'ph-arrows-clockwise',
+  information: 'ph-info',
+  'magnifier': 'ph-magnifying-glass',
+  'code': 'ph-code',
+  'brackets': 'ph-brackets-curly',
+  'keyboard': 'ph-keyboard',
+  'config': 'ph-gear',
+  'package': 'ph-package',
+  'terminal': 'ph-terminal-window',
+  'git': 'ph-git-branch',
+  circle: 'ph-circle',
+};
+---
+{href
+  ? <a class="card" href={href}>{inner}</a>
+  : <div class="card">{inner}</div>}

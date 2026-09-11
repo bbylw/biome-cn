@@ -1,0 +1,80 @@
+---
+/**
+ * 首页核心产品视觉：Biome 工具链断面图。
+ * 纯代码绘制（可随主题与尺寸缩放），几何与文案对应真实产品结构：
+ * 一组源文件 → 共享基座（一个解析器 / CST / 缓存 / 并行）→ 三条通道 → 三类结果。
+ * 通道分色与 --lane-* 令牌一致；渐变浓度用令牌，明暗双主题分别调校。
+ */
+const FILES = ['.ts', '.tsx', '.js', '.css', '.json', '.md'];
+const LANES = [
+  { key: 'fmt', name: '格式化', note: '97% 兼容 Prettier' },
+  { key: 'lint', name: 'Lint', note: '545 条规则' },
+  { key: 'assist', name: 'Assist', note: '10 项辅助操作' },
+];
+const OUTS = ['风格统一', '带修复建议的诊断', '导入已排序'];
+const W = 188, GAP = 38;
+const x = (i: number) => i * (W + GAP);
+---
+<svg class="pipeline" viewBox="0 0 640 452" role="img" aria-label="Biome 工具链断面：源文件进入共享基座，再分化为格式化、Lint、Assist 三条通道，产出统一风格、诊断信息与已排序导入">
+  <defs>
+    <linearGradient id="plBase" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--glow-1)" stop-opacity="var(--pl-base-a)" />
+      <stop offset="1" stop-color="var(--glow-2)" stop-opacity="var(--pl-base-b)" />
+    </linearGradient>
+    <pattern id="plFacet" width="34" height="42" patternUnits="userSpaceOnUse" patternTransform="rotate(0)">
+      <path d="M17 0L34 30H0z" fill="var(--pl-facet)" />
+      <path d="M17 42L0 12h34z" fill="none" stroke="var(--pl-facet-line)" stroke-width="1" />
+    </pattern>
+  </defs>
+
+  <!-- 源文件 -->
+  {FILES.map((f, i) => (
+    <g transform={`translate(${56 + i * 90} 8)`}>
+      <rect class="pl-node" width="78" height="34" rx="8" />
+      <text x="39" y="22" text-anchor="middle" font-size="14.5">{f}</text>
+    </g>
+  ))}
+  {FILES.map((_, i) => (
+    <path class="pl-flow pl-converge" d={`M${95 + i * 90} 42 C ${95 + i * 90} 70, 320 66, 320 96`} fill="none" stroke="var(--line-2)" stroke-width="1.4" />
+  ))}
+
+  <!-- 共享基座 -->
+  <g>
+    <rect x="0" y="98" width="640" height="76" rx="12" fill="url(#plBase)" />
+    <rect x="0" y="98" width="640" height="76" rx="12" class="pl-base" opacity=".62" />
+    <rect x="0" y="98" width="640" height="76" rx="12" fill="url(#plFacet)" opacity="var(--pl-facet-opacity)" />
+    <text class="pl-strong" x="24" y="130" font-size="17.5">共享基座</text>
+    <text x="24" y="153" font-size="14">一个解析器 · 具体语法树（CST）· 全保真源文本 · 并行与缓存</text>
+  </g>
+
+  <!-- 三条通道 -->
+  {LANES.map((l, i) => (
+    <g transform={`translate(${x(i)} 210)`}>
+      <path class="pl-flow" d={`M${W / 2} -36 V 0`} fill="none" stroke={`var(--lane-${l.key})`} stroke-width="1.6" />
+      <rect class={`pl-lane-${l.key}`} width={W} height="84" rx="12" fill="var(--surface)" stroke-width="1.4" />
+      <text class="pl-strong" x="20" y="35" font-size="18.5">{l.name}</text>
+      <text x="20" y="59" font-size="14">{l.note}</text>
+      <rect class={`pl-fill-${l.key}`} x="20" y="70" width="34" height="3" rx="1.5" opacity=".9" />
+    </g>
+  ))}
+
+  <!-- 结果 -->
+  {OUTS.map((o, i) => (
+    <g transform={`translate(${x(i)} 326)`}>
+      <path class="pl-flow" d={`M${W / 2} -16 V 0`} fill="none" stroke="var(--line-2)" stroke-width="1.4" />
+      <rect width={W} height="42" rx="9" fill="var(--surface-2)" stroke="var(--line)" />
+      <text x={W / 2} y="26" text-anchor="middle" font-size="14.5">{o}</text>
+    </g>
+  ))}
+
+  <!-- 一条命令 -->
+  <g>
+    <rect x="140" y="392" width="360" height="42" rx="21" fill="var(--term-bg)" />
+    <text x="168" y="418" font-size="15.5" fill="var(--term-accent)" font-family="var(--font-mono)">$ biome check --write ./src</text>
+  </g>
+</svg>
+
+<style>
+  .pipeline { --pl-base-a: .16; --pl-base-b: .16; --pl-facet: var(--brand-1); --pl-facet-line: var(--brand-2); --pl-facet-opacity: .045; }
+  :global(html[data-theme='dark']) .pipeline { --pl-base-a: .22; --pl-base-b: .22; --pl-facet-opacity: .1; }
+</style>
