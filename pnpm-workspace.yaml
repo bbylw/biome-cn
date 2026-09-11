@@ -1,2 +1,4 @@
-onlyBuiltDependencies:
-  - esbuild
+# pnpm 12 起改用 allowBuilds 映射；旧的 onlyBuiltDependencies 已不被读取，
+# 写错会让 CI 的 pnpm install 直接以 ERR_PNPM_IGNORED_BUILDS 失败（本地只是警告）。
+allowBuilds:
+  esbuild: true
