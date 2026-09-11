@@ -1,81 +1,105 @@
 ---
 /**
- * 首页核心产品视觉：Biome 工具链断面图。
+ * 首页核心产品视觉：Biome 工具链示意图（工程图风格，直角 + 发丝线 + 等宽标注）。
  * 纯代码绘制（可随主题与尺寸缩放），几何与文案对应真实产品结构：
  * 一组源文件 → 共享基座（一个解析器 / CST / 缓存 / 并行）→ 三条通道 → 三类结果。
- * 通道分色与 --lane-* 令牌一致；渐变浓度用令牌，明暗双主题分别调校。
+ * 通道只用一个色相的三个浓度编码次序，不引入第二、第三个色相。
+ * 每条通道是一个可点击的链接，直达对应文档；悬停时其余通道淡化。
+ * 汇流母线的圆点是原理图焊点语言：线在此交汇，不断即连。
  */
 const FILES = ['.ts', '.tsx', '.js', '.css', '.json', '.md'];
 const LANES = [
-  { key: 'fmt', name: '格式化', note: '97% 兼容 Prettier' },
-  { key: 'lint', name: 'Lint', note: '545 条规则' },
-  { key: 'assist', name: 'Assist', note: '10 项辅助操作' },
+  { key: 'fmt', no: '02', en: 'FORMAT', name: '格式化', note: '97% 兼容 Prettier', cmd: 'biome format --write', href: '/formatter/', label: '格式化文档：97% 兼容 Prettier' },
+  { key: 'lint', no: '03', en: 'LINT', name: 'Lint', note: '545 条规则', cmd: 'biome lint --write', href: '/linter/', label: 'Linter 文档：545 条规则' },
+  { key: 'assist', no: '04', en: 'ASSIST', name: 'Assist', note: '10 项辅助操作', cmd: 'biome check --write', href: '/assist/', label: 'Assist 文档：10 项辅助操作' },
 ];
-const OUTS = ['风格统一', '带修复建议的诊断', '导入已排序'];
-const W = 188, GAP = 38;
-const x = (i: number) => i * (W + GAP);
+const OUTS = [
+  { key: 'fmt', text: '风格统一' },
+  { key: 'lint', text: '带修复建议的诊断' },
+  { key: 'assist', text: '导入已排序' },
+];
+
+const CHIP_W = 88, CHIP_GAP = 22, CHIP_X = 11;
+const BOX_W = 196, BOX_GAP = 36, BOX_H = 124;
+const x = (i: number) => i * (BOX_W + BOX_GAP);
+const chipX = (i: number) => CHIP_X + i * (CHIP_W + CHIP_GAP);
+const dotX = (i: number) => chipX(i) + CHIP_W / 2;
 ---
-<svg class="pipeline" viewBox="0 0 640 452" role="img" aria-label="Biome 工具链断面：源文件进入共享基座，再分化为格式化、Lint、Assist 三条通道，产出统一风格、诊断信息与已排序导入">
+<svg class="pipeline" viewBox="0 0 660 394" role="img" aria-label="Biome 工具链示意：源文件进入共享基座，再分化为格式化、Lint、Assist 三条通道，产出统一风格、诊断信息与已排序导入">
+  <title>Biome 工具链断面图</title>
   <defs>
     <linearGradient id="plBase" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="var(--glow-1)" stop-opacity="var(--pl-base-a)" />
       <stop offset="1" stop-color="var(--glow-2)" stop-opacity="var(--pl-base-b)" />
     </linearGradient>
-    <pattern id="plFacet" width="34" height="42" patternUnits="userSpaceOnUse" patternTransform="rotate(0)">
-      <path d="M17 0L34 30H0z" fill="var(--pl-facet)" />
-      <path d="M17 42L0 12h34z" fill="none" stroke="var(--pl-facet-line)" stroke-width="1" />
+    <pattern id="plFacet" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <path d="M0 0V8" stroke="var(--pl-facet-line)" stroke-width="1" />
     </pattern>
   </defs>
 
   <!-- 源文件 -->
   {FILES.map((f, i) => (
-    <g transform={`translate(${56 + i * 90} 8)`}>
-      <rect class="pl-node" width="78" height="34" rx="8" />
-      <text x="39" y="22" text-anchor="middle" font-size="14.5">{f}</text>
+    <g transform={`translate(${chipX(i)} 6)`}>
+      <rect class="pl-node" width={CHIP_W} height="32" />
+      <text x={CHIP_W / 2} y="21" text-anchor="middle" font-size="14">{f}</text>
     </g>
   ))}
+  {/* 汇流母线：每格一条短竖线接到水平母线上，再由母线单点下探到基座。
+      六条曲线直接收束到一点会糊成一团，母线是工程图上更常见的画法。 */}
   {FILES.map((_, i) => (
-    <path class="pl-flow pl-converge" d={`M${95 + i * 90} 42 C ${95 + i * 90} 70, 320 66, 320 96`} fill="none" stroke="var(--line-2)" stroke-width="1.4" />
+    <path d={`M${dotX(i)} 38 V 58`} fill="none" stroke="var(--line-2)" stroke-width="1" />
   ))}
+  <path d={`M${dotX(0)} 58 H ${dotX(FILES.length - 1)}`} fill="none" stroke="var(--line-2)" stroke-width="1" />
+  <path class="pl-flow" d="M330 58 V 92" fill="none" stroke="var(--lane-1)" stroke-width="1.4" />
+  {/* 焊点：短竖线与母线相接处、母线下探处各一枚，线在此交汇 */}
+  {FILES.map((_, i) => (
+    <circle cx={dotX(i)} cy="58" r="2.5" fill="var(--surface)" stroke="var(--line-2)" stroke-width="1" />
+  ))}
+  <circle cx="330" cy="58" r="3" fill="var(--brand)" />
 
-  <!-- 共享基座 -->
-  <g>
-    <rect x="0" y="98" width="640" height="76" rx="12" fill="url(#plBase)" />
-    <rect x="0" y="98" width="640" height="76" rx="12" class="pl-base" opacity=".62" />
-    <rect x="0" y="98" width="640" height="76" rx="12" fill="url(#plFacet)" opacity="var(--pl-facet-opacity)" />
-    <text class="pl-strong" x="24" y="130" font-size="17.5">共享基座</text>
-    <text x="24" y="153" font-size="14">一个解析器、具体语法树（CST）、全保真源文本、并行与缓存</text>
+  <!-- 共享基座：四角裁切标记是工程图的图框语言，编号 01 与下方通道 02–04 连续 -->
+  <g class="pl-rise" style="animation-delay:0ms">
+    <rect x="0" y="92" width="660" height="76" fill="url(#plBase)" />
+    <rect x="0" y="92" width="660" height="76" class="pl-base" opacity=".7" />
+    <rect x="0" y="92" width="660" height="76" fill="url(#plFacet)" opacity="var(--pl-facet-opacity)" />
+    <path d="M0 102 V92 H10 M660 102 V92 H650 M0 158 V168 H10 M660 158 V168 H650" fill="none" stroke="var(--brand)" stroke-width="1.5" />
+    <text class="pl-strong" x="22" y="122" font-size="17">共享基座</text>
+    <text x="22" y="145" font-size="13.5">一个解析器、具体语法树（CST）、全保真源文本、并行与缓存</text>
+    <text class="pl-idx" x="638" y="122" text-anchor="end" font-size="13">01</text>
   </g>
 
-  <!-- 三条通道 -->
+  <!-- 三条通道：整盒可点击，直达对应文档。
+       盒内自上而下是编号、名称、说明与命令条，命令条是恒深底，与站内终端同一质感。 -->
   {LANES.map((l, i) => (
-    <g class={`pl-group pl-group-${l.key}`} transform={`translate(${x(i)} 210)`}>
-      <path class="pl-flow" d={`M${W / 2} -36 V 0`} fill="none" stroke={`var(--lane-${l.key})`} stroke-width="1.6" />
-      <rect class={`pl-lane-${l.key}`} width={W} height="84" rx="12" fill="var(--surface)" stroke-width="1.4" />
-      <text class="pl-strong" x="20" y="35" font-size="18.5">{l.name}</text>
-      <text x="20" y="59" font-size="14">{l.note}</text>
-      <rect class={`pl-fill-${l.key}`} x="20" y="70" width="34" height="3" rx="1.5" opacity=".9" />
-    </g>
+    <a class="pl-link pl-rise" href={l.href} aria-label={l.label} style={`animation-delay:${70 + i * 90}ms`}>
+      <g class={`pl-group pl-group-${l.key}`} transform={`translate(${x(i)} 204)`}>
+        <path class="pl-flow" d={`M${BOX_W / 2} -36 V 0`} fill="none" stroke={`var(--lane-${l.key})`} stroke-width="1.4" style={`animation-delay:${i * -0.9}s`} />
+        <circle cx={BOX_W / 2} cy="0" r="2.5" fill={`var(--lane-${l.key})`} />
+        <rect class={`pl-rect pl-lane-${l.key}`} width={BOX_W} height={BOX_H} fill="var(--surface)" stroke-width="1.2" />
+        <rect class={`pl-fill-${l.key}`} width="3" height={BOX_H} />
+        <text class="pl-idx" x="20" y="27" font-size="12">{l.no} / {l.en}</text>
+        <text class="pl-strong" x="20" y="57" font-size="21">{l.name}</text>
+        <text x="20" y="79" font-size="13">{l.note}</text>
+        <path d="M20 90 H176" stroke="var(--line)" stroke-width="1" />
+        <rect class="pl-cmdbar" x="1" y={BOX_H - 30} width={BOX_W - 2} height="29" fill="var(--term-bg)" />
+        <text class="pl-cmdf" x="14" y={BOX_H - 11} font-size="11.5">$ {l.cmd}</text>
+      </g>
+    </a>
   ))}
 
-  <!-- 结果 -->
+  <!-- 结果：左侧 3px 通道刻度标明归属，与上方通道同色 -->
   {OUTS.map((o, i) => (
-    <g transform={`translate(${x(i)} 326)`}>
-      <path class="pl-flow" d={`M${W / 2} -16 V 0`} fill="none" stroke="var(--line-2)" stroke-width="1.4" />
-      <rect width={W} height="42" rx="9" fill="var(--surface-2)" stroke="var(--line)" />
-      <text x={W / 2} y="26" text-anchor="middle" font-size="14.5">{o}</text>
+    <g class="pl-rise" transform={`translate(${x(i)} 344)`} style={`animation-delay:${350 + i * 60}ms`}>
+      <path class="pl-flow" d={`M${BOX_W / 2} -16 V 0`} fill="none" stroke="var(--line-2)" stroke-width="1.2" style={`animation-delay:${i * -0.7}s`} />
+      <circle cx={BOX_W / 2} cy="0" r="2.5" fill="var(--surface)" stroke="var(--line-2)" stroke-width="1" />
+      <rect width={BOX_W} height="38" fill="var(--surface-2)" stroke="var(--line)" />
+      <rect class={`pl-fill-${OUTS[i].key}`} width="3" height="38" />
+      <text class="pl-out" x={BOX_W / 2} y="24" text-anchor="middle" font-size="13.5">{o.text}</text>
     </g>
   ))}
-
-  <!-- 一条命令 -->
-  <g>
-    <rect x="140" y="392" width="360" height="42" rx="21" fill="var(--term-bg)" />
-    {/* 走 class 而不是 fill 呈现属性：.pipeline text 的 CSS fill 会覆盖属性，两者会打架 */}
-    <text class="pl-cmd" x="168" y="418" font-size="15.5">$ biome check --write ./src</text>
-  </g>
 </svg>
 
 <style>
-  .pipeline { --pl-base-a: .16; --pl-base-b: .16; --pl-facet: var(--brand-1); --pl-facet-line: var(--brand-2); --pl-facet-opacity: .045; }
-  :global(html[data-theme='dark']) .pipeline { --pl-base-a: .22; --pl-base-b: .22; --pl-facet-opacity: .1; }
+  .pipeline { --pl-base-a: .2; --pl-base-b: .2; --pl-facet-line: var(--brand); --pl-facet-opacity: .07; }
+  :global(html[data-theme='dark']) .pipeline { --pl-base-a: .24; --pl-base-b: .24; --pl-facet-opacity: .12; }
 </style>

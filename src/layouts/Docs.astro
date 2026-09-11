@@ -52,7 +52,7 @@ const jsonLd = [
       <nav class="rail rail--side" id="doc-rail" aria-label="文档目录">
         {GROUPS.map(g => (
           <div class="rail__grp">
-            <h2 class="rail__title">{g.title}</h2>
+            <h2 class="rail__title"><span>{g.title}</span><span class="rail__count">{g.ids.length}</span></h2>
             <ul>
               {g.ids.map(i => (
                 <li>

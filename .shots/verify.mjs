@@ -143,6 +143,24 @@ check('?q= 直接打开搜索', await page.evaluate(() => !document.querySelecto
 check('?q= 有结果', (await page.locator('.find__results a').count()) > 0);
 check('?q= 关键词已回填', (await page.inputValue('#find-input')) === 'indentStyle');
 
+// 落地页的入场揭示不能把内容永久留在透明态。曾经地层带被 clip-path 裁成零面积，
+// IntersectionObserver 阈值永不满足，结果整段留白且永不显示。这里实滚一遍全页兜底。
+await page.goto(BASE + '/', { waitUntil: 'load' });
+await page.waitForTimeout(300);
+await page.evaluate(async () => {
+  const step = innerHeight * 0.8;
+  for (let y = 0; y < document.body.scrollHeight; y += step) {
+    scrollTo(0, y);
+    await new Promise(r => setTimeout(r, 120));
+  }
+  scrollTo(0, document.body.scrollHeight);
+});
+await page.waitForTimeout(900);
+const stuck = await page.evaluate(() => [...document.querySelectorAll('[data-reveal]')]
+  .filter(el => parseFloat(getComputedStyle(el).opacity) < 0.99)
+  .map(el => `${el.className.trim()} @${getComputedStyle(el).opacity}`));
+check('落地页揭示无残留透明元素', stuck.length === 0, stuck.join(' | '));
+
 /* ---------- 2. 窄屏抽屉 ---------- */
 const m = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'no-preference' });
 const mp = await m.newPage();

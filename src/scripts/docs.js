@@ -20,7 +20,7 @@ const store = {
 
 /* ---------- 主题 ---------- */
 const THEME_KEY = 'biome-cn:theme';
-const THEME_COLOR = { dark: '#0a0e14', light: '#f1f4f7' };
+const THEME_COLOR = { dark: '#0d0c10', light: '#f4f4f5' };
 
 safe(() => {
   const themeBtns = () => document.querySelectorAll('[data-theme-toggle]');
@@ -288,10 +288,19 @@ safe(() => {
     revealables.forEach(show);
     return;
   }
+  // 兜底：直接把已经在视口内的元素点亮。观测器只是加速器，不能是唯一真相，
+  // 否则观测一旦失效（元素被裁成零面积等），内容会永久停在透明态、只留白。
+  const sweep = () => revealables.forEach(el => {
+    if (el.classList.contains('is-in')) return;
+    const r = el.getBoundingClientRect();
+    if (r.top < innerHeight - 40 && r.bottom > 0) show(el);
+  });
   const io = new IntersectionObserver((rows) => {
     rows.forEach(r => { if (r.isIntersecting) { show(r.target); io.unobserve(r.target); } });
-  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.04 });
+  }, { rootMargin: '0px 0px -6% 0px', threshold: 0 });
   revealables.forEach(el => io.observe(el));
+  sweep();
+  addEventListener('resize', sweep, { passive: true });
 });
 
 /* ---------- 站内搜索 ----------

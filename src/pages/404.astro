@@ -30,11 +30,12 @@ const QUICK = [
   .nf { min-height: 62vh; padding-block: clamp(48px, 9vw, 110px); }
   .nf__in { max-width: 640px; }
   .nf__mark { color: var(--line-2); margin-bottom: 22px; }
-  .nf h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -.03em; margin: 0 0 12px; }
+  .nf h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); letter-spacing: -.032em; margin: 0 0 12px; }
   .nf__p { color: var(--ink-2); margin: 0 0 24px; max-width: 46ch; }
   .nf__cta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 38px; }
-  .nf__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-panel); overflow: hidden; }
-  .nf__list a { display: block; background: var(--surface); padding: 15px 17px; text-decoration: none; }
+  .nf__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  .nf__list a { display: block; background: var(--surface); padding: 15px 17px; text-decoration: none; transition: background var(--dur) var(--ease); }
+  .nf__list a:hover { background: var(--surface-2); }
   .nf__list b { display: block; font-family: var(--font-display); font-weight: 600; font-size: .95rem; }
   .nf__list span { font-size: .82rem; color: var(--muted); }
   @media (max-width: 640px) { .nf__list { grid-template-columns: minmax(0, 1fr); } }

@@ -102,18 +102,24 @@ const report = await page.evaluate(() => {
     .filter(Boolean);
 
   // SVG 内文字：这里有个专属的坑 —— 样式表里的 fill 会覆盖 SVG 的 fill 呈现属性。
-  // 断面图里那条命令一度就被 .pipeline text{fill:var(--muted)} 盖成了低对比度。
+  // （断面图里的命令药丸曾因此被 .pipeline text{fill:var(--muted)} 盖成低对比度，
+  //  后来命令移到了 HTML 的安装条里，采样也随之搬家。）
   const svgSamples = [
-    ['.pipeline .pl-cmd', '--term-bg', '断面图命令药丸'],
+    ['.hero__install .term__cmd', '--term-bg', '首页安装条命令'],
     ['.pipeline .pl-strong', '--paper', '断面图小标题'],
-    ['.pipeline text:not(.pl-cmd):not(.pl-strong)', '--surface', '断面图常规标注'],
+    ['.pipeline text:not(.pl-strong):not(.pl-idx):not(.pl-cmdf):not(.pl-out)', '--surface', '断面图常规标注'],
+    ['.pipeline .pl-idx', '--surface', '断面图编号'],
+    ['.pipeline .pl-cmdf', '--term-bg', '断面图通道命令'],
+    ['.pipeline .pl-out', '--surface-2', '断面图结果'],
   ].map(([sel, bgTok, label]) => {
     const el = document.querySelector(sel);
     if (!el) return null;
-    return { label, sel, contrast: +ratio(parse(getComputedStyle(el).fill), tok(bgTok)).toFixed(2), size: getComputedStyle(el).fontSize };
+    // SVG 文字取 fill，HTML 文字取 color（安装条已是 HTML，不再是 SVG 药丸）
+    const prop = el instanceof SVGElement ? 'fill' : 'color';
+    return { label, sel, contrast: +ratio(parse(getComputedStyle(el)[prop]), tok(bgTok)).toFixed(2), size: getComputedStyle(el).fontSize };
   }).filter(Boolean);
 
-  const h1 = document.querySelector('.hero h1');
+  const h1 = document.querySelector('.hero__title');
   const lede = document.querySelector('.hero__lede');
   const cta = document.querySelector('.hero__cta');
   const hero = {
@@ -122,7 +128,7 @@ const report = await page.evaluate(() => {
     ledeChars: lede.textContent.trim().length,
     ctaBottom: Math.round(cta.getBoundingClientRect().bottom),
     viewportH: innerHeight,
-    textEls: document.querySelectorAll('.hero > *').length,
+    textEls: document.querySelectorAll('.home__hero .wrap > *').length,
   };
 
   const families = [...document.querySelectorAll('main > section')]

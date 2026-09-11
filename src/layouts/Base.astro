@@ -73,8 +73,8 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href={FAVICON} />
     {noindex && <meta name="robots" content="noindex" />}
-    <meta name="theme-color" content="#0a0e14" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#f1f4f7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d0c10" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f4f4f5" media="(prefers-color-scheme: light)" />
     <meta property="og:site_name" content="Biome" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -129,6 +129,7 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
         <a class="brand" href="/" aria-label="Biome 首页">
           <Brand size={17} />
           <span class="brand__word">Biome</span>
+          <span class="brand__sub">中文站</span>
         </a>
         <nav class="mast__nav" aria-label="主导航">
           {NAV.map(i => <a class="mast__link" href={i.href} aria-current={current.startsWith(i.href.replace(/\/$/, '')) ? 'page' : undefined}>{i.label}</a>)}

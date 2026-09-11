@@ -1,137 +1,187 @@
 <div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/biomejs/resources/main/svg/slogan-dark-transparent.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/biomejs/resources/main/svg/slogan-light-transparent.svg">
+    <img alt="Shows the banner of Biome, with its logo and the phrase 'Biome - Toolchain of the web'." src="https://raw.githubusercontent.com/biomejs/resources/main/svg/slogan-light-transparent.svg" width="700">
+  </picture>
 
-# Biome · 中文文档站
+  <br>
+  <br>
 
-社区中文翻译的 [Biome](https://biomejs.dev/) 文档与主页。
-一条命令完成格式化、Lint 与整理导入的 Web 工具链。
+  [![CI on main][ci-badge]][ci-url]
+  [![Discord chat][discord-badge]][discord-url]
+  [![npm version][npm-badge]][npm-url]
+  [![VSCode version][vscode-badge]][vscode-url]
+  [![Open VSX version][open-vsx-badge]][open-vsx-url]
 
-[![CI](https://github.com/biomejs/biome/actions/workflows/main.yml/badge.svg)](https://github.com/biomejs/biome/actions/workflows/main.yml)
-[![Biome](https://img.shields.io/npm/v/@biomejs/biome?label=Biome&color=60a5fa)](https://www.npmjs.com/package/@biomejs/biome)
-[![Astro](https://img.shields.io/badge/Astro-7.3-7b2cd0)](https://astro.build/)
+  [ci-badge]: https://github.com/biomejs/biome/actions/workflows/main.yml/badge.svg
+  [ci-url]: https://github.com/biomejs/biome/actions/workflows/main.yml
+  [discord-badge]: https://badgen.net/discord/online-members/BypW39g6Yc?icon=discord&label=discord&color=60a5fa
+  [discord-url]: https://biomejs.dev/chat
+  [npm-badge]: https://npmx.dev/api/registry/badge/version/@biomejs/biome?color=60a5fa&style=shieldsio&label=%40biomejs%2Fbiome
+  [npm-url]: https://npmx.dev/package/@biomejs/biome
+  [vscode-badge]: https://img.shields.io/visual-studio-marketplace/v/biomejs.biome?label=Visual%20Studio%20Marketplace&labelColor=374151&color=60a5fa
+  [vscode-url]: https://marketplace.visualstudio.com/items?itemName=biomejs.biome
+  [open-vsx-badge]: https://img.shields.io/visual-studio-marketplace/v/biomejs.biome?label=Open%20VSX%20Registry&logo=data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSI0LjYgNSA5Ni4yIDEyMi43IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Ik0zMCA0NC4yTDUyLjYgNUg3LjN6TTQuNiA4OC41aDQ1LjNMMjcuMiA0OS40em01MSAwbDIyLjYgMzkuMiAyMi42LTM5LjJ6IiBmaWxsPSIjYzE2MGVmIi8+CiAgPHBhdGggZD0iTTUyLjYgNUwzMCA0NC4yaDQ1LjJ6TTI3LjIgNDkuNGwyMi43IDM5LjEgMjIuNi0zOS4xem01MSAwTDU1LjYgODguNWg0NS4yeiIgZmlsbD0iI2E2MGVlNSIvPgo8L3N2Zz4=&labelColor=374151&color=60a5fa
+  [open-vsx-url]: https://open-vsx.org/extension/biomejs/biome
 
+  <!-- Insert new entries lexicographically by language code.
+     For example given below is the same order as these files appear on page:
+     https://github.com/biomejs/biome/tree/main/packages/@biomejs/biome -->
+
+  [हिन्दी](https://github.com/biomejs/biome/blob/main/packages/%40biomejs/biome/README.hi.md) | [English](https://github.com/biomejs/biome/blob/main/packages/%40biomejs/biome/README.md) | [Español](https://github.com/biomejs/biome/blob/main/packages/%40biomejs/biome/README.es.md) | [Français](https://github.com/biomejs/biome/blob/main/packages/%40biomejs/biome/README.fr.md) | [繁體中文](https://github.com/biomejs/biome/blob/main/packages/%40biomejs/biome/README.zh-TW.md) | 简体中文 | [日本語](https://github.com/biomejs/biome/blob/main/packages/%40biomejs/biome/README.ja.md) | [Polski](https://github.com/biomejs/biome/blob/main/packages/%40biomejs/biome/README.pl.md) | [Português do Brasil](https://github.com/biomejs/biome/blob/main/packages/%40biomejs/biome/README.pt-BR.md) | [한국어](https://github.com/biomejs/biome/blob/main/packages/%40biomejs/biome/README.kr.md) | [Русский](https://github.com/biomejs/biome/blob/main/packages/%40biomejs/biome/README.ru.md) | [Українська](https://github.com/biomejs/biome/blob/main/packages/%40biomejs/biome/README.uk.md)
 </div>
 
----
+<br>
 
-## 这是什么
+**Biome** 是一个用于 Web 项目的高性能工具链，旨在为开发者提供维护项目的工具。
 
-- 45 篇中文文档：入门指南、格式化器、Linter、Assist 辅助操作、编辑器集成、CLI 与配置参考、配方、项目内部机制。
-- 正文译自 [biomejs/website](https://github.com/biomejs/website) 的 `src/content/docs/en/**`，对应 Biome 2.5.13。
-- 逐条规则的详情页不翻译（规则名与示例本就是英文），站内提供规则来源对照表，链接回指上游。
-- 本站与 Biome 团队无隶属关系；译文沿用上游的 MIT 与 Apache-2.0 许可。
+**Biome 是一个[快速的格式化工具](https://github.com/biomejs/benchmark#formatting)**，适用于 _JavaScript_、_TypeScript_、_JSX_、_JSON_ 等，与 _Prettier_ 的兼容性达到了 **[97%](https://algora.io/challenges/prettier)**。
 
-官方站虽有 `zh-cn` 路径，但正文与英文已明显脱节（例如入门指南仍是 v1 的结构与 `Node.js v14.18` 的说法），因此这里以英文源为准重新翻译。
+**Biome 是一个[高性能的 Linter](https://github.com/biomejs/benchmark#linting)**，适用于 _JavaScript_、_TypeScript_、_JSX_ 等，包含了来自 ESLint、typescript-eslint 和[其他来源](https://github.com/biomejs/biome/discussions/3)的 **[500 余项规则](https://biomejs.dev/zh-cn/linter/javascript/rules/)**。它**输出详细且有上下文诊断信息**，能帮助你优化代码，成为一名更好的程序员！
 
-## 本地开发
+**Biome** 从一开始就设计为[在编辑器中交互式使用](https://biomejs.dev/zh-cn/editors/first-party-extensions/)。它可以在你编写代码时格式化并检查出不规范的代码。
 
-```bash
-pnpm install
-pnpm dev          # http://localhost:4321
-pnpm build        # 产出 dist/
-pnpm preview
-pnpm check        # astro check 类型检查
+### 安装
+
+```shell
+npm install --save-dev --save-exact @biomejs/biome
 ```
 
-### 预览
+### 使用
 
-给人看的预览走本机 `portless`，拿命名 HTTPS 域名而不是裸端口：
+```shell
+# 格式化文件
+npx @biomejs/biome format --write ./src
 
-```bash
-portless biome-cn node .shots/serve.mjs
-portless list                     # 读真实 URL（代理绑不上 443 时会退回高位端口）
+# Lint 文件
+npx @biomejs/biome lint ./src
+
+# 运行格式化，Lint 等，并应用安全的建议
+npx @biomejs/biome check --write ./src
+
+# 在 CI 环境中检查所有文件是否符合格式，Lint 等
+npx @biomejs/biome ci ./src
 ```
 
-无头验收脚本刻意走 `127.0.0.1` 直连源（免处理本地 CA），端口可指定：
+如果你想在不安装的情况下试用 Biome，可以使用[在线 playground](https://biomejs.dev/playground/)，它被编译为 WebAssembly。
 
-```bash
-PORT=8199 node .shots/serve.mjs &
-SHOT_BASE=http://127.0.0.1:8199 node .shots/verify.mjs
-```
+## 文档
 
-## 内容管线
+查看我们的[主页][biomejs]以了解更多关于 Biome 的信息，或者直接前往[入门指南][getting-started]开始使用 Biome。
 
-文档不是手抄，而是从上游可复现地生成。脚本在 `pipeline/` 下，从该目录执行（中间产物 `en/`、`work/` 不入库）：
+## 更多信息
 
-```bash
-cd pipeline
-node pull-docs.mjs          # 1. 拉取官方英文 MDX（排除逐条规则页），落到 en/ 与 manifest.json
-node preprocess.mjs         # 2. 归一化：删 import、展开生成组件、算英文锚点，落到 work/en/
-node split.mjs <文件> <份数>  # 3. 超大文档按标题边界切分，供多个子代理并行翻译
-#   （并行翻译：work/en/* → work/zh/*，契约见 pipeline/glossary.md）
-node finalize.mjs           # 4. 拼接 work/zh/ → 硬校验 → 注入组件 import → 写 ../src/content/docs/
-```
+**Biome** 有合理的默认设置，不需要配置。
 
-第 4 步的硬校验是这条管线存在的理由，任何一项不过即中断：
+**Biome** 旨在支持[所有主要的现代网络开发语言][language-support]。
 
-| 校验 | 作用 |
-| --- | --- |
-| 标题层级序列 | 译文没有增删小节 |
-| 代码围栏计数 | 没有吞掉或拆坏代码块 |
-| 链接目标集合 | 没有改写或丢失任何 URL 与锚点 |
-| 组件标签多重集合 | 没有误删 `<Tabs>`、`<PackageManagerCommand>` 等结构 |
-| 破折号与锚点条数 | 行文硬约束与目录对齐 |
+**Biome** [不需要 Node.js](https://biomejs.dev/zh-cn/guides/manual-installation/) 就可以运行。
 
-翻译契约与术语固定见 `pipeline/glossary.md`（子代理逐条遵守：固定译法、原样保留清单、禁止破折号与装饰性编号）。
+**Biome** 有一流的 LSP 支持，具有精密的解析器，可以完全保真地表示源文本，并具有顶级的错误恢复能力。
 
-## 站内实现
+**Biome** 统一了以前分散的功能。基于共享的基础，我们可以提供一个处理代码、显示错误、并行工作、缓存和配置的一致体验。
 
-官方文档用 Starlight 组件写作，本站不装 Starlight，而是按同名同参实现组件层，因此译文可以原样搬运：
+阅读更多关于我们的[项目理念][biome-philosophy]。
 
-`src/components/mdx/` 下的 `Tabs`、`TabItem`、`Code`、`Aside`、`Steps`、`FileTree`、`Card`、`CardGrid`、`Icon`、`Badge`、`Diag`、`PackageManagerCommand`、`PackageManagerBiomeCommand`、`EditorAction`、`EditorSettings`。
+**Biome** 采用 [MIT 许可](https://github.com/biomejs/biome/tree/main/LICENSE-MIT) 或 [Apache 2.0 许可](https://github.com/biomejs/biome/tree/main/LICENSE-APACHE)，并在 [贡献者公约行为准则](https://github.com/biomejs/biome/tree/main/CODE_OF_CONDUCT.md) 下进行管理。
 
-几个值得记录的实现点：
+## 赞助商
 
-- **锚点**：标题 id 取英文原文的 GitHub slug（`go_to_definition` 这类下划线必须保留），中文标题照样渲染，站内与上游的 `#锚点` 因此都不失效。上游自身失效的锚点会被丢掉片段，只落到页面。同名小节（各配置项下的 Examples、各子命令下的同名选项）第 n 次出现追加 `-n`，否则同页重复 id 会让目录与深链全都跳到第一个。
-- **代码块**：带 `title=` / `ins=` 元数据的围栏转成 `<Code>` 组件由 shiki 高亮，其余交给 Astro 正文管线，两条路径共用同一套 vitesse 双主题与 `.codeblock` 样式。
-- **主题**：所有可翻转的颜色都是 CSS 变量，`html[data-theme]` 一处切换；Shiki 写进行内的底色由令牌覆盖。地址栏配色（`theme-color`）随主题同步。
-- **图标**：`scripts/gen-icons.mjs` 从 `@phosphor-icons/web` 的 SVG 字体里抽出站内用到的 24 个字形路径，生成 `mask` 版 data-URI 写进 `phosphor.css`。因此产物里没有任何图标字体：少一次 147 KB 的字体请求，也没有图标先空白后闪现的问题，颜色随 `currentColor`、尺寸随 `font-size`。
-- **搜索**：索引按需拉取（首次打开搜索才请求），按 h2/h3 分节全文检索，命中给出小节锚点与两行摘要。键盘走 combobox 模式：焦点留在输入框，`↓`/`↑` 移动、`Enter` 直达、`Esc` 关闭并回焦到触发按钮；`/?q=关键词` 可直接打开并回填。
-- **无 JS**：标签页在脚本缺席时展开全部面板并各带标签名，正文、代码、目录照常可读。`astro build` 产出纯静态文件。
+### 铂金赞助商
 
-## 设计语言
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <a href="https://depot.dev/?utm_source=biome&utm_medium=readme" target="_blank">
+          <picture>
+            <source media="(prefers-color-scheme: light)" srcset="https://depot.dev/assets/brand/1693758816/depot-logo-horizontal-on-light@3x.png" />
+            <source media="(prefers-color-scheme: dark)" srcset="https://depot.dev/assets/brand/1693758816/depot-logo-horizontal-on-dark@3x.png" />
+            <img src="https://depot.dev/assets/brand/1693758816/depot-logo-horizontal-on-light@3x.png" width="600" alt="Depot" />
+          </picture>
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
-「生境 / 地层」：Biome 的主张是一套基座供给多条通道，因此全站以地层断面为结构母题，三条通道（格式化 / Lint / Assist）由 `--lane-*` 令牌统一编码，同一组色值贯穿首页图形、侧栏、诊断样例与 OG 图。品牌渐变只在装饰面用亮档，承载文字的按钮与链接一律用深档以保证对比度。
+### 金牌赞助商
 
-首页的工具链断面图与终端面板都是代码绘制：图形是可缩放 SVG，终端里是 Biome 2.5.13 执行 `biome check` 的真实输出（只省略了两处 diff 正文）。
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <a href="https://codspeed.io/?utm_source=biome&utm_medium=readme" target="_blank">
+          <picture>
+            <source media="(prefers-color-scheme: light)" srcset="https://biomejs.dev/_astro/codspeed-logo-light.NPF02X9E.svg" />
+            <source media="(prefers-color-scheme: dark)" srcset="https://biomejs.dev/_astro/codspeed-logo-dark.DqfyMRf2.svg" />
+            <img src="https://biomejs.dev/_astro/codspeed-logo-light.NPF02X9E.svg" width="300" alt="CodSpeed logo" />
+          </picture>
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
-几条成文的约束，改动时请一并遵守：
+### 银牌赞助商
 
-- **圆角四档**：`--r-panel`（12 容器）/ `--r-code`（10 代码面）/ `--r-inner`（6 容器内小件）/ `--r-chip`（999 控件）。不要再写 3/5/7 这类临时值。
-- **断点四档**：只允许 640 / 768 / 1024 / 1280，一律 `max-width` 书写（文档三栏是 1280 起的 `min-width`）。新增样式前先查 `@media` 是否落在既有档位上。
-- **导航单行**：1024 以下先收 GitHub 与快捷键提示，768 以下再收主导航项，任何宽度都不允许折行。
-- **首页各节不重复布局族**：通道行、整宽输出带、读数条、磁贴网格、迁移对照表、bento 索引各用一次；`sec-h` + `sec-p` 竖向叠放，不做「左大标题 + 右小解释」的分栏头。
-- **不用渐变取字**：强调词用同族实色（`--brand-2`），不用 `background-clip: text`。
-- **动效**：入场揭示是逐元素 `data-reveal` + IntersectionObserver（阈值调低，超高容器也不会卡在透明态），减弱动效下直接显示。文档页的阅读进度条走 CSS `animation-timeline: scroll(root)`，没有 `scroll` 监听。
-  - 注意：`animation-timeline` 必须单独写成一条规则且换一个选择器，否则会被 CSS 压缩器折进 `animation` 简写而整条失效（`body .readbar` 这条就是这么来的）。
-- **对比度**：浅色档的 `--muted` 取 `#5f6a77`，对 `--paper` 约 5.0:1，刚好越过 WCAG AA；再调浅就会掉到 4.4 以下。
-- **SVG 里的文字用 class 上色，不要用 `fill` 呈现属性**：样式表里的 `fill` 会盖掉呈现属性。断面图那条命令一度被 `.pipeline text { fill: var(--muted) }` 覆盖，浅色主题下只剩 3.4:1。`preflight.mjs` 现在会把 SVG 文字一并纳入对比度检查。
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <a href="https://lokalise.com/?utm_source=biome&utm_medium=readme" target="_blank"><img src="https://avatars.githubusercontent.com/u/14294501?s=200&v=4" height="100" alt="Lokalise logo"></a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://latitude.so/?utm_source=biome&utm_medium=readme" target="_blank"><img src="https://avatars.githubusercontent.com/u/98949449?s=200&v=4" height="100" alt="Latitude logo"></a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://www.cloudflare.com/?utm_source=biome&utm_medium=readme" target="_blank"><img src="https://avatars.githubusercontent.com/u/314135?s=200&v=4" height="100" alt="Cloudflare logo"></a>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
-## 验收
+### 铜牌赞助商
 
-```bash
-node .shots/serve.mjs &        # 静态服务 dist/
-node .shots/audit.mjs          # 断链、锚点、元信息、重复 id、结构化数据、破折号、体积
-node .shots/verify.mjs         # 主题/标签页/复制/搜索键盘与焦点/抽屉/目录高亮/图标/无 JS 回归
-node .shots/preflight.mjs      # 文字对比度、CTA 单行、hero 视口适配、各节布局族（W= 可指定宽度）
-node .shots/shot.mjs           # 暗亮 × 1440/1024/390 截图矩阵
-node .shots/overflow.mjs       # 横向溢出定位（W= 可指定宽度）
-node scripts/gen-og.mjs        # 由 public/og.html 渲染 og.png
-```
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <a href="https://vital.io/?utm_source=biome&utm_medium=readme" target="_blank"><img src="https://avatars.githubusercontent.com/u/25357309?s=200" width="80" alt="Vital logo"></a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://coderabbit.ai/?utm_source=biome&utm_medium=readme" target="_blank"><img src="https://avatars.githubusercontent.com/u/132028505?s=200&v=4" width="80" alt="CodeRabbit logo"></a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://forge42.dev/?utm_source=biome&utm_medium=readme" target="_blank"><img src="https://avatars.githubusercontent.com/u/161314831?s=200&v=4" width="80" alt="Forge42 logo"></a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="http://rstudio.org/?utm_source=biome&utm_medium=readme" target="_blank"><img src="https://avatars.githubusercontent.com/u/513560?s=200&v=4" width="80" alt="RStudio logo"></a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://pennylane.com/?utm_source=biome&utm_medium=readme" target="_blank"><img src="https://avatars.githubusercontent.com/u/57875210?s=200&v=4" width="80" alt="Pennylane logo"></a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://jetbrains.com/?utm_source=biome&utm_medium=readme" target="_blank"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.png" width="100" alt="JetBrains logo"></a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://www.egstock.co.jp/?utm_source=biome&utm_medium=readme" target="_blank"><img src="https://images.opencollective.com/egstock/b18c836/logo/256.png?height=256" width="80" alt="EGSTOCK, Inc. logo"></a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://www.convex.dev/?utm_source=biome&utm_medium=readme" target="_blank"><img src="https://avatars.githubusercontent.com/u/81530787?s=200&v=4" width="80" alt="Convex logo"></a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://graphite.dev/?utm_source=biome&utm_medium=readme" target="_blank"><img src="https://avatars.githubusercontent.com/u/61942612?s=200&v=4" width="80" alt="Graphite logo"></a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://kraken.tech/?utm_source=biome&utm_medium=readme" target="_blank"><img src="https://avatars.githubusercontent.com/u/105941848?s=200&v=4" width="80" alt="Kraken Tech logo"></a>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
-`preflight.mjs` 读 `W`（宽度）与 `THEME`（light / dark），`overflow.mjs` 读 `W`。改断点或颜色后至少覆盖三档宽度与两种主题：
-
-```bash
-W=1024 node .shots/preflight.mjs
-W=1024 node .shots/overflow.mjs
-THEME=dark node .shots/preflight.mjs     # 对比度必须两种主题都过
-```
-
-## 部署
-
-推 `main` 即由 `.github/workflows/deploy.yml` 构建 `dist/` 并发布到 Pages。
-
-自定义域 `biome.ndjp.net` 只在 Pages 设置里配置（`gh api -X PUT repos/bbylw/biome-cn/pages --input`，字段名是 `cname`），**不放 `public/CNAME`**：那个文件会被当静态资源原样发布，导致 `/CNAME` 可公开访问。DNS 侧是四条指向 `185.199.108-111.153` 的 A 记录；证书签发后 GitHub 会自动开启 HTTPS 强制，无需手动 PUT。
-
-## 许可
-
-译文与代码：MIT 或 Apache-2.0（与上游一致）。Biome 名称与标识归 Biome 贡献者所有。
+[biomejs]: https://biomejs.dev/zh-cn/
+[biome-philosophy]: https://biomejs.dev/zh-cn/internals/philosophy/
+[language-support]: https://biomejs.dev/zh-cn/internals/language-support/
+[getting-started]: https://biomejs.dev/zh-cn/guides/getting-started/
