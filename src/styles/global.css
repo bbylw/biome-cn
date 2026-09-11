@@ -619,9 +619,9 @@ html:not(.js) .tabs__list { display: none; }
   font-size: var(--fs-display);
   letter-spacing: -.05em; line-height: .98;
   margin: 16px 0 clamp(24px, 3vw, 40px);
-  /* 7em ≈ 七个全角字：让「一条命令，跑完」独占一行。
-     用 em 而不是 ch：汉字正好是 1em 宽，换字号也不会走样。 */
-  max-width: 7em;
+  /* 标题右缘与下方断面图右缘对齐：去掉 7em 窄条，
+     让标题横贯首行，右缘落在和断面图同一位置。 */
+  max-width: none;
   /* 不能沿用 h1 的 text-wrap: balance。它会为求两行齐平而挑中间断点，
      而中文任意位置可断，结果就是把「跑完」拆成「跑」+「完」。 */
   text-wrap: normal;
@@ -632,12 +632,21 @@ html:not(.js) .tabs__list { display: none; }
 /* 非对称：文案 5 栏、图形 7 栏，顶部对齐，底部自然错落。
    图形不再上提（曾经 margin-top: -4vw 去填标题右侧留白，
    但左右顶不对齐比留白更显散，改回顶部对齐）。 */
+/* 左栏 6、右栏 6 均分：断面图从左栏起点（正文第一条）起头对齐。
+   曾经 5fr/7fr 让断面图偏右，视觉上左栏文案之后留白、右栏图被推向最右，读起来脱节。 */
+/* 左栏文字（导语/CTA）与右栏断面图从同一水平线起头：首页两块主内容顶对齐。
+   曾经 5fr/7fr + art 负上提，导致右图既偏右又比左栏高一截。 */
+/* 两栏顶对齐：页面两主内容块（左文字 / 右断面图）从同一水平线起头。 */
 .hero__body {
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
   gap: clamp(26px, 4vw, 64px);
   align-items: start;
 }
+.hero__say { align-self: start; margin: 0; }
+/* 右图盒顶与左栏正文盒顶拉平：结构上网格首行存在约 18px 的基线差，
+   用 transform 平移（不受 grid 对齐与 margin 折叠影响）精确补足。 */
+.hero__art { align-self: start; transform: translateY(18px); }
 .hero__lede { font-size: clamp(1rem, 1.25vw, 1.08rem); color: var(--ink-2); max-width: 40ch; margin: 0 0 24px; }
 .hero__cta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 
@@ -686,6 +695,8 @@ html:not(.js) .tabs__list { display: none; }
 @media (max-width: 1024px) {
   .hero__body { grid-template-columns: minmax(0, 1fr); gap: 34px; align-items: start; }
   .hero__title { max-width: none; }
+  /* 单栏堆叠时不再需要补偿双栏的基线差 */
+  .hero__art { transform: none; }
 }
 /* 窄屏上示意图会缩到 7px 字高，图注直接不可读。
    与其砍信息，不如给图一个最小宽度、让容器横向滚动：
