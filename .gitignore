@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.shots/out/
+.shots/*.log
+pipeline/en/
+pipeline/work/
+pipeline/manifest.json
+.DS_Store
+*.tsbuildinfo
