@@ -26,7 +26,8 @@ const PAGES = [
   ['notfound', '/no-such-page/'],
 ];
 
-const VIEWPORTS = [['desk', 1440, 900], ['mob', 390, 844]];
+// 三档对应 CSS 断点：1024 是文档骨架与导航收项的临界宽度，单列出来盯回归
+const VIEWPORTS = [['desk', 1440, 900], ['mid', 1024, 900], ['mob', 390, 844]];
 
 const browser = await chromium.launch({
   executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe',

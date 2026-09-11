@@ -4,9 +4,13 @@ import '@fontsource-variable/ibm-plex-sans';
 import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/500.css';
 import '@fontsource/jetbrains-mono/700.css';
+// 首屏两个拉丁子集：预加载能少一次字体回退闪动（中文走系统 CJK 栈，不需要网络字体）
+import spaceGroteskLatin from '@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2?url';
+import ibmPlexLatin from '@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2?url';
 import '../styles/phosphor.css';
 import '../styles/global.css';
 import Brand from '../components/Brand.astro';
+import { SITE } from '../lib/site.mjs';
 
 interface Props {
   title: string;
@@ -14,6 +18,8 @@ interface Props {
   path?: string;
   ogType?: string;
   noindex?: boolean;
+  /** 页面级结构化数据，与站点级 WebSite 块一并输出 */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 const {
   title,
@@ -21,12 +27,31 @@ const {
   path = '/',
   ogType = 'website',
   noindex = false,
+  jsonLd,
 } = Astro.props;
 
-const SITE = 'https://biome.ndjp.net';
 const canonical = new URL(path, SITE).href;
 const current = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isHome = current === '/';
+
+/** 站点级结构化数据：站名、语言与站内搜索入口（搜索支持 ?q=） */
+const siteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Biome 中文站',
+  alternateName: 'Biome 中文文档',
+  url: `${SITE}/`,
+  inLanguage: 'zh-CN',
+  description,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: { '@type': 'EntryPoint', urlTemplate: `${SITE}/?q={search_term_string}` },
+    'query-input': 'required name=search_term_string',
+  },
+};
+const jsonLdBlocks = [siteJsonLd, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [])];
+// 转义 < 避免正文内容提前闭合 script
+const jsonLdHtml = JSON.stringify(jsonLdBlocks).replace(/</g, '\\u003c');
 
 const NAV = [
   { href: '/guides/getting-started/', label: '文档' },
@@ -57,11 +82,34 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
     <meta property="og:type" content={ogType} />
     <meta property="og:locale" content="zh_CN" />
     <meta property="og:image" content={`${SITE}/og.png`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${title} · Biome 中文站`} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${SITE}/og.png`} />
     <link rel="alternate" type="application/rss+xml" title="Biome 中文站更新" href="/rss.xml" />
     <link rel="search" type="application/opensearchdescription+xml" title="Biome 中文站" href="/opensearch.xml" />
+    <link rel="preload" as="font" type="font/woff2" href={spaceGroteskLatin} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={ibmPlexLatin} crossorigin />
+    <script type="application/ld+json" is:inline set:html={jsonLdHtml} />
+    {/* 站内都是同源静态页：悬停预取让点击后几乎立刻呈现 */}
+    <script type="speculationrules" is:inline set:html={JSON.stringify({
+      prefetch: [{
+        where: {
+          and: [
+            { href_matches: '/*' },
+            { not: { href_matches: '/rss.xml' } },
+            { not: { href_matches: '/search.json' } },
+            { not: { selector_matches: '[target=_blank]' } },
+            { not: { selector_matches: '[rel~=nofollow]' } },
+            { not: { selector_matches: '.find__results a' } },
+          ],
+        },
+        eagerness: 'moderate',
+      }],
+    })} />
     <script is:inline>
       (() => {
         const k = 'biome-cn:theme';
@@ -84,7 +132,7 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
         </a>
         <nav class="mast__nav" aria-label="主导航">
           {NAV.map(i => <a class="mast__link" href={i.href} aria-current={current.startsWith(i.href.replace(/\/$/, '')) ? 'page' : undefined}>{i.label}</a>)}
-          <button type="button" class="find__btn" data-find-open aria-haspopup="dialog">
+          <button type="button" class="find__btn" data-find-open aria-haspopup="dialog" aria-expanded="false" aria-controls="find-input">
             <span class="ph ph-magnifying-glass" aria-hidden="true"></span>
             <span>搜索文档</span>
             <kbd>Ctrl K</kbd>
@@ -98,11 +146,22 @@ const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi
       </div>
     </header>
 
-    <div class="find" >
+    <div class="find">
       <div class="find__dlg" role="dialog" aria-modal="true" aria-label="站内搜索" hidden>
         <label class="sr-only" for="find-input">搜索文档</label>
-        <input id="find-input" type="search" placeholder="输入命令、规则名或配置键，如 check、noDoubleEquals、indentStyle" autocomplete="off" />
-        <ul class="find__results"></ul>
+        {/* combobox 模式：焦点留在输入框，用 aria-activedescendant 指向当前结果 */}
+        <input
+          id="find-input"
+          type="search"
+          role="combobox"
+          aria-expanded="true"
+          aria-controls="find-results"
+          aria-autocomplete="list"
+          placeholder="输入命令、规则名或配置键，如 check、noDoubleEquals、indentStyle"
+          autocomplete="off"
+        />
+        <p class="sr-only" data-find-status aria-live="polite"></p>
+        <ul class="find__results" id="find-results" role="listbox" aria-label="搜索结果"></ul>
       </div>
     </div>
 

@@ -1,6 +1,6 @@
 // 构建期管线模块：不做 JS 类型检查（tsconfig checkJs=false），入口类型由调用方保证
 /**
- * docs.mjs — 文档正文的 remark 处理
+ * docs.mjs - 文档正文的 remark 处理
  *  1. 标题锚点：按 frontmatter.anchors（英文原文 slug）依文档序赋值，保证与上游链接、站内 #anchor 一致
  *  2. 收集本页目录（h2/h3）到 file.data.headings
  *  3. 链接重写：站内已翻译的路径走本地，未收录的（规则详情页、schemas、playground 等）回指官方站
@@ -115,6 +115,18 @@ export function docsPlugin() {
     const headings = [];
     let ai = 0;
 
+    // 兜底：frontmatter 的 anchors 已经去过重，这里再保证一次同页 id 唯一，
+    // 避免 slug 回退（anchors 用尽）时产生重复锚点让目录与深链跳错位置。
+    const used = new Set();
+    const uniqueId = (id) => {
+      if (!used.has(id)) { used.add(id); return id; }
+      let n = 1;
+      let next = `${id}-${++n}`;
+      while (used.has(next)) next = `${id}-${++n}`;
+      used.add(next);
+      return next;
+    };
+
     visit(tree, 'heading', (node) => {
       const text = textOf(node);
       let id;
@@ -122,6 +134,7 @@ export function docsPlugin() {
         id = anchors[ai++];
       }
       if (!id) id = slugify(text);
+      id = uniqueId(id);
       node.data = node.data ?? {};
       node.data.id = id;
       node.data.hProperties = { ...(node.data.hProperties || {}), id };

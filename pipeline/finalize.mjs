@@ -86,14 +86,23 @@ function slugify(text) {
     .replace(/\s+/g, '-');
 }
 
-/** 按文档序计算英文源的标题锚点，作为站内 id 的唯一真相 */
+/**
+ * 按文档序计算英文源的标题锚点，作为站内 id 的唯一真相。
+ * 官方文档里同名小节很常见（各配置项下的 Examples、各子命令下的同名选项），
+ * slug 相同会造成同页重复 id，目录与深链只能跳到第一个，因此第 n 次出现追加 -n。
+ */
 function anchorsFrom(body) {
+  const seen = new Map();
   const out = [];
   const { lines, flags } = readFenceAware(body);
   lines.forEach((l, i) => {
     if (flags[i]) return;
     const m = /^(#{2,4})\s+(.+?)\s*$/.exec(l);
-    if (m) out.push(slugify(m[2]));
+    if (!m) return;
+    const id = slugify(m[2]);
+    const n = (seen.get(id) ?? 0) + 1;
+    seen.set(id, n);
+    out.push(n === 1 ? id : `${id}-${n}`);
   });
   return out;
 }

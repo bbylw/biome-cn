@@ -4,11 +4,26 @@ import Brand from '../components/Brand.astro';
 import Pipeline from '../components/Pipeline.astro';
 import Term from '../components/Term.astro';
 import Code from '../components/mdx/Code.astro';
-import { GROUPS, routeOf } from '../lib/nav.mjs';
+import { GROUPS } from '../lib/nav.mjs';
 
-const INSTALL = `npm install --save-dev --save-exact @biomejs/biome
-npx @biomejs/biome init
-npx @biomejs/biome check --write ./src`;
+/** 三步上手：标签用「动词 + 宾语」，不用 Stage 1 / Step 2 这类空壳编号 */
+const STEPS = [
+  { k: '安装', c: 'npm install --save-dev --save-exact @biomejs/biome' },
+  { k: '初始化', c: 'npx @biomejs/biome init' },
+  { k: '检查并修复', c: 'npx @biomejs/biome check --write ./src' },
+];
+
+const CI_YML = `name: CI
+on: [push]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: biomejs/setup-biome@v2
+        with:
+          version: 2.5.13
+      - run: biome ci .`;
 
 const FACTS = [
   { n: '97%', t: '与 Prettier 的格式化兼容度', href: 'https://algora.io/challenges/prettier', l: '兼容度来源' },
@@ -18,24 +33,24 @@ const FACTS = [
 ];
 
 const LANES = [
-  { k: 'fmt', name: '格式化', body: '对 JavaScript、TypeScript、JSX、JSON、CSS、GraphQL、HTML、Markdown 输出一致风格，默认与 Prettier 高度兼容。', cmd: 'biome format --write' },
-  { k: 'lint', name: 'Lint', body: '收录来自 ESLint、typescript-eslint 与其他来源的规则，诊断信息带上下文，并区分安全修复与不安全修复。', cmd: 'biome lint --write' },
-  { k: 'assist', name: 'Assist 辅助操作', body: '整理导入、排序对象键与属性、给联合类型与枚举成员排序，这一类操作始终提供可用的代码修复。', cmd: 'biome check --write' },
+  { k: 'fmt', name: '格式化', body: '对 JavaScript、TypeScript、JSX、JSON、CSS、GraphQL、HTML、Markdown 输出一致风格，默认与 Prettier 高度兼容。', cmd: 'biome format --write', href: '/formatter/', link: '看格式化文档' },
+  { k: 'lint', name: 'Lint', body: '收录来自 ESLint、typescript-eslint 与其他来源的规则，诊断信息带上下文，并区分安全修复与不安全修复。', cmd: 'biome lint --write', href: '/linter/', link: '看 Linter 文档' },
+  { k: 'assist', name: 'Assist 辅助操作', body: '整理导入、排序对象键与属性、给联合类型与枚举成员排序，这一类操作始终提供可用的代码修复。', cmd: 'biome check --write', href: '/assist/', link: '看 Assist 文档' },
 ];
 
 const EDITORS = [
-  { icon: 'ph-code', name: 'VS Code', note: '第一方扩展，保存即格式化与修复', meta: 'biomejs.biome' },
-  { icon: 'ph-brackets-curly', name: 'IntelliJ 系列', note: '第一方插件，走 Language Server 协议', meta: 'JetBrains Marketplace' },
-  { icon: 'ph-terminal-window', name: 'Zed', note: '第一方扩展，格式化与代码操作', meta: 'zed: extensions' },
-  { icon: 'ph-keyboard', name: 'Vim、Neovim、Sublime Text 等', note: '社区扩展与通用 LSP 客户端', meta: '第三方扩展' },
+  { icon: 'ph-code', name: 'VS Code', note: '第一方扩展，保存即格式化与修复', meta: 'biomejs.biome', href: '/reference/vscode/' },
+  { icon: 'ph-brackets-curly', name: 'IntelliJ 系列', note: '第一方插件，走 Language Server 协议', meta: 'JetBrains Marketplace', href: '/editors/first-party-extensions/' },
+  { icon: 'ph-terminal-window', name: 'Zed', note: '第一方扩展，格式化与代码操作', meta: 'zed: extensions', href: '/reference/zed/' },
+  { icon: 'ph-keyboard', name: 'Vim、Neovim、Sublime Text 等', note: '社区扩展与通用 LSP 客户端', meta: '第三方扩展', href: '/editors/third-party-extensions/' },
 ];
 
 const SWAP = [
-  ['Prettier', 'biome format'],
-  ['ESLint 的格式化类规则', 'biome format'],
-  ['ESLint 与 typescript-eslint 的多数规则', 'biome lint'],
-  ['eslint-plugin-import 的排序能力', 'biome assist'],
-  ['husky + lint-staged 的手写脚本', 'biome ci 与 Git Hooks 配方'],
+  ['Prettier', 'biome format', 'fmt'],
+  ['ESLint 的格式化类规则', 'biome format', 'fmt'],
+  ['ESLint 与 typescript-eslint 的多数规则', 'biome lint', 'lint'],
+  ['eslint-plugin-import 的排序能力', 'biome assist', 'assist'],
+  ['husky + lint-staged 的手写脚本', 'biome ci 与 Git Hooks 配方', 'assist'],
 ];
 
 /** 文档入口：篇数与入口都由侧栏 IA 推导，避免与真实页面数脱节 */
@@ -60,7 +75,7 @@ const DOC_INDEX = GROUPS.map(g => ({
       <div class="wrap">
         <div class="hero__grid">
           <div class="hero">
-            <span class="hero__kicker"><Brand size={13} /> Biome 中文站，译自官方文档</span>
+            <span class="hero__kicker"><Brand size={13} /> Biome 中文站，译自官方文档 <code class="ver">v2.5.13</code></span>
             <h1>一条命令，<em>跑完</em>格式化与 Lint</h1>
             <p class="hero__lede">Rust 编写的 Web 工具链：与 Prettier 兼容度 97%，收录 545 条 Lint 规则，不装 Node.js 也能运行。</p>
             <div class="hero__cta">
@@ -82,13 +97,14 @@ const DOC_INDEX = GROUPS.map(g => ({
         <h2 class="sec-h">三条通道，同一个解析器</h2>
         <p class="sec-p">过去这些能力分散在不同工具里，各自解析、各自报错。Biome 把它们合到一套基座上，配置、输出与缓存行为因此保持一致。</p>
         <ul class="lanes">
-          {LANES.map(l => (
-            <li class={`lane-${l.k}`}>
+          {LANES.map((l, i) => (
+            <li class={`lane-${l.k}`} data-reveal style={`--reveal-i:${i}`}>
               <div class="bar" aria-hidden="true"></div>
               <div>
                 <h3>{l.name}</h3>
                 <p>{l.body}</p>
                 <div class="cmd">{l.cmd}</div>
+                <a class="lane__go" href={l.href}>{l.link}<span aria-hidden="true"> →</span></a>
               </div>
             </li>
           ))}
@@ -100,18 +116,24 @@ const DOC_INDEX = GROUPS.map(g => ({
       <div class="wrap">
         <h2 class="sec-h">装上就跑，输出看得懂</h2>
         <p class="sec-p">三步进入项目：安装并锁定版本、生成配置、跑检查。下面是 Biome 2.5.13 对一个含问题文件执行 <code>biome check</code> 的真实输出。</p>
-        <div class="split split--term">
-          <Code code={INSTALL} lang="bash" title="终端" />
+        <div class="run" data-reveal>
+          <ol class="run__steps">
+            {STEPS.map(s => (
+              <li><span class="k">{s.k}</span><code>{s.c}</code></li>
+            ))}
+          </ol>
           <Term />
         </div>
       </div>
     </section>
 
+    <hr class="strata" />
+
     <section class="band band--tight">
       <div class="wrap">
         <div class="facts">
-          {FACTS.map(f => (
-            <div>
+          {FACTS.map((f, i) => (
+            <div class="fact" data-reveal style={`--reveal-i:${i}`}>
               <b>{f.n}</b>
               <span>{f.t}</span>
               <a href={f.href}>{f.l}</a>
@@ -121,73 +143,58 @@ const DOC_INDEX = GROUPS.map(g => ({
       </div>
     </section>
 
-    <hr class="strata" />
-
     <section class="band">
       <div class="wrap">
-        <div class="split">
-          <div>
-            <h2 class="sec-h">在你现在的编辑器里工作</h2>
-            <p class="sec-p">Biome 从设计之初就面向编辑器：写代码时即时格式化并指出不规范之处，通过 Language Server 协议与编辑器通信。</p>
-            <ul class="edlist">
-              {EDITORS.map(e => (
-                <li>
-                  <span class={`ph ${e.icon}`} aria-hidden="true"></span>
-                  <b>{e.name}<span>{e.note}</span></b>
-                  <code>{e.meta}</code>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 class="sub-h">CI 里用 <code>biome ci</code></h3>
-            <p class="sec-p">与 <code>biome check</code> 行为一致，但为 CI 环境优化，不做写入。</p>
-            <Code lang="yaml" title=".github/workflows/ci.yml" code={`name: CI
-on: [push]
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: biomejs/setup-biome@v2
-        with:
-          version: 2.5.13
-      - run: biome ci .`} />
-          </div>
+        <h2 class="sec-h">在你现在的编辑器里工作</h2>
+        <p class="sec-p">Biome 从设计之初就面向编辑器：写代码时即时格式化并指出不规范之处，通过 Language Server 协议与编辑器通信。</p>
+        <ul class="tiles">
+          {EDITORS.map((e, i) => (
+            <li data-reveal style={`--reveal-i:${i}`}>
+              <a class="tile" href={e.href}>
+                <span class={`ph ${e.icon}`} aria-hidden="true"></span>
+                <b>{e.name}</b>
+                <span class="note">{e.note}</span>
+                <code>{e.meta}</code>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <div class="ci" data-reveal>
+          <h3 class="sub-h">CI 里用 <code>biome ci</code></h3>
+          <p class="sec-p">与 <code>biome check</code> 行为一致，但为 CI 环境优化，不做写入。</p>
+          <Code lang="yaml" title=".github/workflows/ci.yml" code={CI_YML} />
         </div>
       </div>
     </section>
+
+    <hr class="strata" />
 
     <section class="band band--tight">
       <div class="wrap">
-        <div class="swap">
-          <blockquote class="quote">
-            <p>我们告诉你的不只是哪里错了，还包括错在哪一行、为什么、以及怎么修。</p>
-            <cite>译自 Biome 官方对诊断信息的设计说明</cite>
-          </blockquote>
-          <div class="swap__list">
-            <h3 class="sub-h">迁移后可以退场的东西</h3>
-            {SWAP.map(([from, to]) => (
-              <div class="swap__row"><span>{from}</span><i aria-hidden="true">→</i><code>{to}</code></div>
-            ))}
-            <a class="btn btn--ghost btn--sm" href="/guides/migrate-eslint-prettier/">看迁移步骤</a>
-          </div>
+        <blockquote class="quote" data-reveal>
+          <p>我们告诉你的不只是哪里错了，还包括错在哪一行、为什么、以及怎么修。</p>
+          <cite>译自 Biome 官方对诊断信息的设计说明</cite>
+        </blockquote>
+        <div class="swap" data-reveal>
+          {SWAP.map(([from, to, lane]) => (
+            <div class="swap__row"><span>{from}</span><i aria-hidden="true">→</i><code class={`tone-${lane}`}><b class={`dot dot-${lane}`} aria-hidden="true"></b>{to}</code></div>
+          ))}
+          <a class="btn btn--ghost btn--sm" href="/guides/migrate-eslint-prettier/">看迁移步骤</a>
         </div>
       </div>
     </section>
-
-    <hr class="strata" />
 
     <section class="band">
       <div class="wrap">
         <h2 class="sec-h">{TOTAL_DOCS} 篇中文文档</h2>
         <p class="sec-p">覆盖入门、核心能力、编辑器、参考、配方与项目内部机制。逐条规则的详情页仍以上游英文站为准，站内提供规则来源对照表。</p>
         <div class="index__grid">
-          {DOC_INDEX.map(d => (
-            <a href={d.href} class:list={[d.cls, d.tone]}>
+          {DOC_INDEX.map((d, i) => (
+            <a href={d.href} class:list={[d.cls, d.tone]} data-reveal style={`--reveal-i:${i % 3}`}>
               <span class="k">{d.k}</span>
               <p>{d.p}</p>
-              <span class="n">{d.n}</span>
+              <span class="n">{d.n}<span class="go" aria-hidden="true"> →</span></span>
             </a>
           ))}
         </div>
@@ -215,21 +222,9 @@ jobs:
 <style>
   .hero__art { position: relative; }
   .sub-h { font-family: var(--font-display); font-size: 1.06rem; letter-spacing: -.012em; margin: 0 0 10px; }
-  .split--term { align-items: start; }
-  .split--term > :first-child { margin-top: 8px; }
-  @media (max-width: 900px) { .split--term { gap: 26px; } }
-
-  .swap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
-  @media (max-width: 900px) { .swap { grid-template-columns: minmax(0, 1fr); } }
-  .swap__list { display: grid; gap: 2px; }
-  .swap__row { display: grid; grid-template-columns: minmax(0, 1fr) 20px auto; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
-  .swap__row span { color: var(--muted); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--danger) 55%, transparent); }
-  .swap__row i { color: var(--line-2); font-style: normal; }
-  .swap__row code { font-family: var(--font-mono); font-size: .82rem; color: var(--ink); background: none; border: 0; padding: 0; white-space: nowrap; }
-  .swap__list .btn { justify-self: start; margin-top: 14px; }
 
   .index__grid .i-3.i-6 { grid-column: span 6; }
-  @media (max-width: 900px) { .index__grid .i-3.i-6 { grid-column: span 2; } }
+  @media (max-width: 1024px) { .index__grid .i-3.i-6 { grid-column: span 2; } }
 
   .sponsor-band { border-top: 1px solid var(--line); }
   .home .wrap { position: relative; }

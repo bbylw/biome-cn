@@ -1,7 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Docs from '../layouts/Docs.astro';
-import { ORDER } from '../lib/nav.mjs';
 
 export async function getStaticPaths() {
   const entries = await getCollection('docs', ({ id }) => id !== '404');

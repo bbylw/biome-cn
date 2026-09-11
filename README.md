@@ -81,10 +81,11 @@ node finalize.mjs           # 4. 拼接 work/zh/ → 硬校验 → 注入组件 
 
 几个值得记录的实现点：
 
-- **锚点**：标题 id 取英文原文的 GitHub slug（`go_to_definition` 这类下划线必须保留），中文标题照样渲染，站内与上游的 `#锚点` 因此都不失效。上游自身失效的锚点会被丢掉片段，只落到页面。
+- **锚点**：标题 id 取英文原文的 GitHub slug（`go_to_definition` 这类下划线必须保留），中文标题照样渲染，站内与上游的 `#锚点` 因此都不失效。上游自身失效的锚点会被丢掉片段，只落到页面。同名小节（各配置项下的 Examples、各子命令下的同名选项）第 n 次出现追加 `-n`，否则同页重复 id 会让目录与深链全都跳到第一个。
 - **代码块**：带 `title=` / `ins=` 元数据的围栏转成 `<Code>` 组件由 shiki 高亮，其余交给 Astro 正文管线，两条路径共用同一套 vitesse 双主题与 `.codeblock` 样式。
-- **主题**：所有可翻转的颜色都是 CSS 变量，`html[data-theme]` 一处切换；Shiki 写进行内的底色由令牌覆盖。
-- **图标**：`scripts/gen-icons.mjs` 从 `@phosphor-icons/web` 只抽取站内用到的 25 个字形并只保留 woff2，避免整包 3.9 MB 的字体进产物。
+- **主题**：所有可翻转的颜色都是 CSS 变量，`html[data-theme]` 一处切换；Shiki 写进行内的底色由令牌覆盖。地址栏配色（`theme-color`）随主题同步。
+- **图标**：`scripts/gen-icons.mjs` 从 `@phosphor-icons/web` 的 SVG 字体里抽出站内用到的 24 个字形路径，生成 `mask` 版 data-URI 写进 `phosphor.css`。因此产物里没有任何图标字体：少一次 147 KB 的字体请求，也没有图标先空白后闪现的问题，颜色随 `currentColor`、尺寸随 `font-size`。
+- **搜索**：索引按需拉取（首次打开搜索才请求），按 h2/h3 分节全文检索，命中给出小节锚点与两行摘要。键盘走 combobox 模式：焦点留在输入框，`↓`/`↑` 移动、`Enter` 直达、`Esc` 关闭并回焦到触发按钮；`/?q=关键词` 可直接打开并回填。
 - **无 JS**：标签页在脚本缺席时展开全部面板并各带标签名，正文、代码、目录照常可读。`astro build` 产出纯静态文件。
 
 ## 设计语言
@@ -93,15 +94,36 @@ node finalize.mjs           # 4. 拼接 work/zh/ → 硬校验 → 注入组件 
 
 首页的工具链断面图与终端面板都是代码绘制：图形是可缩放 SVG，终端里是 Biome 2.5.13 执行 `biome check` 的真实输出（只省略了两处 diff 正文）。
 
+几条成文的约束，改动时请一并遵守：
+
+- **圆角四档**：`--r-panel`（12 容器）/ `--r-code`（10 代码面）/ `--r-inner`（6 容器内小件）/ `--r-chip`（999 控件）。不要再写 3/5/7 这类临时值。
+- **断点四档**：只允许 640 / 768 / 1024 / 1280，一律 `max-width` 书写（文档三栏是 1280 起的 `min-width`）。新增样式前先查 `@media` 是否落在既有档位上。
+- **导航单行**：1024 以下先收 GitHub 与快捷键提示，768 以下再收主导航项，任何宽度都不允许折行。
+- **首页各节不重复布局族**：通道行、整宽输出带、读数条、磁贴网格、迁移对照表、bento 索引各用一次；`sec-h` + `sec-p` 竖向叠放，不做「左大标题 + 右小解释」的分栏头。
+- **不用渐变取字**：强调词用同族实色（`--brand-2`），不用 `background-clip: text`。
+- **动效**：入场揭示是逐元素 `data-reveal` + IntersectionObserver（阈值调低，超高容器也不会卡在透明态），减弱动效下直接显示。文档页的阅读进度条走 CSS `animation-timeline: scroll(root)`，没有 `scroll` 监听。
+  - 注意：`animation-timeline` 必须单独写成一条规则且换一个选择器，否则会被 CSS 压缩器折进 `animation` 简写而整条失效（`body .readbar` 这条就是这么来的）。
+- **对比度**：浅色档的 `--muted` 取 `#5f6a77`，对 `--paper` 约 5.0:1，刚好越过 WCAG AA；再调浅就会掉到 4.4 以下。
+- **SVG 里的文字用 class 上色，不要用 `fill` 呈现属性**：样式表里的 `fill` 会盖掉呈现属性。断面图那条命令一度被 `.pipeline text { fill: var(--muted) }` 覆盖，浅色主题下只剩 3.4:1。`preflight.mjs` 现在会把 SVG 文字一并纳入对比度检查。
+
 ## 验收
 
 ```bash
 node .shots/serve.mjs &        # 静态服务 dist/
-node .shots/audit.mjs          # 断链、锚点、元信息、体积
-node .shots/verify.mjs         # 主题/标签页/复制/搜索/抽屉/无 JS 回归
-node .shots/shot.mjs           # 暗亮 × 桌面移动截图矩阵
-node .shots/overflow.mjs       # 横向溢出定位
+node .shots/audit.mjs          # 断链、锚点、元信息、重复 id、结构化数据、破折号、体积
+node .shots/verify.mjs         # 主题/标签页/复制/搜索键盘与焦点/抽屉/目录高亮/图标/无 JS 回归
+node .shots/preflight.mjs      # 文字对比度、CTA 单行、hero 视口适配、各节布局族（W= 可指定宽度）
+node .shots/shot.mjs           # 暗亮 × 1440/1024/390 截图矩阵
+node .shots/overflow.mjs       # 横向溢出定位（W= 可指定宽度）
 node scripts/gen-og.mjs        # 由 public/og.html 渲染 og.png
+```
+
+`preflight.mjs` 读 `W`（宽度）与 `THEME`（light / dark），`overflow.mjs` 读 `W`。改断点或颜色后至少覆盖三档宽度与两种主题：
+
+```bash
+W=1024 node .shots/preflight.mjs
+W=1024 node .shots/overflow.mjs
+THEME=dark node .shots/preflight.mjs     # 对比度必须两种主题都过
 ```
 
 ## 许可

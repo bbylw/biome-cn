@@ -33,7 +33,11 @@ const TRANSCRIPT = [
 ---
 <div class="term" data-term>
   <div class="term__bar">
+    <span class="term__dots" aria-hidden="true"><i></i><i></i><i></i></span>
     <span class="term__cmd"><b>$</b> npx @biomejs/biome check ./src</span>
+    <button type="button" class="term__copy" data-term-copy="npx @biomejs/biome check ./src" aria-label="复制命令" title="复制命令">
+      <span class="ph ph-copy" aria-hidden="true"></span>
+    </button>
   </div>
   <pre><code set:html={TRANSCRIPT} /></pre>
   <p class="term__cap">同一个文件，一条命令同时给出格式问题、Lint 问题与安全修复建议。</p>

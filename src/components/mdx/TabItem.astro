@@ -1,6 +1,9 @@
 ---
+import { nextId } from '@/lib/uid.mjs';
+
 interface Props { label: string; icon?: string }
 const { label } = Astro.props;
-const id = 'p-' + label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+// id 必须全局唯一：同一页会有多组标签（见 lib/uid.mjs）
+const id = nextId(label.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
 ---
 <div class="tabs__panel" data-label={label} role="tabpanel" id={id} tabindex="0"><slot /></div>

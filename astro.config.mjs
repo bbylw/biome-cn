@@ -4,12 +4,13 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { unified } from '@astrojs/markdown-remark';
 import { docsPlugin, docsShikiTransformer } from './src/plugins/docs.mjs';
+import { SITE } from './src/lib/site.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 
-export const SITE = 'https://biome.ndjp.net';
+export { SITE };
 
 /** 代码高亮：浅/深双主题，具体配色由 CSS 变量与 data-theme 联动 */
 const shikiConfig = {

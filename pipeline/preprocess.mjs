@@ -153,12 +153,17 @@ async function transform(rel, src) {
   // 8. 压缩 transform 造成的空行
   text = text.replace(/\n{3,}/g, '\n\n');
 
-  // 9. 锚点表：二级及以下标题（跳过代码围栏）
+  // 9. 锚点表：二级及以下标题（跳过代码围栏），同名小节追加 -n 保证唯一
   const anchors = [];
+  const seen = new Map();
   for (const { line, inFence } of scanLines(text)) {
     if (inFence) continue;
     const m = /^#{2,4}\s+(.+?)\s*$/.exec(line);
-    if (m) anchors.push(slugify(m[1]));
+    if (!m) continue;
+    const id = slugify(m[1]);
+    const n = (seen.get(id) ?? 0) + 1;
+    seen.set(id, n);
+    anchors.push(n === 1 ? id : `${id}-${n}`);
   }
 
   return { fm, anchors, text };
