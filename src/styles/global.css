@@ -619,9 +619,9 @@ html:not(.js) .tabs__list { display: none; }
   font-size: var(--fs-display);
   letter-spacing: -.05em; line-height: .98;
   margin: 16px 0 clamp(24px, 3vw, 40px);
-  /* 标题右缘与下方断面图右缘对齐：去掉 7em 窄条，
-     让标题横贯首行，右缘落在和断面图同一位置。 */
-  max-width: none;
+  /* 7em ≈ 七个全角字：让「一条命令，跑完」独占一行。
+     用 em 而不是 ch：汉字正好是 1em 宽，换字号也不会走样。 */
+  max-width: 7em;
   /* 不能沿用 h1 的 text-wrap: balance。它会为求两行齐平而挑中间断点，
      而中文任意位置可断，结果就是把「跑完」拆成「跑」+「完」。 */
   text-wrap: normal;
@@ -644,9 +644,7 @@ html:not(.js) .tabs__list { display: none; }
   align-items: start;
 }
 .hero__say { align-self: start; margin: 0; }
-/* 右图盒顶与左栏正文盒顶拉平：结构上网格首行存在约 18px 的基线差，
-   用 transform 平移（不受 grid 对齐与 margin 折叠影响）精确补足。 */
-.hero__art { align-self: start; transform: translateY(18px); }
+.hero__art { align-self: start; }
 .hero__lede { font-size: clamp(1rem, 1.25vw, 1.08rem); color: var(--ink-2); max-width: 40ch; margin: 0 0 24px; }
 .hero__cta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 
