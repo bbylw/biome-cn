@@ -2,6 +2,7 @@
 import { createRequire } from 'node:module';
 const require = createRequire('C:/Users/bbylw/.pwl/noop.js');
 const { chromium } = require('playwright-core');
+const BASE = process.env.SHOT_BASE || 'http://127.0.0.1:' + (process.env.PORT || 8199);
 
 const PAGES = process.argv.slice(2).length ? process.argv.slice(2) : ['/', '/formatter/', '/guides/getting-started/', '/linter/domains/', '/reference/cli/', '/reference/configuration/', '/assist/javascript/actions/', '/internals/people-and-credits/', '/recipes/gritql-plugins/', '/nope/'];
 const W = Number(process.env.W || 390);
@@ -10,7 +11,7 @@ const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google
 const ctx = await browser.newContext({ viewport: { width: W, height: 844 }, reducedMotion: 'reduce' });
 for (const p of PAGES) {
   const page = await ctx.newPage();
-  await page.goto('http://127.0.0.1:8199' + p, { waitUntil: 'load' });
+  await page.goto(BASE + p, { waitUntil: 'load' });
   await page.waitForTimeout(250);
   const res = await page.evaluate((vw) => {
     const bad = [];

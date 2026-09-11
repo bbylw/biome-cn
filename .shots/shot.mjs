@@ -5,7 +5,7 @@ import { mkdirSync } from 'node:fs';
 const require = createRequire('C:/Users/bbylw/.pwl/noop.js');
 const { chromium } = require('playwright-core');
 
-const BASE = 'http://127.0.0.1:8199';
+const BASE = process.env.SHOT_BASE || 'http://127.0.0.1:' + (process.env.PORT || 8199);
 const OUT = '.shots/out';
 mkdirSync(OUT, { recursive: true });
 

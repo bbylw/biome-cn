@@ -4,6 +4,7 @@ import { mkdirSync } from 'node:fs';
 
 const require = createRequire('C:/Users/bbylw/.pwl/noop.js');
 const { chromium } = require('playwright-core');
+const BASE = process.env.SHOT_BASE || 'http://127.0.0.1:' + (process.env.PORT || 8199);
 mkdirSync('.shots/out/clip', { recursive: true });
 
 const SHOTS = [
@@ -25,7 +26,7 @@ for (const [path, name, theme, width, scroll] of SHOTS) {
   const ctx = await browser.newContext({ viewport: { width, height: h }, reducedMotion: 'reduce' });
   await ctx.addInitScript((t) => { try { localStorage.setItem('biome-cn:theme', t); } catch {} }, theme);
   const page = await ctx.newPage();
-  await page.goto('http://127.0.0.1:8199' + path, { waitUntil: 'load' });
+  await page.goto(BASE + path, { waitUntil: 'load' });
   await page.waitForTimeout(400);
   if (scroll) await page.evaluate(y => window.scrollTo(0, y), scroll);
   await page.waitForTimeout(200);

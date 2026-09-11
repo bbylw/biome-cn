@@ -32,6 +32,22 @@ pnpm preview
 pnpm check        # astro check 类型检查
 ```
 
+### 预览
+
+给人看的预览走本机 `portless`，拿命名 HTTPS 域名而不是裸端口：
+
+```bash
+portless biome-cn node .shots/serve.mjs
+portless list                     # 读真实 URL（代理绑不上 443 时会退回高位端口）
+```
+
+无头验收脚本刻意走 `127.0.0.1` 直连源（免处理本地 CA），端口可指定：
+
+```bash
+PORT=8199 node .shots/serve.mjs &
+SHOT_BASE=http://127.0.0.1:8199 node .shots/verify.mjs
+```
+
 ## 内容管线
 
 文档不是手抄，而是从上游可复现地生成。脚本在 `pipeline/` 下，从该目录执行（中间产物 `en/`、`work/` 不入库）：
