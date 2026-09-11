@@ -629,7 +629,9 @@ html:not(.js) .tabs__list { display: none; }
 /* 同族强调，不用渐变取字：渐变文字是 AI 输出最常见的手法之一，实色反而更笃定 */
 .hero__title em { font-style: normal; color: var(--brand); white-space: nowrap; }
 
-/* 非对称：文案 5 栏、图形 7 栏，底部对齐，在交界处形成一条水平硬边 */
+/* 非对称：文案 5 栏、图形 7 栏，顶部对齐，底部自然错落。
+   图形不再上提（曾经 margin-top: -4vw 去填标题右侧留白，
+   但左右顶不对齐比留白更显散，改回顶部对齐）。 */
 .hero__body {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
@@ -681,14 +683,9 @@ html:not(.js) .tabs__list { display: none; }
   .sheet__foot > span + span { border-left: 0; border-top: 1px solid var(--line); }
 }
 
-/* 把断面图往上提，填掉标题右侧的留白，同时保住「文案左下 / 图形右上」的对角关系。
-   图形起点在 5fr 之后，标题只占 7em，二者不会相撞。 */
-.hero__art { margin-top: -4vw; }
-
 @media (max-width: 1024px) {
   .hero__body { grid-template-columns: minmax(0, 1fr); gap: 34px; align-items: start; }
   .hero__title { max-width: none; }
-  .hero__art { margin-top: 0; }
 }
 /* 窄屏上示意图会缩到 7px 字高，图注直接不可读。
    与其砍信息，不如给图一个最小宽度、让容器横向滚动：
