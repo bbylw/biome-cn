@@ -126,6 +126,12 @@ W=1024 node .shots/overflow.mjs
 THEME=dark node .shots/preflight.mjs     # 对比度必须两种主题都过
 ```
 
+## 部署
+
+推 `main` 即由 `.github/workflows/deploy.yml` 构建 `dist/` 并发布到 Pages。
+
+自定义域 `biome.ndjp.net` 只在 Pages 设置里配置（`gh api -X PUT repos/bbylw/biome-cn/pages --input`，字段名是 `cname`），**不放 `public/CNAME`**：那个文件会被当静态资源原样发布，导致 `/CNAME` 可公开访问。DNS 侧是四条指向 `185.199.108-111.153` 的 A 记录；证书签发后 GitHub 会自动开启 HTTPS 强制，无需手动 PUT。
+
 ## 许可
 
 译文与代码：MIT 或 Apache-2.0（与上游一致）。Biome 名称与标识归 Biome 贡献者所有。
