@@ -92,7 +92,7 @@ const report = await page.evaluate(() => {
     };
   });
 
-  const samples = ['.prose p', '.fact span', '.tiles .note', '.lanes .cmd', '.find__btn', '.footer__note', '.run__steps .k', '.swap__row > span']
+  const samples = ['.prose p', '.gauge__d', '.tiles .note', '.lanes .cmd', '.find__btn', '.footer__note', '.run__steps .k', '.swap__row > span']
     .map(sel => {
       const el = document.querySelector(sel);
       if (!el) return null;

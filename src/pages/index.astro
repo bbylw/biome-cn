@@ -25,11 +25,16 @@ jobs:
           version: 2.5.13
       - run: biome ci .`;
 
-const FACTS = [
-  { n: '97%', t: '与 Prettier 的格式化兼容度', href: 'https://algora.io/challenges/prettier', l: '兼容度来源' },
-  { n: '545', t: '条 Lint 规则，来自 ESLint 等生态', href: '/linter/rules-sources/', l: '规则来源对照' },
-  { n: '10', t: '项 Assist 辅助操作（整理导入、排序键等）', href: '/assist/', l: '看 Assist' },
-  { n: '2.5.13', t: '本站正文对应的 Biome 版本', href: 'https://github.com/biomejs/biome/releases', l: '上游发布页' },
+/**
+ * 刻度带：全站唯一的四格读数。
+ * 原先首屏数据带与末尾事实带各排一次同样的四个数，同一组数字在一页里出现两遍。
+ * 合成为一条骑在版面横向实线上的刻度带：四枚短刻度是尺身标记，数字挂在刻度下方。
+ */
+const GAUGE = [
+  { n: '97%', l: 'Prettier 兼容', d: '格式化输出与 Prettier 的一致度', href: 'https://algora.io/challenges/prettier', src: '兼容度来源' },
+  { n: '545', l: 'Lint 规则', d: '来自 ESLint、typescript-eslint 与其他生态', href: '/linter/rules-sources/', src: '规则来源对照' },
+  { n: '10', l: 'Assist 操作', d: '整理导入、排序对象键与联合类型成员', href: '/assist/', src: '看 Assist' },
+  { n: '0', l: 'Node 依赖', d: '独立可执行文件，不装 Node.js 也能跑', href: '/guides/manual-installation/', src: '手工安装' },
 ];
 
 /**
@@ -93,31 +98,9 @@ const DOC_INDEX = GROUPS.map(g => ({
       <div class="wrap">
         <div class="hero__body">
           <div class="hero__say">
-            <p class="hero__kicker"><span class="pulse" aria-hidden="true"></span><Brand size={13} /> Biome 中文站（已同步官方 <b>v2.5.13</b>）</p>
+            <p class="hero__kicker"><Brand size={13} /><span>Biome 中文文档</span><em>v2.5.13</em></p>
             <h1 class="hero__title">一条命令，<em>跑完</em>格式化与 Lint</h1>
             <p class="hero__lede">Rust 编写的高性能 Web 工具链，把格式化、Lint 与整理导入收敛到一套共享基座。不装 Node.js 也能运行。</p>
-            <div class="hero__stats" data-reveal>
-              <div class="stat">
-                <span class="stat__n">97%</span>
-                <span class="stat__l">Prettier 兼容</span>
-              </div>
-              <div class="stat">
-                <span class="stat__n">545</span>
-                <span class="stat__l">Lint 规则</span>
-              </div>
-              <div class="stat">
-                <span class="stat__n">10</span>
-                <span class="stat__l">Assist 操作</span>
-              </div>
-              <div class="stat">
-                <span class="stat__n">0</span>
-                <span class="stat__l">Node 依赖</span>
-              </div>
-            </div>
-            <div class="hero__cta">
-              <a class="btn btn--primary btn--arrow" href="/guides/getting-started/">阅读入门指南</a>
-              <a class="btn btn--ghost" href="https://biomejs.dev/playground/" rel="noopener">在 Playground 试用</a>
-            </div>
             <div class="term term--bare hero__install">
               <div class="term__bar">
                 <span class="term__cmd"><b>$</b> npm install --save-dev --save-exact @biomejs/biome</span>
@@ -125,6 +108,10 @@ const DOC_INDEX = GROUPS.map(g => ({
                   <span class="ph ph-copy" aria-hidden="true"></span>
                 </button>
               </div>
+            </div>
+            <div class="hero__cta">
+              <a class="btn btn--primary btn--arrow" href="/guides/getting-started/">阅读入门指南</a>
+              <a class="btn btn--ghost" href="https://biomejs.dev/playground/" rel="noopener">在 Playground 试用</a>
             </div>
             <p class="install__hint mono">pnpm / bun / deno / yarn 写法见<a href="/guides/getting-started/">入门指南</a></p>
           </div>
@@ -138,6 +125,20 @@ const DOC_INDEX = GROUPS.map(g => ({
             </div>
           </figure>
         </div>
+      </div>
+    </section>
+
+    <section class="gauge-band" aria-labelledby="gauge-h">
+      <div class="wrap">
+        <h2 class="sr-only" id="gauge-h">关键读数</h2>
+        <dl class="gauge">
+          {GAUGE.map((g, i) => (
+            <div class="gauge__cell" data-reveal style={`--reveal-i:${i}`}>
+              <dt class="gauge__n"><b>{g.n}</b><span>{g.l}</span></dt>
+              <dd class="gauge__d">{g.d}<a class="gauge__src" href={g.href}>{g.src}</a></dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </section>
 
@@ -183,58 +184,43 @@ const DOC_INDEX = GROUPS.map(g => ({
       </div>
     </section>
 
-    <section class="band band--tight">
-      <div class="wrap">
-        <div class="facts">
-          {FACTS.map((f, i) => (
-            <div class="fact" data-reveal style={`--reveal-i:${i}`}>
-              <b>{f.n}</b>
-              <span>{f.t}</span>
-              <a href={f.href}>{f.l}</a>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
     <section class="band" aria-labelledby="editors-h">
       <div class="wrap">
         <h2 class="sec-h" id="editors-h">在你现在的编辑器里工作</h2>
         <p class="sec-p">Biome 从设计之初就面向编辑器：写代码时即时格式化并指出不规范之处，通过 Language Server 协议与编辑器通信。</p>
-        <ul class="tiles">
-          {EDITORS.map((e, i) => (
-            <li data-reveal style={`--reveal-i:${i}`}>
-              <a class="tile" href={e.href}>
-                <span class={`ph ${e.icon}`} aria-hidden="true"></span>
-                <b>{e.name}</b>
-                <span class="note">{e.note}</span>
-                <code>{e.meta}</code>
-              </a>
-            </li>
-          ))}
-        </ul>
-
-        <div class="ci" data-reveal>
-          <h3 class="sub-h">CI 里用 <code>biome ci</code></h3>
-          <p class="sec-p">与 <code>biome check</code> 行为一致，但为 CI 环境优化，不做写入。</p>
-          <Code lang="yaml" title=".github/workflows/ci.yml" code={CI_YML} />
+        <div class="editors">
+          <ul class="tiles">
+            {EDITORS.map(e => (
+              <li>
+                <a class="tile" href={e.href}>
+                  <span class={`ph ${e.icon}`} aria-hidden="true"></span>
+                  <b>{e.name}</b>
+                  <span class="note">{e.note}</span>
+                  <code>{e.meta}</code>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <div class="ci">
+            <h3 class="sub-h">CI 里用 <code>biome ci</code></h3>
+            <p class="sec-p">与 <code>biome check</code> 行为一致，但为 CI 环境优化，不做写入。</p>
+            <Code lang="yaml" title=".github/workflows/ci.yml" code={CI_YML} />
+          </div>
         </div>
       </div>
     </section>
 
     <section class="band band--tight">
       <div class="wrap">
-        <div class="retire">
-          <blockquote class="quote" data-reveal>
-            <p>我们告诉你的不只是哪里错了，还包括错在哪一行、为什么、以及怎么修。</p>
-            <cite>译自 Biome 官方对诊断信息的设计说明</cite>
-          </blockquote>
-          <div class="swap" data-reveal>
-            {SWAP.map(([from, to, lane]) => (
-              <div class="swap__row"><span>{from}</span><i aria-hidden="true">→</i><code class={`cmd--${lane}`}><b class="dot" aria-hidden="true"></b>{to}</code></div>
-            ))}
-            <a class="btn btn--ghost btn--sm" href="/guides/migrate-eslint-prettier/">看迁移步骤</a>
-          </div>
+        <blockquote class="quote" data-reveal>
+          <p>我们告诉你的不只是哪里错了，还包括错在哪一行、为什么、以及怎么修。</p>
+          <cite>译自 Biome 官方对诊断信息的设计说明</cite>
+        </blockquote>
+        <div class="swap" data-reveal>
+          {SWAP.map(([from, to, lane]) => (
+            <div class="swap__row"><span>{from}</span><i aria-hidden="true">→</i><code class={`cmd--${lane}`}><b class="dot" aria-hidden="true"></b>{to}</code></div>
+          ))}
+          <a class="btn btn--ghost btn--sm" href="/guides/migrate-eslint-prettier/">看迁移步骤</a>
         </div>
       </div>
     </section>
@@ -279,9 +265,6 @@ const DOC_INDEX = GROUPS.map(g => ({
 <style>
   /* 首页专属：文案与图形之间只留一处硬边，不做满铺圆角卡片 */
   .hero__art { position: relative; }
-
-  /* 迁移段与文档索引：竖排叠放，避免又变成一次两栏骨架 */
-  .retire { display: grid; gap: clamp(24px, 4vw, 40px); }
 
   .sponsor-band { border-top: 1px solid var(--line); }
   .home .band > .wrap > .sec-h { max-width: 26ch; }
